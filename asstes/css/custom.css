@@ -1,0 +1,13 @@
+/*Custom Css Neplar Money*/
+
+.custom-btn{
+    background: rgb(38,189,154) !important;
+    color:#fff !important;
+}
+.cust-close-btn{
+    font-size: 25px !important;
+    padding: 5px 25px !important;
+}
+.cust-modal-xl{
+    max-width: 1270px !important;
+}
