@@ -741,7 +741,7 @@ class Dashboard_model extends CI_Model {
 		     }
 
 
-   
+    
       public function assetstotal_qty()
      {
      	 $id=$this->session->userdata('id');
