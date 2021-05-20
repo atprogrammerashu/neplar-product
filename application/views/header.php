@@ -1,4 +1,4 @@
-<?php
+<?
 $uri_segment = $this->uri->segment(1);
 ?>
 <html lang="en">
@@ -84,13 +84,19 @@ if($uri_segment=="Dashboard"):
 
 				      <li class="nav-item dropdown">
 				        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				        	  <span class="fa fa-user" style="font-size:30px;color:white;padding-right:5px"></span>
-				        <?php
-                    foreach($user_info as $detail)
-                    {
-                     echo $detail->user_name;
-                    }
-                   ?>
+				           <?php
+                                foreach($user_info as $detail)
+                                {
+                                  if($detail->profile_picture == "")
+                                  {
+                                    echo "<span class='fa fa-user' style='font-size:25px;color:white;padding-right:5px'></span>";
+                                  }
+                                  else{
+                                      echo "<img class='avatar' src=".$detail->profile_picture." />";
+                                   }
+                                  echo "<span class='username'>".$detail->user_name."</span>";
+                                }
+                            ?>
 				        </a>
 
 				        <div class="dropdown-menu dropdown-menu-side " aria-labelledby="navbarDropdownMenuLink" id="navbarNavDropdown">

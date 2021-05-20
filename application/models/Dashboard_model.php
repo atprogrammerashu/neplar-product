@@ -26,7 +26,7 @@ class Dashboard_model extends CI_Model {
      public function user_detail()
      {
      	$id=$this->session->userdata('id');
-		$q=$this->db->select('*')->from('register')->where(['id'=>$id])->get();
+		$q=$this->db->select('*')->from('register')->where(['user_id'=>$id])->get();
 		return $q->result();
      }
 

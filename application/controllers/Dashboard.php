@@ -74,6 +74,7 @@ class Dashboard extends CI_Controller {
 
   public function logout()
     {
+          $this->session->unset_userdata('access_token');
            $this->session->unset_userdata('id');
            return redirect('login');
     }

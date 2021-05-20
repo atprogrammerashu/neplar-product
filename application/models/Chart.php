@@ -454,35 +454,34 @@ public function fetch_piChart_PortfolioWise($Assets_value, $portfoliowise_name)
 
 //On load chart ...
 
-  public function fetch_onload_piechart()
-	{
-		$this->load->model('CommonModel');
-		$id=$this->session->userdata('id');
-		$data = [];
-	
-		$All_assets =  array('Stocks / Shares' =>  $this->CommonModel->global_getSumdata("stock_details","stock","holding","stock_name") , 
-	                         'Mutual Funds (Equity)' => $this->CommonModel->Typewise_MutualInvestmentSumdata("mutual_scheme","mutual_fund_investment","holding","mutual_scheme","Equity"),
-	                         'Mutual Funds (Debt)' =>  $this->CommonModel->Typewise_MutualInvestmentSumdata("mutual_scheme","mutual_fund_investment","holding","mutual_scheme","Debt"),
-	                         'Traded Bonds' => $this->CommonModel->global_getSumdata("bond_ltp","bond","holding","stock_name")
+ public function fetch_onload_chart()
+{
+	$data = [];
+	$this->load->model('CommonModel');
+   	$this->load->model('Chart');
+    $All_assets =  array('Stock / Share' =>  $this->Chart->stock_total_holding() , 
+	                   'Mutual Funds (Equity)' => $this->Chart->mutual_equity_total_holding(),
+	                   'Mutual Funds (Debt)' =>$this->Chart->mutual_debt_total_holding(),
+	                   'Traded Bonds' =>$this->Chart->bond_total_holding()
 	                          );
-     
-		foreach ($All_assets as $key=>$val)
-		{
-			  $data[] = array("stock_name" => $key,
-							 "holding" => $val );
-		 }
 
-	 if($data == null)
-     { 
-       $data[] = array("stock_name" => "No Data Found",
+		
+		foreach($All_assets as $key => $value)
+		{
+    		//echo $key . " : " . $value . "<br>";
+    		 $data[] = array("stock_name" => $key,
+							 "holding" => $value );
+		}
+		if($data == null)
+     	{ 
+       		$data[] = array("stock_name" => "No Data Found",
 							 "holding" => "1"
 							);
-       echo json_encode($data);
-     }
-     else{echo json_encode($data);}	 
-
-     
-  }
+       		echo json_encode($data);
+     	}
+     	
+     	else{echo json_encode($data);}	 
+}
 
 
 

@@ -19,7 +19,7 @@ class My_account extends CI_Controller {
 	$data['show_group']=$this->Dashboard_model->show_groups();
 	$data['show_portfolio']=$this->Dashboard_model->show_portfolio();  
     $user_id = $this->session->userdata('id'); 
-    $where = array('id'=>$user_id);
+    $where = array('user_id'=>$user_id);
     $data['states'] = $this->objuser->Get_all_records('states');
     $data['user_data'] = $this->objuser->get_user_where($where);
     $this->load->view('user-account',$data);

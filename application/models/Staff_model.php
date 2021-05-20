@@ -67,5 +67,15 @@ class Staff_model extends CI_Model {
     }
     
     
+     function DeleteAllRecords($table)
+    {
+        if($this->db->empty_table($table))
+        {
+          if($this->db->query("ALTER TABLE $table AUTO_INCREMENT = 1"))
+            { echo "YES";}
+        }
+    }
+    
+    
 /*Main Class*/    
 }

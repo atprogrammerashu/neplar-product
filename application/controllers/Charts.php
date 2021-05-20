@@ -58,7 +58,7 @@ class Charts extends CI_Controller {
 public function fetch_onload_piechart()
   { 
    $this->load->model('Chart');
-   $this->Chart->fetch_onload_piechart(); 
+   $this->Chart->fetch_onload_chart(); 
   }
 
 

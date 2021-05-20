@@ -130,6 +130,7 @@
     $(document).ready(function(){
         var html='';
             html+='<div id="action-btns">';
+            html+='<button type="button" class="btn btn-outline-danger btn-sm cust-btns" id="delete-all-record">Delete All Record <i class="fa fa-minus-circle" aria-hidden="true"></i></button>';
             html+='<button type="button" class="btn btn-outline-success btn-sm cust-btns" id="add-new-record">New Record <i class="fa fa-plus-circle" aria-hidden="true"></i></button>';
             html+='</div>';
         $("#data-table_filter").append(html);
@@ -146,6 +147,44 @@
        $(".model-action-btn").text("Save Record");    
        $("#form-modal-lg").modal("show"); 
     })
+    $(document).on("click","#delete-all-record",function(){
+            swal({
+                  title: "Delete Record",
+                  text: "Are you sure , you want to delete all record of this Table..!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it ! ",
+                  cancelButtonText: "No, cancel pls !",
+                  closeOnConfirm: false,
+                  closeOnCancel: false 
+                },
+            function(isConfirm) 
+            {
+                    if (isConfirm) {
+                      var baseUrl = "<?=base_url()?>";
+                      var TN = 'nps_scheme';
+                       $.ajax({
+                            url: baseUrl + "staff/Staff/CommonDeleteAllRecord",
+                            type: "POST",
+                            data: {TN:TN},
+                            success: function(jsonStr)
+                            { 
+                                swal({title: "Deleted!", text: "All Records Deleted Successfully...!", type: "success"},
+                                   function(){ 
+                                       location.reload();
+                                   }
+                                  );   
+                            }
+            
+                        });
+                        
+                     } else {
+                        swal("Cancelled", "Your Request is Cancled :) ", "error");
+                    }
+               }
+              );
+        })
 </script>
 <script>
     $(document).on("click","#save-record-new",function(){

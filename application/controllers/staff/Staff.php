@@ -160,7 +160,7 @@ class Staff extends CI_Controller {
 	      {
 	         $list_arr['data'][] = array(
 	             $sr++,
-	             $row->scheme_name,
+	             $row->mutual_scheme,
 	             $row->today_nav,
 	             $row->previous_day_price,
 	             '<button type="button" class="btn btn-outline-info btn-sm" id="record-edit-btn" key="'.$row->id.'"><i class="nav-icon far fa-edit"></i></button>
@@ -186,7 +186,7 @@ class Staff extends CI_Controller {
 	function edit_mutual_fund_nav()
 	{
 	   $data = $this->input->post();
-	   $cols = "scheme_name,today_nav,previous_day_price";
+	   $cols = "mutual_scheme,today_nav,previous_day_price";
 	   $where = array("id"=>$data['id']);
 	   $data = $this->STFobj->Get_specific_coloums("mutual_scheme",$cols,$where);
 	   $arr['responseData'] = $data;
@@ -565,8 +565,8 @@ class Staff extends CI_Controller {
 	      {
 	         $list_arr['data'][] = array(
 	             $sr++,
-	             $row->scheme_name	,
-	             $row->today_nav,
+	             $row->stock_name,
+	             $row->current_price,
 	             $row->previous_day_price,
 	             '<button type="button" class="btn btn-outline-info btn-sm" id="record-edit-btn" key="'.$row->id.'"><i class="nav-icon far fa-edit"></i></button>
 	              <button type="button" class="btn btn-outline-danger btn-sm" id="record-delete-btn" key="'.$row->id.'"><i class="nav-icon far fa-trash-alt"></i></button>
@@ -590,7 +590,7 @@ class Staff extends CI_Controller {
 	function edit_BOND_LTP()
 	{
 	   $data = $this->input->post();
-	   $cols = "scheme_name,today_nav,previous_day_price";
+	   $cols = "stock_name,current_price,previous_day_price";
 	   $where = array("id"=>$data['id']);
 	   $data = $this->STFobj->Get_specific_coloums("bond_ltp",$cols,$where);
 	   $arr['responseData'] = $data;
@@ -1616,7 +1616,12 @@ class Staff extends CI_Controller {
 	}
 	
 	
-	
+	function CommonDeleteAllRecord()
+	{
+	   $tablename = $this->input->post('TN');
+	  return $this->STFobj->DeleteAllRecords($tablename);
+	   
+	}
 	
 	
 	
