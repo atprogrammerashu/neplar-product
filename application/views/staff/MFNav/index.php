@@ -130,6 +130,7 @@
     $(document).ready(function(){
         var html='';
             html+='<div id="action-btns">';
+            html+='<button type="button" class="btn btn-outline-danger btn-sm cust-btns" id="delete-all-record">Delete All Record <i class="fa fa-minus-circle" aria-hidden="true"></i></button>';
             html+='<button type="button" class="btn btn-outline-success btn-sm cust-btns" id="add-new-record">New Record <i class="fa fa-plus-circle" aria-hidden="true"></i></button>';
             html+='</div>';
         $("#data-table_filter").append(html);
@@ -146,6 +147,45 @@
        $(".model-action-btn").text("Save Record");    
        $("#form-modal-lg").modal("show"); 
     })
+
+    $(document).on("click","#delete-all-record",function(){
+            swal({
+                  title: "Delete Record",
+                  text: "Are you sure , you want to delete all record of this Table..!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it ! ",
+                  cancelButtonText: "No, cancel pls !",
+                  closeOnConfirm: false,
+                  closeOnCancel: false 
+                },
+            function(isConfirm) 
+            {
+                    if (isConfirm) {
+                      var baseUrl = "<?=base_url()?>";
+                      var TN = 'mutual_scheme';
+                       $.ajax({
+                            url: baseUrl + "staff/Staff/CommonDeleteAllRecord",
+                            type: "POST",
+                            data: {TN:TN},
+                            success: function(jsonStr)
+                            { 
+                                swal({title: "Deleted!", text: "All Records Deleted Successfully...!", type: "success"},
+                                   function(){ 
+                                       location.reload();
+                                   }
+                                  );   
+                            }
+            
+                        });
+                        
+                     } else {
+                        swal("Cancelled", "Your Request is Cancled :) ", "error");
+                    }
+               }
+              );
+        })
 </script>
 <script>
     $(document).on("click","#save-record-new",function(){
@@ -157,7 +197,7 @@
         var todaynav = $("#today_nav").val();
         var pre_price = $("#previous-day-price").val();
         
-        form_data.append('scheme_name',naps_scheme_name);
+        form_data.append('mutual_scheme',naps_scheme_name);
         form_data.append('today_nav',todaynav);
         form_data.append('previous_day_price',pre_price);
         if(naps_scheme_name!="")
@@ -217,7 +257,7 @@
         var responseData = response['responseData'];
           if ((responseData != null)) 
            {
-             $("#nps-scheme-name").val(responseData['scheme_name']);
+             $("#nps-scheme-name").val(responseData['mutual_scheme']);
              $("#today_nav").val(responseData['today_nav']);
              $("#previous-day-price").val(responseData['previous_day_price']);  
              $(".modal-title").text("Edit Record");  
@@ -242,7 +282,7 @@
         var pre_price = $("#previous-day-price").val();
         
         form_data.append('id',id);
-        form_data.append('scheme_name',naps_scheme_name);
+        form_data.append('mutual_scheme',naps_scheme_name);
         form_data.append('today_nav',todaynav);
         form_data.append('previous_day_price',pre_price);
     

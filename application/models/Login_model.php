@@ -15,7 +15,38 @@ class Login_model extends CI_Model {
              return false;
          }
 	}
-	
+
+
+//Methods For Login with google starts here .....
+       function Is_already_register($id)
+     {
+      $this->db->where('login_oauth_uid', $id);
+      $query = $this->db->get('register');
+      if($query->num_rows() > 0)
+      {
+       return $query->row()->user_id;
+      }
+      else
+      {
+       return false;
+      }
+     }
+    	
+       function Update_user_data($data, $id)
+     {
+      $this->db->where('login_oauth_uid', $id);
+      $this->db->update('register', $data);
+     }
+
+
+     function Insert_user_data($data)
+     {
+      $this->db->insert('register', $data);
+     }
+//Methods For Login with google ends here .....
+
+
+
 	
    public function forgot_pass($email)
     { 

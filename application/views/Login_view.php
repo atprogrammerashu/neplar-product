@@ -189,14 +189,7 @@ $user_class=$this->session->flashdata('user_class')
                            
                        
                       <div class="row">
-                        <a class="btn btn-outline-dark" href="#" >
-                            <div class="col-md-12">
-                                <img width="20px" alt="Google sign-in" 
-                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
-                                  &nbsp;&nbsp;  Login with Google
-                            </div>
-                            
-                        </a>
+                      <?php echo $login_button;?>
                     </div>
                     </div>
                     <div class="row px-3 mb-4">

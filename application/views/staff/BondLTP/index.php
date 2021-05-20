@@ -3,7 +3,7 @@
   $this->load->view("staff/include/sidebar");
 ?>
 <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
+  <div class="content-wrapper"> 
     <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
@@ -130,6 +130,7 @@
     $(document).ready(function(){
         var html='';
             html+='<div id="action-btns">';
+            html+='<button type="button" class="btn btn-outline-danger btn-sm cust-btns" id="delete-all-record">Delete All Record <i class="fa fa-minus-circle" aria-hidden="true"></i></button>';
             html+='<button type="button" class="btn btn-outline-success btn-sm cust-btns" id="add-new-record">New Record <i class="fa fa-plus-circle" aria-hidden="true"></i></button>';
             html+='</div>';
         $("#data-table_filter").append(html);
@@ -146,6 +147,46 @@
        $(".model-action-btn").text("Save Record");    
        $("#form-modal-lg").modal("show"); 
     })
+
+    
+    $(document).on("click","#delete-all-record",function(){
+            swal({
+                  title: "Delete Record",
+                  text: "Are you sure , you want to delete all record of this Table..!",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "Yes, delete it ! ",
+                  cancelButtonText: "No, cancel pls !",
+                  closeOnConfirm: false,
+                  closeOnCancel: false 
+                },
+            function(isConfirm) 
+            {
+                    if (isConfirm) {
+                      var baseUrl = "<?=base_url()?>";
+                      var TN = 'bond_ltp';
+                       $.ajax({
+                            url: baseUrl + "staff/Staff/CommonDeleteAllRecord",
+                            type: "POST",
+                            data: {TN:TN},
+                            success: function(jsonStr)
+                            { 
+                                swal({title: "Deleted!", text: "All Records Deleted Successfully...!", type: "success"},
+                                   function(){ 
+                                       location.reload();
+                                   }
+                                  );   
+                            }
+            
+                        });
+                        
+                     } else {
+                        swal("Cancelled", "Your Request is Cancled :) ", "error");
+                    }
+               }
+              );
+        })
 </script>
 <script>
     $(document).on("click","#save-record-new",function(){
@@ -157,8 +198,8 @@
         var data2 = $("#feild-2").val();
         var data3 = $("#feild-3").val();
         
-        form_data.append('scheme_name',data1);
-        form_data.append('today_nav',data2);
+        form_data.append('stock_name',data1);
+        form_data.append('current_price',data2);
         form_data.append('previous_day_price',data3);
         
         $.ajax({
@@ -209,8 +250,8 @@
         var responseData = response['responseData'];
           if ((responseData != null)) 
            {
-             $("#feild-1").val(responseData['scheme_name']);
-             $("#feild-2").val(responseData['today_nav']);
+             $("#feild-1").val(responseData['stock_name']);
+             $("#feild-2").val(responseData['current_price']);
              $("#feild-3").val(responseData['previous_day_price']);  
              $(".modal-title").text("Edit Record");  
              $(".model-action-btn").attr("id","update-record-btn");
@@ -234,8 +275,8 @@
         var data3= $("#feild-3").val();
         
         form_data.append('id',id);
-        form_data.append('scheme_name',data1);
-        form_data.append('today_nav',data2);
+        form_data.append('stock_name',data1);
+        form_data.append('current_price',data2);
         form_data.append('previous_day_price',data3);
         
         $.ajax({

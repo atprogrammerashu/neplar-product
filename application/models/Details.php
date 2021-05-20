@@ -10,7 +10,21 @@ class Details extends CI_Model {
 
    public function add_portfolio($array)
   {
-     return $this->db->insert('portfolio',$array);
+     
+      $id=$this->session->userdata('id');
+     $groupname = $array['port_group'];
+     $portname = $array['portfolio_name'];
+     
+    $a = $this->db->query('select portfolio_name,port_group from portfolio where user_id ="'.$id.'" AND  port_group = "'.$groupname.'"'); 
+    
+     if($a->num_rows()>=10)
+     {
+       return false;
+     }
+     else
+     {
+       return $this->db->insert('portfolio',$array); 
+     }
   }	
 
     public function add_assets_detail($table_name,$array)

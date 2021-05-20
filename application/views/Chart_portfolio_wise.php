@@ -147,42 +147,42 @@
                                     .column( 6 )
                                     .data()
                                     .reduce( function (a, b) {
-                                        return intVal(a) + intVal(b);
+                                        return (intVal(a) + intVal(b)).toFixed(2);
                                     }, 0 );
                             
                                 var current_value = api
                                     .column( 5 )
                                     .data()
                                     .reduce( function (a, b) {
-                                        return intVal(a) + intVal(b);
+                                        return (intVal(a) + intVal(b)).toFixed(2);
                                     }, 0 );
                               
                                 var gain_percent = api
                                     .column(4)
                                     .data()
                                     .reduce( function (a, b) {
-                                        return intVal(a) + intVal(b);
+                                        return (intVal(a) + intVal(b)).toFixed(2);
                                     }, 0 );
 
                                     var overall_gain = api
                                     .column(3)
                                     .data()
                                     .reduce( function (a, b) {
-                                        return intVal(a) + intVal(b);
+                                        return (intVal(a) + intVal(b)).toFixed(2);
                                     }, 0 );
 
                                      var amt_invested = api
                                     .column(2)
                                     .data()
                                     .reduce( function (a, b) {
-                                        return intVal(a) + intVal(b);
+                                        return (intVal(a) + intVal(b)).toFixed(2);
                                     }, 0 );
                             
                                   var quantity = api
                                     .column(1)
                                     .data()
                                     .reduce( function (a, b) {
-                                        return intVal(a) + intVal(b);
+                                        return (intVal(a) + intVal(b)).toFixed(2);
                                     }, 0 );
                             
                                 

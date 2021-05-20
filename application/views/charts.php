@@ -309,3 +309,8 @@ function drawMonthwiseChart(chart_data, chart_main_title)
 </script>
 
 <?php include('Chart_portfolio_wise.php'); ?>
+
+
+  
+                       
+                     

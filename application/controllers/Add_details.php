@@ -63,11 +63,16 @@ class Add_details extends CI_Controller {
              $data = $this->Details->add_portfolio($post);
             if($data)
             {    echo "YES"; }
+            else if($data == false)
+            {  echo "Your limit is Exceeded..!!! , You can only add 10 Portfolio in One group ,Please choose another group...!!"; 
+		    }
             else
-            {  echo "NO"; }
-		    }	
+            {
+                echo "NO";
+            }		
 
 	 }
+	}
 
 
         public function add_assets_details()
