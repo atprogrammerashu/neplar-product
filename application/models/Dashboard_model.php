@@ -200,6 +200,64 @@ class Dashboard_model extends CI_Model {
 			
 		 }
 
+
+		 // public function fetch_table()
+// 		 {
+// 		    $this->load->model('Dashboard_model');
+
+// 		 	$qty = "10.00";
+// 		 	$avg_price = "12.34";
+// 		 	$amt_invest = "11.22";
+// 		 	$ltp = "&nbsp;&nbsp;&nbsp;&nbsp;";
+// 		 	$current_value = "10,000";
+// 		 	$today_gain = "10,000";
+//             $national_gain = "10,0000";
+
+//             $data = [];
+// 		    $data1 = [];
+// 		    $query = $this->db->select('*')->from('sub_assets')->get(); 
+// 		     foreach ($query->result() as $value)
+// 				     {
+// 				     	switch ($value->sub_assets =='Stock / Share'){
+
+// 						case 'Stock / Share':
+
+// 							 $tname = 'stock';
+// 				             $data1 = $this->get_subdetails($tname);
+// 		                     $a = $this->get_totaldetails($tname);
+
+// 				             $this->Dashboard_model->prepare_data_array($data1,$today_gain,$national_gain,$ltp,$value->sub_assets,$a);
+
+
+// 						default:
+// 								echo "No case executed..!";
+// 						break;
+// 									}
+// 				     }
+
+
+// 		 }
+
+
+
+
+// public function prepare_data_array($data1,$today_gain,$national_gain,$ltp,$value,$a)
+//     {
+//     	$data[] = array(
+				        
+// 				      "sub_assets" => $value,
+// 				      "qty" => '',
+// 	    		      "avg_price" => '',
+// 			          "amt_invest" => $a[0],
+// 		   	          "ltp" => $ltp,
+// 		              "current_value" => '',
+// 			          "today_gain" => $today_gain,
+// 				      "national_gain" => $national_gain,
+//                       "kk" => $data1
+// 				   );
+//     }
+
+
 		public function fetch_maintable()
 		 { 
 		 	$qty = "10.00";
