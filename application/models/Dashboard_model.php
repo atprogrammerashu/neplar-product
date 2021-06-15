@@ -3,6 +3,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Dashboard_model extends CI_Model {
 
+  public function getGroupOnhover()
+     {  
+     	$id=$this->session->userdata('id');
+     	$q=$this->db->select('*')->from('user_group')->where(['user_id'=>$id])->get();
+       $output ="<i>";
+		foreach($q->result() as $row)
+		  {
+        $output .= "<li class='grpdataID'><a  href='javascript:void(0)'><span>".$row->group_name."</span></a>
+        <span class='sub_data'><span></li>";
+		  }
+		  $output .= "</i>";
+		  return $output;
+     }
+
+
+
+  public function getPortfolioOnhover($grpname)
+     {  
+     	$id=$this->session->userdata('id');
+        $q=$this->db->select('*')->from('portfolio')->where(['user_id'=>$id,'port_group'=>$grpname])->get();
+       $output ="<ul>";
+		foreach($q->result() as $row)
+		  { 
+            $output .= "<li><a  href='javascript:void(0)'>".$row->portfolio_name."</a></li>";
+		  }
+		  $output .= "</ul>";
+		  return $output;
+     }
+
+   public function AllSecondToolbarData()
+     { $q=$this->db->select('*')->from('index_tbl')->get();
+		return $q->result();
+     }
+     
 	public function fetch_Assets()
 	{
 		$this->db->order_by("Assets","ASC");
@@ -15,7 +49,7 @@ class Dashboard_model extends CI_Model {
 		  $this->db->where('assets_id', $assets_id);
 		  $this->db->order_by('sub_assets', 'ASC');
 		  $query = $this->db->get('sub_assets');
-		  $output = '<option value="">Select Sub Assets</option>';
+		  $output = '<option value="Select Sub Assets">Select Sub Assets</option>';
 		  foreach($query->result() as $row)
 		  {
 		   $output .= '<option value="'.$row->sub_assets.'">'.$row->sub_assets.'</option>';
@@ -33,7 +67,7 @@ class Dashboard_model extends CI_Model {
      	public function show_groups()
 	{  
 	    $user_id=$this->session->userdata('id');
-		$q=$this->db->select('*')->from('user_group')->where(['user_id'=>$user_id])->get();
+		$q=$this->db->select('*')->from('user_group')->where(['user_id'=>$user_id])->order_by("group_name", "asc")->get();
 	
 		return $q->result();
 	}
@@ -93,9 +127,21 @@ class Dashboard_model extends CI_Model {
 	 public function type_stockname()
 	    {
 	   
-	   $q=$this->db->select('*')->order_by('stock_name','desc')->from('stock_details')->get();
+	   $q=$this->db->select('*')->order_by('stock_name','asc')->from('stock_details')->get();
 			return $q->result();
 	    }
+	 public function type_sgb_stockname()
+        {
+        
+        $q=$this->db->select('*')->order_by('scheme_name','asc')->from('sovergine_gold_bond')->get();
+        	return $q->result();
+        }
+    public function type_bond_stockname()
+        {
+        
+        $q=$this->db->select('*')->order_by('stock_name','asc')->from('bond_ltp')->get();
+        	return $q->result();
+        }
 
      public function type_broker()
     {        
@@ -199,557 +245,102 @@ class Dashboard_model extends CI_Model {
 			
 			
 		 }
+		 
+		 public function getSum($tname1,$tanme2,$col_name,$common_col_name)
+{
+  $user_id=$this->session->userdata('id');
+  $q = $this->db->query('SELECT SUM(a.'.$col_name.') as total_value FROM '.$tname1.' as a JOIN '.$tanme2.' as b WHERE b.user_id = '.$user_id.' AND b.'.$common_col_name.' = a.'.$common_col_name.'');
+  foreach ($q->result() as $value){ $total_val = $value->total_value; }
+  return $total_val; 
+}
 
-		public function fetch_maintable()
-		 { 
-		 	$qty = "10.00";
-		 	$avg_price = "12.34";
-		 	$amt_invest = "11.22";
-		 	$ltp = "&nbsp;&nbsp;&nbsp;&nbsp;";
-		 	$current_value = "10,000";
-		 	$today_gain = "10,000";
-            $national_gain = "10,0000";
-   
-		     	$data = [];
-		        $data1 = [];
-               
-		         $query = $this->db->select('*')->from('sub_assets')->get();        
-        
-		          foreach ($query->result() as $value)
-				     {
+ public function fetch_table()
+ {  
+ 	$this->load->model('CommonModel');
+	//!empty()?:'',
+    $data = [];
+    $data1 = [];
+    $query = $this->db->select('*')->from('sub_assets')->get(); 
+    // echo "<pre>";
+    // print_r($query->result()); exit;
+    foreach ($query->result() as $value)
+	{
+		if($value->sub_assets == 'Stock / Share')
+		 {    
+	$ltp=$this->CommonModel->Dashboard_model->getSum("stock_details","stock","current_price","stock_name");
+ 	$previous_day_nav=$this->Dashboard_model->getSum("stock_details","stock","previous_day_price","stock_name");
+ 	$total_amt_invested=$this->CommonModel->global_getSumdata("stock_details","stock","amt_invested","stock_name");
+ 	$total_current_value =$this->CommonModel->global_getSumdata("stock_details","stock","current_value","stock_name");
+ 	$total_stock_qty=$this->CommonModel->global_getSumdata("stock_details","stock","stock_qty","stock_name");
 
-				     	if($value->sub_assets == 'Agricultural Land')
-				     	{     $tname = 'agricultural_land';
-				              $data1 = $this->get_subdetails($tname);
-		                      $a = $this->get_totaldetails($tname);
-		                      $bottom_data='45.98';
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => array($value->href='<p class="top-data">'.$national_gain.'</p>',
-							           $value->href='<p class="bottom-data">'.$bottom_data.'</p>' ) ,
-                                  "kk" => $data1
-							   );
-                        
-                         }
-                         elseif ($value->sub_assets == 'Art') {
-                         	 $tname = 'art';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                             elseif ($value->sub_assets == 'Bike') {
-                         	 $tname = 'bike';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
+ 	$notional_gain = ($ltp * $total_stock_qty)-($total_amt_invested);
+ 	$notional_gain_percent = ($notional_gain * (100)) / ($total_amt_invested);
+ 	$today_gain = ($ltp * $total_stock_qty)-($previous_day_nav * $total_stock_qty);
+ 	$today_gain_percent = ($today_gain * (100)) / ($previous_day_nav * $total_stock_qty);
 
-                             elseif ($value->sub_assets == 'Car') {
-                         	 $tname = 'car';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                            elseif ($value->sub_assets == 'Commercial Land') {
-                         	 $tname = 'commercial_land';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                          elseif ($value->sub_assets == 'Commercial Property') {
-                         	 $tname = 'commercial_property';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                            elseif ($value->sub_assets == 'Commercial Vehicle') {
-                         	 $tname = 'commercial_vehicle';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                         elseif ($value->sub_assets == 'Digital Property') {
-                         	 $tname = 'digital_property';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                          elseif ($value->sub_assets == 'Gold') {
-                         	 $tname = 'gold';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                           elseif ($value->sub_assets == 'House') {
-                         	 $tname = 'house';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                          elseif ($value->sub_assets == 'Jewellery') {
-                         	 $tname = 'jewellery';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                           elseif ($value->sub_assets == 'Platinum') {
-                         	 $tname = 'platinum';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-	 						     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                          elseif ($value->sub_assets == 'Precious Stone') {
-                         	 $tname = 'precious_stone';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                          elseif ($value->sub_assets == 'Silver') {
-                         	 $tname = 'silver';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => $a[0],
-				    		       "avg_price" => $a[1],
-						        "amt_invest" => $a[2],
-					   	         "ltp" => $ltp,
-					             "current_value" => $current_value,
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                        
-                        //Emergency fund ....
+		  $tname = 'stock';
+	      $data1 = $this->get_subdetails($tname);
+	      $bottom_data='45.98';
+	      $data[] = array(
 
-                      
-                         elseif ($value->sub_assets == 'Cash in Hand') {
-                         	 $tname = 'cash_in_hand';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => $a[1],
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                            
-                         elseif ($value->sub_assets == 'Cash in Hand') {
-                         	 $tname = 'cash_in_hand';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => $a[1],
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                      
-                           elseif ($value->sub_assets == 'Cash in post office saving A/c') {
-                         	 $tname = 'cash_in_post_office';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => $a[1],
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
+		     "sub_assets" => $value->sub_assets,
+		     "qty" => '',
+		     "avg_price" => '',
+	         "amt_invest" => $total_amt_invested,
+		     "ltp" => '',
+	         "current_value" => $total_current_value,
+	         "today_gain" => $today_gain. '/' .number_format($today_gain_percent,2,'.',',').'%',
+		     "national_gain" => array($value->href='<p class="top-data">'.$notional_gain.'/'.number_format($notional_gain_percent,2,'.',',').'%</p>',
+		     $value->href='<p class="bottom-data">'.$bottom_data.'</p>' ),
+	         "kk" => $data1
+		   );
+                
+        }
 
-                          elseif ($value->sub_assets == 'Cash in Saving A/C') {
-                         	 $tname = 'cash_in_saving';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => $a[1],
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
+  //       elseif ($value->sub_assets == 'MF / Mutual Fund') 
+  //       {
+  //   $ltp=$this->CommonModel->Dashboard_model->getSum("mutual_scheme","mutual_fund_investment","today_nav","mutual_scheme");
+ 	// $previous_day_nav=$this->Dashboard_model->getSum("mutual_scheme","mutual_fund_investment","previous_day_price","mutual_scheme");
+ 	// $total_amt_invested=$this->CommonModel->global_getSumdata("mutual_scheme","mutual_fund_investment","amt_invested","mutual_scheme");
+ 	// $total_current_value =$this->CommonModel->global_getSumdata("mutual_scheme","mutual_fund_investment","current_value","mutual_scheme");
+ 	// $total_stock_qty=$this->CommonModel->global_getSumdata("mutual_scheme","mutual_fund_investment","mutual_quantity","mutual_scheme");
+ 	// $notional_gain = ($ltp * $total_stock_qty)-($total_amt_invested);
+ 	// ;
+ 	// $today_gain = ($ltp * $total_stock_qty)-($previous_day_nav * $total_stock_qty);
+ 	// $today_gain_percent = ($today_gain * (100)) / ($previous_day_nav * $total_stock_qty);
 
-                              elseif ($value->sub_assets == 'Cash in wallet') {
-                         	 $tname = 'cash_in_wallet';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => $a[1],
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                        //investment
-                    
-                            elseif ($value->sub_assets == 'Stock / Share') {
-                         	 $tname = 'stock';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                        
-                        
-                   
-                            elseif ($value->sub_assets == 'Bond / Corporate Bond') {
-                         	 $tname = 'bond';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-  
-                               elseif ($value->sub_assets == 'MF / Mutual Fund') {
-                         	 $tname = 'mutual_fund_investment';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                      
-                             elseif ($value->sub_assets == 'NPS / National Pension System') {
-                         	 $tname = 'nps_investment';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                      
-                             elseif ($value->sub_assets == 'SGB / Sovereign Gold Bond') {
-                         	 $tname = 'sgb_temp';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-
-                          elseif ($value->sub_assets == 'NCD / Debenture') {
-                         	 $tname = 'ncd_investment';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-
-                         elseif ($value->sub_assets == 'Private Equity / Startup') {
-                         	 $tname = 'private_equity_investment';
-				             $data1 = $this->get_subdetails($tname);
-		                     $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => $a[0],
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
-                       
-
-                         elseif ($value->sub_assets == 'RD / Recurring Deposit') {
-                         	 $tname = 'rd_investment';
-				             $data1 = $this->get_subdetails($tname);
-		                    // $a = $this->get_totaldetails($tname);
-		                     
-						     $data[] = array(
-				        
-							     "sub_assets" => $value->sub_assets,
-							      "qty" => '',
-				    		       "avg_price" => '',
-						        "amt_invest" => '',
-					   	         "ltp" => $ltp,
-					             "current_value" => '',
-						          "today_gain" => $today_gain,
-							      "national_gain" => $national_gain,
-                                  "kk" => $data1
-							   );
-                         }
+ 	// ($total_amt_invested == 0) ? $notional_gain_percent = ($notional_gain * (100)) / ($total_amt_invested)  : $notional_gain_percent =0;
 
 
+		//   $tname = 'mutual_fund_investment';
+	 //      $data1 = $this->get_subdetails($tname);
+	 //      $bottom_data='45.98';
+	 //      $data[] = array(
+
+		//      "sub_assets" => $value->sub_assets,
+		//      "qty" => '',
+		//      "avg_price" => '',
+	 //         "amt_invest" => $total_amt_invested,
+		//      "ltp" => '',
+	 //         "current_value" => $total_current_value,
+	 //         "today_gain" => $today_gain. '/' .$today_gain_percent.'%',
+		//      "national_gain" => array($value->href='<p class="top-data">'.$notional_gain.'/'.number_format($notional_gain_percent,2,'.',',').'%</p>',
+		//      $value->href='<p class="bottom-data">'.$bottom_data.'</p>' ) ,
+	 //         "kk" => $data1
+		//    );
+  //       }
+     }
+
+ 	$result = array(
+    "recordsTotal" => $query->num_rows(),
+    "recordsFiltered" => $query->num_rows(),
+    "data" => $data
+     );
+     echo json_encode($result);
 
 
+ }
 
-    
-				     }
-
-				
-		        
-                 
-
-		    $result = array(
-		    "recordsTotal" => $query->num_rows(),
-		    "recordsFiltered" => $query->num_rows(),
-		    "data" => $data
-		     );
-		     echo json_encode($result);
-		    
-		     }
-
-
-   
       public function assetstotal_qty()
      {
      	 $id=$this->session->userdata('id');
@@ -773,10 +364,6 @@ class Dashboard_model extends CI_Model {
 		return $total_sum;
 
      }
-
-   
-
-    
 
    public function displayassets()
     { 

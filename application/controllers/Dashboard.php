@@ -15,11 +15,14 @@ class Dashboard extends CI_Controller {
 	public function index()
 	{ 
 		$this->load->model('Dashboard_model');
+		$data['AllSecondToolbarData']=$this->Dashboard_model->AllSecondToolbarData();
 		$data['Assets']=$this->Dashboard_model->fetch_Assets();
 		$data['user_info']=$this->Dashboard_model->user_detail();
 		$data['show_group']=$this->Dashboard_model->show_groups();
 		$data['show_portfolio']=$this->Dashboard_model->show_portfolio();
 		$data['stock_name']=$this->Dashboard_model->type_stockname();
+        $data['scheme_name_sgb']=$this->Dashboard_model->type_sgb_stockname();
+        $data['scheme_name_bond']=$this->Dashboard_model->type_bond_stockname();
 		$data['broker_name']=$this->Dashboard_model->type_broker();
 	    $data['mutualfund_name']=$this->Dashboard_model->fetch_Mutualfund_name();
 	    $data['mutual_scheme_name']=$this->Dashboard_model->mutual_scheme_name();
@@ -61,7 +64,7 @@ class Dashboard extends CI_Controller {
     public function fetch_maintable()
      {
          $this->load->model('Dashboard_model');
-         echo $this->Dashboard_model->fetch_maintable(); 
+         echo $this->Dashboard_model->fetch_table(); 
      }
 
      	public function displayassets()
@@ -78,6 +81,19 @@ class Dashboard extends CI_Controller {
            $this->session->unset_userdata('id');
            return redirect('login');
     }
+    
+    
+         public function getGroupOnhover()
+    {
+          $this->load->model('Dashboard_model');
+		  echo $this->Dashboard_model->getGroupOnhover();
+    }
+       public function getPortfolioOnhover()
+    {    $grpname = $this->input->post('grp_name');
+          $this->load->model('Dashboard_model');
+		  echo $this->Dashboard_model->getPortfolioOnhover($grpname);
+    }
+    
 
 }
 

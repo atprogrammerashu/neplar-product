@@ -7,10 +7,12 @@ $uri_segment = $this->uri->segment(1);
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <!-- Bootstrap CSS -->
+<link href="<?=base_url('asstes/css/chosen.css');?>" rel="stylesheet">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="<?=base_url('asstes/css/jquery.dataTables.css');?>">
 <link href="<?=base_url('asstes/css/style.css');?>" rel="stylesheet">
 <link href="<?=base_url('asstes/css/custom.css');?>" rel="stylesheet">
+<link href="<?=base_url('asstes/toast/build/toastr.min.css');?>" rel="stylesheet">
 <link rel="icon" href="<?=base_url('asstes/img/logo1.jpg');?>" type="image/x-icon">	
 </head>
 <body>
@@ -47,14 +49,14 @@ if($uri_segment=="Dashboard"):
           <div class="dropdown-submenu">
             <a class="dropdown-item dropdown-toggle" href="#">Portfolio</a>
             <ul class="dropdown-menu">
-                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPortfolio" >Add Portfolio</a>
+                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPortfolio"id="port_anchor" >Add Portfolio</a>
                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editPortfolio" >Edit Portfolio</a>
             </ul>
             <div class="dropdown-submenu">
             <a class="dropdown-item dropdown-toggle" href="#">Group</a>
             <ul class="dropdown-menu">
-                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addGroup" >Add Group</a>
-                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editGroup" >Edit Group</a>
+                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addGroup"id="add_Group_reset" >Add Group</a>
+                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editGroup" id="edit_group_anchorvalid_reset" >Edit Group</a>
             </ul>
             <!--<a class="dropdown-item" href="#"  data-target="#" >Financial Data</a>-->
                <a class="dropdown-item" href="http://162.241.114.49/"  data-target="#" >Import</a>
@@ -132,61 +134,29 @@ if($uri_segment=="Dashboard"):
 
 <nav class="navbar navbar-expand-lg navbar-light tool2" >
   <div class="collapse navbar-collapse justify-content-left" style="color:#6610f2; " > 
-     <span style="font-weight: bold">Sensex :&nbsp;</span><span style="font-size: 12px; padding-top: 4px;font-weight: bold;"> 48,878.54</span> &nbsp;&nbsp;&nbsp;&nbsp;
-     <span style="font-weight: bold">Nifty :&nbsp;</span><span style="font-weight: 60%;font-size: 12px;padding-top: 4px;font-weight: bold;"> 14,371.90</span>
+  <?php foreach($AllSecondToolbarData as $row)
+  {?> 
+     <span style="font-weight: bold"><?php echo $row->index_name; ?> :&nbsp;</span>
+
+     <span style="font-size: 16px; padding-top: 0px;font-weight: bold;"> <?php echo $row->today_value; ?></span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+   <?php } ?> 
   </div>
+   <!--Dropdown code start here for group & portfolio-->
+     <ul id="nav">       
+        <li>
+          <a id="showgrp" href="#">Show group</a>
+            <ul>
+              <span id="pp"><span>
+            </ul>
+       </li>
+    </ul>
+    <!--Dropdown code ends here for group & portfolio-->
 </nav>
 
 <!-- toolbar finish -->  
 
-<!-- third toolbar -->
 
-
-<nav class=" tool3" >
-
-  <div class="container-fluid" >
-     
-          <div class="row">
-            
-            <div class="col-md-3">
-              
-                      <div class="input-group" id="searchbox">                  
-                        <input type="text" id="myinput" class="form-control" placeholder="Search Portfolio" >
-                          <div class="input-group-prepend" id="search_submit">
-                          <button class="input-group-text" type="button" ><i class="fa fa-search" aria-hidden="true"></i></button>
-                        </div>
-                      </div>
-            </div>
-
-            <div class="col-md-7 aa" id="searchboxleftbutn">
-             <a href="#" id="goback" class="btn btn-secondary btn-sm"></a>
-             <a href="#" id="clickgroupdata" class="btn btn-primary btn-sm"></a>  
-
-                 <span id="fetch_Portfolio" >
-                  
-                </span>
-                <a href="#" id="search_goback" class="btn btn-secondary btn-sm"></a>
-                 <a href="#" id="search_nodata" class="btn btn-danger btn-sm"></a>
-                 <span id="fetch_search_Portfolio" >
-                  
-                </span>
-                 <span id="group_hide">
-                   <?php
-                          foreach($show_group as $row)
-                          {
-                            // echo $row->id;
-                     echo "<a id='group_value' class='btn btn-primary btn-sm'>".$row->group_name."</a>&nbsp;";
-                          }
-                    ?>
-                 </span>
-            </div>
-             <div class="col-md-2">
-             </div>
-
-          </div>
-    
-  </div>
-</nav>    
 <?endif?>
 
 <!-- add transaction modal body -->
@@ -201,13 +171,13 @@ if($uri_segment=="Dashboard"):
       </div>
      <div class="modal-body" >
 
-        <form >
+        <form id="form_add" class="form_validation_class" >
          
             <div class="form-group">
             <label  class="col-form-label">Portfolio:</label>
             <span id="select_portfolio_astrik" class="text-danger" style="font-size:20px;">*</span>
-             <select class="form-control" id="select_portfolio_name" >
-                   <option value="">Select Portfolio</option>
+             <select class="form-control" id="select_portfolio_name" name="select_valid" >
+                   <option value="Select Portfolio">Select Portfolio</option>
                        <?php
                           foreach($show_portfolio as $row)
                           {
@@ -220,8 +190,8 @@ if($uri_segment=="Dashboard"):
           <div class="form-group">
             <label for="recipient-name" class="col-form-label">Asset Class:</label>
             <span id="select_assets_astrik" class="text-danger" style="font-size:20px;">*</span>
-             <select class="form-control" id="select_assets" >
-              <option value="">Select Assets</option>
+             <select class="form-control" id="select_assets" name="select_valid">
+              <option value="Select Assets">Select Assets</option>
                 <?php
                     foreach($Assets as $row)
                     {
@@ -234,7 +204,7 @@ if($uri_segment=="Dashboard"):
            <div class="form-group">
             <label for="recipient-name" class="col-form-label">Sub Class:</label>
             <span id="select_sub_Assets_astrik" class="text-danger" style="font-size:20px;">*</span>
-             <select class="form-control" id="select_sub_Assets" required="required" >
+             <select class="form-control" id="select_sub_Assets"name="select_valid" required="required" >
                    <option value="Select Sub Assets">Select Sub Assets</option>
               </select>
           </div>
@@ -244,7 +214,7 @@ if($uri_segment=="Dashboard"):
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" id="select_transaction">Select</button>
-         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+         <button type="button" class="btn btn-secondary" id="close_add" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

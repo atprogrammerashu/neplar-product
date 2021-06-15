@@ -635,6 +635,127 @@
             </div>
           </div>
           <!-- ./col -->
+           <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning" id="KV-PI">
+              <div class="inner">
+                 <h3 class="m-0">
+                     <?php 
+                     if(!empty($this->data['to_nbfcBankName_details']))
+                     {
+                        echo $this->data['to_nbfcBankName_details']; 
+                     }else{
+                         echo "0";
+                     }
+                     ?>
+                 </h3> 
+                <p class="m-0 p-0" style="font-size: 17px;">EMERGENCY FUND(Bank/NBFC Name)</p>
+              </div>
+                <small class="ml-3 font-weight-bold">
+                  <?php 
+                    if(!empty($this->data['last_update_nbfcBankName_details']))
+                    {
+                      $last_update_nbfcBankName_details = $this->data['last_update_nbfcBankName_details'];  
+                    }
+                  ?>    
+                  last updated : <?=date("d-M-Y", strtotime($last_update_nbfcBankName_details->cdate))?>
+                </small>
+              <a href="<?=base_url('staff/nbfc-bank-name')?>" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+            <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning" id="KV-PI">
+              <div class="inner">
+                 <h3 class="m-0">
+                     <?php 
+                     if(!empty($this->data['to_fund_wallet_details']))
+                     {
+                        echo $this->data['to_fund_wallet_details']; 
+                     }else{
+                         echo "0";
+                     }
+                     ?>
+                 </h3> 
+                <p class="m-0 p-0">EMERGENCY FUND(Wallet Name)</p>
+              </div>
+                <small class="ml-3 font-weight-bold">
+                  <?php 
+                    if(!empty($this->data['last_update_fund_wallet_details']))
+                    {
+                      $last_update_fund_wallet_details = $this->data['last_update_fund_wallet_details'];  
+                    }
+                  ?>    
+                  last updated : <?=date("d-M-Y", strtotime($last_update_fund_wallet_details->cdate))?>
+                </small>
+              <a href="<?=base_url('staff/ef-wallet-name')?>" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+            <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning" id="KV-PI">
+              <div class="inner">
+                 <h3 class="m-0">
+                     <?php 
+                     if(!empty($this->data['to_libality_bankloan_details']))
+                     {
+                        echo $this->data['to_libality_bankloan_details']; 
+                     }else{
+                         echo "0";
+                     }
+                     ?>
+                 </h3> 
+                <p class="m-0 p-0" style="font-size: 17px;">LIABILITY(Bankloan/Company Name)</p>
+              </div>
+                <small class="ml-3 font-weight-bold">
+                  <?php 
+                    if(!empty($this->data['last_update_libality_bankloan_details']))
+                    {
+                      $last_update_libality_bankloan_details = $this->data['last_update_libality_bankloan_details'];  
+                    }
+                  ?>    
+                  last updated : <?=date("d-M-Y", strtotime($last_update_libality_bankloan_details->cdate))?>
+                </small>
+              <a href="<?=base_url('staff/libality-bank-name')?>" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+            <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning" id="KV-PI">
+              <div class="inner">
+                 <h3 class="m-0">
+                     <?php 
+                     if(!empty($this->data['to_insurance_bank_details']))
+                     {
+                        echo $this->data['to_insurance_bank_details']; 
+                     }else{
+                         echo "0";
+                     }
+                     ?>
+                 </h3> 
+                <p class="m-0 p-0" style="font-size: 17px;">INSURANCE(Company/Bank Name)</p>
+              </div>
+                <small class="ml-3 font-weight-bold">
+                  <?php 
+                    if(!empty($this->data['last_update_insurance_bank_details']))
+                    {
+                      $last_update_insurance_bank_details = $this->data['last_update_insurance_bank_details'];  
+                    }
+                  ?>    
+                  last updated : <?=date("d-M-Y", strtotime($last_update_insurance_bank_details->cdate))?>
+                </small>
+              <a href="<?=base_url('staff/insurance-bank-name')?>" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->

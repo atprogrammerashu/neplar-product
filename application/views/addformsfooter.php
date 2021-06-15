@@ -144,12 +144,224 @@
 
 
 
-
-
  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+ <script src="<?= base_url('asstes/jqueryvalidation/dist/jquery.validate.min.js'); ?>"></script>
+<script src="<?= base_url('asstes/toast/build/toastr.min.js'); ?>"></script>
+<script src="<?= base_url('asstes/js/mytoastr.js'); ?>"></script>
  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 <script>
   $(document).ready(function() {
+     
+     $('.form-group').on('input', '.prc', function(){
+   
+        $('.form-group .prc').each(function(){
+           var num1=$('#stock_qty').val();          
+           var num3=$('#stock_purchase_price').val();                    
+          $('#stock_amt_invested').val(num1*num3);
+
+          var num4=$('#sgb_qty').val();          
+           var num5=$('#sgb_purchase_price').val();                    
+          $('#sgb_amt_invested').val(num4*num5);
+          
+           var num6=$('#bond_qty').val();          
+           var num7=$('#bond_purchase_price').val();                    
+          $('#bond_amt_invested').val(num6*num7);
+         
+           
+        });      
+     });
+
+
+
+    function gr_assetn() {
+        var select_assets = $('#select_assets').val();
+        var portfolio_name = $('#select_portfolio_name').val();
+        var assetn, gr,res;
+        $.ajax({
+            async: false,
+            url: "<?php echo base_url(); ?>Add_details/gr_assetn_cont",
+            type: 'POST',
+            data: {
+                portfolio_name: portfolio_name,
+                select_assets: select_assets
+            },
+            dataType: "JSON",
+            success: function(data) {
+                var s = JSON.stringify(data);
+                res = JSON.parse(s);
+                assetn = res[1];
+                gr = res[0];
+            }
+        });
+
+        return [gr, assetn];
+    }
+//start
+//part-1
+$('.sel_tr').click(function() {
+
+    function_disable_text('#stock_net_rate','#stock_net_amt');
+    
+    function_disable_text('#sgb_net_rate','#sgb_net_amt');
+    function_disable_text('#bond_net_rate','#bond_net_amt');
+
+  });
+//part-1 definition
+function function_disable_text($net_rate,$net_amt) {
+  $($net_rate).prop('disabled', true);
+  $($net_amt).prop('disabled', true);
+}
+///end
+
+///start part-1
+var _stock1="#stock_amt_invested,#stock_purchase_price,#stock_qty, #stock_brokerage";
+$(_stock1).on( 'change',function() {
+  
+  function_netrate("#stock_amt_invested","#stock_brokerage","#stock_net_rate",_stock1);
+});
+///part-2
+var _stock_SGB="#sgb_amt_invested,#sgb_purchase_price,#sgb_qty, #sgb_brokerage";
+$(_stock_SGB).on( 'change',function() {
+  function_netrate('#sgb_amt_invested','#sgb_brokerage','#sgb_net_rate',_stock_SGB);
+});
+///part-3
+var _stock_bond="#bond_amt_invested,#bond_purchase_price,#bond_qty, #bond_brokerage";
+$(_stock_bond).on( 'change',function() {
+  function_netrate('#bond_amt_invested','#bond_brokerage','#bond_net_rate',_stock_bond);
+});
+//part-1/2 definition
+function function_netrate($amt_inv,$brokerage,$net_rate,$varb) {
+  $($varb).change(function () {
+  var st1=parseFloat($($amt_inv).val());
+  var st2=parseFloat($($brokerage).val());
+  
+     
+  var st3=st1+st2;
+
+  if(!(isNaN(st1) || isNaN(st2))){
+     $($net_rate).val(st3);
+     
+    }
+     else if(isNaN(NaN)){          
+      var st2=$($brokerage).val() || 0;
+      $($net_rate).val(st1 + st2);    
+     }
+});
+}
+//////bond start 
+$("#bond_sgst").change(function () {
+
+$('#bond_igst').val(2*$('#bond_sgst').val());
+$('#bond_cgst').val($('#bond_sgst').val());
+             
+});
+$("#bond_cgst").change(function () {
+
+$('#bond_igst').val(2*$('#bond_cgst').val());
+$('#bond_sgst').val($('#bond_cgst').val());
+
+});
+
+$("#bond_igst").change(function () {
+
+$('#bond_cgst').val($('#bond_igst').val() / 2);
+$('#bond_sgst').val($('#bond_igst').val() / 2);
+
+});
+//////bond ends here 
+///////staart STOCK
+$("#stock_sgst").change(function () {
+
+$('#stock_igst').val(2*$('#stock_sgst').val());
+$('#stock_cgst').val($('#stock_sgst').val());
+             
+});
+$("#stock_cgst").change(function () {
+
+$('#stock_igst').val(2*$('#stock_cgst').val());
+$('#stock_sgst').val($('#stock_cgst').val());
+             
+});
+
+$("#stock_igst").change(function () {
+
+$('#stock_cgst').val($('#stock_igst').val() / 2);
+$('#stock_sgst').val($('#stock_igst').val() / 2);
+
+});
+///////end STOCK
+//////FOR SGB/BOND
+$("#sgb_sgst").change(function () {
+
+$('#sgb_igst').val(2*$('#sgb_sgst').val());
+$('#sgb_cgst').val($('#sgb_sgst').val());
+             
+});
+$("#sgb_cgst").change(function () {
+
+$('#sgb_igst').val(2*$('#sgb_cgst').val());
+$('#sgb_sgst').val($('#sgb_cgst').val());
+
+});
+
+$("#sgb_igst").change(function () {
+
+$('#sgb_cgst').val($('#sgb_igst').val() / 2);
+$('#sgb_sgst').val($('#sgb_igst').val() / 2);
+
+});
+/////END
+
+//////////part-1 start for stock
+var _stock2="#stock_amt_invested,#stock_purchase_price,#stock_qty,#stock_igst, #stock_brokerage,#stock_net_rate, #stock_tax_value,#stock_exchange_transaction,#stock_stt,#stock_sebi_fee,#stock_stamp_duty,#stock_cgst,#stock_sgst";
+$(_stock2).on( 'change',function() {
+function_net_amt('#stock_amt_invested','#stock_purchase_price','#stock_qty','#stock_igst','#stock_brokerage','#stock_net_rate','#stock_tax_value','#stock_exchange_transaction','#stock_stt','#stock_sebi_fee','#stock_stamp_duty','#stock_net_amt','#stock_cgst','#stock_sgst',_stock2);
+});
+////part-2 for sgb
+var _stock_SGB1="#sgb_amt_invested,#sgb_purchase_price,#sgb_qty,#sgb_igst, #sgb_brokerage,#sgb_net_rate, #sgb_tax_value,#sgb_exchange_transaction,#sgb_stt,#sgb_sebi_fee,#sgb_stamp_duty,#sgb_cgst,#sgb_sgst";
+$(_stock_SGB1).on( 'change',function() {
+function_net_amt('#sgb_amt_invested','#sgb_purchase_price','#sgb_qty','#sgb_igst','#sgb_brokerage','#sgb_net_rate','#sgb_tax_value','#sgb_exchange_transaction','#sgb_stt','#sgb_sebi_fee','#sgb_stamp_duty','#sgb_net_amt','#sgb_cgst','#sgb_sgst',_stock_SGB1);
+});
+////part-2 for bond
+var _stock_bond="#bond_amt_invested,#bond_purchase_price,#bond_qty,#bond_igst, #bond_brokerage,#bond_net_rate, #bond_tax_value,#bond_exchange_transaction,#bond_stt,#bond_sebi_fee,#bond_stamp_duty,#bond_cgst,#bond_sgst";
+$(_stock_bond).on( 'change',function() {
+function_net_amt('#bond_amt_invested','#bond_purchase_price','#bond_qty','#bond_igst','#bond_brokerage','#bond_net_rate','#bond_tax_value','#bond_exchange_transaction','#bond_stt','#bond_sebi_fee','#bond_stamp_duty','#bond_net_amt','#bond_cgst','#bond_sgst',_stock_bond);
+});
+////part-1/2 definition
+function function_net_amt($amt_inv,$pur_price,$qty,$igst,$brokerage,$net_rate,$tax,$ex_trans,$stt,$sebi,$stamp,$net_amt,$cgst,$sgst,$varb) {
+  $($varb).change(function () {
+      var net_rate0=parseFloat($($net_rate).val());
+      var net_rate1=parseFloat($($tax).val());
+      var net_rate2=parseFloat($($igst).val());
+         
+       
+      var net_rate3=parseFloat($($ex_trans).val());
+      var net_rate4=parseFloat($($stt).val());
+      var net_rate5=parseFloat($($sebi).val());
+      var net_rate6=parseFloat($($stamp).val());
+    
+      var net_rat=net_rate0 + net_rate1 + net_rate2 + net_rate3 + net_rate4 + net_rate5 + net_rate6;
+      
+      
+if(!(isNaN(net_rate0) || isNaN(net_rate1) || isNaN(net_rate2)|| isNaN(net_rate3)|| isNaN(net_rate4)|| isNaN(net_rate5)|| isNaN(net_rate6) )){
+     $($net_amt).val(net_rat);     
+    }
+     else if(isNaN(NaN)){          
+      //  alert(isNaN(net_rate6));
+      var net_rate1=parseFloat($($tax).val()) || 0;      
+      var net_rate2=parseFloat($($igst).val()) || 0;      
+      var net_rate3=parseFloat($($ex_trans).val())|| 0;
+      var net_rate4=parseFloat($($stt).val())|| 0;
+      var net_rate5=parseFloat($($sebi).val())|| 0;
+      var net_rate6=parseFloat($($stamp).val())|| 0;
+      //     
+      $($net_amt).val(net_rate0 + net_rate1+ net_rate2+ net_rate3+ net_rate4 + net_rate5 + net_rate6);       
+     }  
+}); 
+
+}
+/////////////END
+    
     $('#stock_table_data').DataTable({
         "ajax" : "<?php echo base_url(); ?>Add_details/fetch_all_stocks",
         "pageLength": 5, 
@@ -201,12 +413,39 @@ $('.dropdown-menu a.dropdown-toggle').on('click', function(e) {
   return false;
 });
 // dropdown code end here -----
+//validation code starts from here
+jQuery.getScript('http://shubh.neplar.in/asstes/js/custom_validate.js');
 
-
+//validation code ends from here
+//pan uppercase
+$('#pan').keyup(function() {
+  $(this).val($(this).val().toUpperCase());
+});
+$('#update_pan').keyup(function() {
+  $(this).val($(this).val().toUpperCase());
+});
+// pan ends here
+//letters only
+ jQuery.validator.addMethod("lettersonly", function(value, element) {
+      return this.optional(element) || /^[a-z\s]+$/i.test(value);
+    }, "Only alphabetical characters");
+//ends here letters
 // Add transaction select button code ----
 $('#select_portfolio_astrik').hide();
 $('#select_assets_astrik').hide();
   $('#select_sub_Assets_astrik').hide();
+  
+ var sel_trans = '#select_portfolio_name,#select_assets,#select_sub_Assets';
+ var sel_ast='#select_portfolio_astrik,#select_assets_astrik,#select_sub_Assets_astrik';
+    $(sel_trans).keyup(function(e) {
+      $(sel_trans).css('border', '');
+      $(sel_ast).hide();
+    })
+    ////////////////////////
+$(sel_trans).on('change', function() {
+      $(sel_trans).css('border', '');
+      $(sel_ast).hide();
+    })
 
 $('#select_transaction').click(function(){
 
@@ -214,34 +453,35 @@ $('#select_transaction').click(function(){
    var select_portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
    var select_sub_Assets = $('#select_sub_Assets').val();
-   if(select_portfolio_name=="")
-   {
-     $('#select_portfolio_name').css('border', '1px solid red');
-      $('#select_portfolio_astrik').show();
-      return false;
-   }else{
-    $('#select_portfolio_name').css('border', '');
-    $('#select_portfolio_astrik').hide();
-   }
-     if(select_assets=="")
-   {
-     $('#select_assets').css('border', '1px solid red');
-      $('#select_assets_astrik').show();
-      return false;
-   }else{
-    $('#select_assets').css('border', '');
-    $('#select_assets_astrik').hide();
-   }
-   if(select_sub_Assets=="")
-   {
-     $('#select_sub_Assets').css('border', '1px solid red');
-      $('#select_sub_Assets_astrik').show();
-      return false;
-   }else{
-    $('#select_sub_Assets').css('border', '');
-    $('#select_sub_Assets_astrik').hide();
-   }
-  
+     if ('Select Portfolio' == $('#select_portfolio_name').val()) {
+        $('#select_portfolio_name').css('border', '1px solid red');
+        $('#select_portfolio_astrik').show();
+        $('#select_portfolio_name').focus();
+        return false;
+      } else {
+        $('#select_portfolio_name').css('border', '');
+        $('#select_portfolio_astrik').hide();
+      }
+       if ("Select Assets" == $('#select_assets').val()) {
+        $('#select_assets').css('border', '1px solid red');
+        $('#select_assets').focus();
+        $('#select_assets_astrik').show();
+        return false;
+      } else {
+        $('#select_assets').css('border', '');
+        $('#select_assets_astrik').hide();
+      }
+      if ("Select Sub Assets" == $('#select_sub_Assets').val()) {
+        $('#select_sub_Assets').css('border', '1px solid red');
+        $('#select_sub_Assets').focus();
+        $('#select_sub_Assets_astrik').show();
+        return false;
+      } else {
+        $('#select_sub_Assets').css('border', '');
+        $('#select_sub_Assets_astrik').hide();
+      }
+      
+      
   var valu = $('#select_sub_Assets').val();
 
   //Investment
@@ -254,21 +494,9 @@ $('#select_transaction').click(function(){
     else if (valu == "NCD / Debenture") { $('#addNCDebenture').modal('show'); }
     else if (valu == "Bond / Corporate Bond")
      {
-        $("#sgbheading").empty(); 
-        $('#addSGB').modal('show'); 
-        $("#sgbheading").append(valu);
-        $('#bond_table_data').show();
-
-      $("#bond_table_data_length").show();
-      $("#bond_table_data_info").show();
-      $("#bond_table_data_filter").show();
-      $("#bond_table_data_paginate").show();
-
-      $('#sgb_table_data').hide();
-      $("#sgb_table_data_length").hide();
-      $("#sgb_table_data_info").hide();
-      $("#sgb_table_data_filter").hide();
-      $("#sgb_table_data_paginate").hide();
+    //     $("#sgbheading").empty(); 
+            $('#addBond').modal('show');  
+   
     }
 
      else if (valu == "Stock / Share") { $('#addStock').modal('show'); }
@@ -279,20 +507,9 @@ $('#select_transaction').click(function(){
       else if (valu == "EPF / Employee Provident Fund") { $('#addEPF').modal('show'); }
      else if (valu == "SSY / Sukanya Samriddhi Yojana") { $('#addSukanya').modal('show'); }
      else if (valu == "SGB / Sovereign Gold Bond") {
-       $("#sgbheading").empty(); 
-       $('#addSGB').modal('show');
-       $("#sgbheading").append(valu);   
-      $('#sgb_table_data').show();
-      $("#sgb_table_data_length").show();
-      $("#sgb_table_data_info").show();
-      $("#sgb_table_data_filter").show();
-      $("#sgb_table_data_paginate").show();
+    //   $("#sgbheading").empty(); 
+      $('#addSGB').modal('show');
 
-      $('#bond_table_data').hide();
-      $("#bond_table_data_length").hide();
-      $("#bond_table_data_info").hide();
-      $("#bond_table_data_filter").hide();
-      $("#bond_table_data_paginate").hide();
      }
 
 
@@ -414,6 +631,8 @@ $('#select_transaction').click(function(){
 
      else if (valu == "Select Sub Assets") { alert("Select atleast one sub assets ..!!");  } 
      else{ alert("No Form is Avaliable yet..!!");}
+
+
 });
 
 
@@ -497,19 +716,30 @@ $('#select_transaction').click(function(){
 //add_group code start.........
 
 $('#astrik').hide();
+//group key/change code
+$('#astrik').hide();
+      $('#group_name').on('change', function() {
+      $('#group_name').css('border', '');
+      $('#astrik').hide();
+    })
+$('#group_name').keyup(function(e) {
+      $('#group_name').css('border', '');
+      $('#astrik').hide();
+    })
 
 $('#group_submit').click(function() {
    var group_name = $('#group_name').val();
 
     if(group_name==""){
       $('#group_name').css('border', '1px solid red');
+      $('#group_name').focus();
       $('#astrik').show();
       return false;
     }else{
        $('#group_name').css('border', '');
       $('#astrik').hide();
     }
-
+ if (group_name != "") {
     var form_data = {
         user_id: $('#user_id').val(),
         group_name: $('#group_name').val()
@@ -518,17 +748,23 @@ $('#group_submit').click(function() {
         url:"<?php echo base_url(); ?>Add_details/add_group",
         type: 'POST',
         data: form_data,
-        success: function(msg) {
-            if (msg == 'YES'){
-                $('#alert-msg').html('<div class="alert alert-success text-center">Your Group has been added successfully!</div>');    $("#addGroup").modal('hide'); location.reload(true);}
-            else if (msg == 'NO'){
-                $('#alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
-            else
-               {$('#alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
-                 
-           }
-        }
+       success: function(msg) {
+              if (msg == 'YES') {
+
+                $("#addGroup").modal('hide');
+                $('#addGroup').on('hidden.bs.modal', function() {
+                  $(this).find('form').trigger('reset');
+                })
+                toastr.success(group_name + " has been added successfully!!");
+              } 
+              else if (msg == 'NO') {
+                toastr.error(msg);
+              } else {
+                toastr.error(msg);
+              }
+            }
     });
+ }
     return false;
 });
 //add group code end....
@@ -536,6 +772,18 @@ $('#group_submit').click(function() {
 //edit group code start....
  $('#update_group_name_astrik').hide();
  $('#update_group_value_astrik').hide();
+ 
+var up = '#update_group_name,#update_group_value';
+var as='#update_group_name_astrik,#update_group_value_astrik';
+$(up).on('change', function() {
+  $(up).css('border', '');
+  $(as).hide();     
+})
+///////////////////////////////
+$(up).keyup(function(e) {
+  $(up).css('border', '');
+  $(as).hide();
+  })
 
 $('#update_group_submit').click(function() {
    var update_group_name = $('#update_group_name').val();
@@ -544,6 +792,7 @@ $('#update_group_submit').click(function() {
       if(update_group_name==""){
       $('#update_group_name').css('border', '1px solid red');
       $('#update_group_name_astrik').show();
+      $('#update_group_name').focus();
       return false;
     }else{
        $('#update_group_name').css('border', '');
@@ -552,12 +801,13 @@ $('#update_group_submit').click(function() {
     if(update_group_value==""){
       $('#update_group_value').css('border', '1px solid red');
       $('#update_group_value_astrik').show();
+      $('#update_group_value').focus();
       return false;
     }else{
        $('#update_group_value').css('border', '');
       $('#update_group_value_astrik').hide();
     }
-
+    if (update_group_name != "" && update_group_value != "") {
     var form_data = {
         user_id: $('#user_id').val(),
         group_name:$('#update_group_name').val(),
@@ -569,34 +819,44 @@ $('#update_group_submit').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#update-alert-msg').html('<div class="alert alert-success text-center">Your Group has been added successfully!</div>');    $("#editGroup").modal('hide');  location.reload(true);
-              }
+              $('#update_grp_form').trigger("reset");
+              $("#editGroup").modal('hide');
+              toastr.success(msg);
+                          }
             else if (msg == 'NO'){
-                $('#update-alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                  toastr.error(msg);
+                }
             else
-               {$('#update-alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
-                 
+               {toastr.error(msg);
            }
         }
     });
+   }
     return false;
 });
 //edit group code end....
 
 //add_portfolio code start.........
+//add port astrik hide
+var portfolio_all_var_ast='#portfolio_name_astrik,#port_date_astrik,#full_name_astrik,#port_group_astrik,#port_gender_astrik,#pran_astrik,#einsurance_no_astrik,#port_address_astrik,#port_city_astrik,#port_country_astrik,#pin_code_astrik,#pan_astrik';
+$(portfolio_all_var_ast).hide();
+//add port astrik hide ends here
 
- $('#portfolio_name_astrik').hide();
-$('#port_date_astrik').hide();
- $('#full_name_astrik').hide();
- $('#port_group_astrik').hide();
- $('#port_gender_astrik').hide();
- $('#pran_astrik').hide();
- $('#einsurance_no_astrik').hide();
-  $('#port_address_astrik').hide();
-$('#port_city_astrik').hide();
-$('#port_country_astrik').hide();
-$('#pin_code_astrik').hide();
-$('#pan_astrik').hide();
+//hiding border/astrik color while typing
+var portfolio_all_var = "#portfolio_name, #full_name,#pan,#pin_code,#port_country,#port_city,#port_address,#port_date,#einsurance_no,#pran,#port_group,#port_gender,#port_group_chosen";
+var portfolio_all_var_ast='#portfolio_name_astrik,#full_name_astrik,#pan_astrik,#pin_code_astrik,#port_country_astrik,#port_city_astrik,#port_address_astrik,#port_date_astrik,#einsurance_no_astrik,#pran_astrik,#port_group_astrik,#port_gender_astrik';
+$(portfolio_all_var).keyup(function(e) {
+  
+  $(portfolio_all_var).css('border', '');
+  $(portfolio_all_var_ast).hide();
+});
+
+$(portfolio_all_var).on('change', function() {
+
+  $(portfolio_all_var).css('border', '');
+  $(portfolio_all_var_ast).hide();
+})
+//hiding border/astrik color ends here while typing
 
 $('#add_portfolio_submit').click(function() {
 
@@ -616,6 +876,7 @@ $('#add_portfolio_submit').click(function() {
  if(portfolio_name==""){
       $('#portfolio_name').css('border', '1px solid red');
       $('#portfolio_name_astrik').show();
+      $('#portfolio_name').focus();
       return false;
     }else{
       $('#portfolio_name').css('border', '');
@@ -626,6 +887,8 @@ $('#add_portfolio_submit').click(function() {
     {
       $('#port_date').css('border', '1px solid red');
       $('#port_date_astrik').show();
+      $('#port_date').focus();
+      
       return false;
     }
     else{
@@ -637,57 +900,39 @@ $('#add_portfolio_submit').click(function() {
     {
         $('#full_name').css('border', '1px solid red');
       $('#full_name_astrik').show();
+      $('#full_name').focus();
       return false;
     }
     else{
         $('#full_name').css('border', '');
       $('#full_name_astrik').hide();
-    }
-     if(port_group=="")
-    {
-       $('#port_group').css('border', '1px solid red');
-      $('#port_group_astrik').show();
-      return false;
-    }
-    else{
-      $('#port_group').css('border', '');
-      $('#port_group_astrik').hide();
+        }
+        
+    if ('Choose your group' == $('#port_group').val()) {
+        $('#port_group_chosen').css('border', '1px solid red');
+        $('#port_group_astrik').show();
+        $('#port_group').focus();
+    return false;
+    } else {
+        $('#port_group').css('border', '');
+        $('#port_group_astrik').hide();
     }
 
-    if(port_gender=="")
-    {
-       $('#port_gender').css('border', '1px solid red');
-      $('#port_gender_astrik').show();
-      return false;
-    }
-    else{
+  if ('Choose gender' == $('#port_gender').val()) {
+        $('#port_gender').css('border', '1px solid red');
+        $('#port_gender_astrik').show();
+        $('#port_gender').focus();
+    return false;
+  } else {
         $('#port_gender').css('border', '');
-      $('#port_gender_astrik').hide();
-    }
-    if(pran=="")
-    {
-       $('#pran').css('border', '1px solid red');
-      $('#pran_astrik').show();
-      return false;
-    }
-    else{
-      $('#pran').css('border', '');
-      $('#pran_astrik').hide();
-    }
-    if(einsurance_no=="")
-    {
-       $('#einsurance_no').css('border', '1px solid red');
-      $('#einsurance_no_astrik').show();
-      return false;
-    }
-    else{
-      $('#einsurance_no').css('border', '');
-      $('#einsurance_no_astrik').hide();
-    }
+        $('#port_gender_astrik').hide();
+  }
+
     if(port_address=="")
     {
        $('#port_address').css('border', '1px solid red');
       $('#port_address_astrik').show();
+      $('#port_address').focus();
       return false;
     }
     else{
@@ -698,6 +943,7 @@ $('#add_portfolio_submit').click(function() {
     {
        $('#port_city').css('border', '1px solid red');
       $('#port_city_astrik').show();
+      $('#port_city').focus();
       return false;
     }
     else{
@@ -708,6 +954,7 @@ $('#add_portfolio_submit').click(function() {
     {
        $('#port_country').css('border', '1px solid red');
       $('#port_country_astrik').show();
+      $('#port_country').focus();
       return false;
     }
     else{
@@ -718,20 +965,12 @@ $('#add_portfolio_submit').click(function() {
     {
        $('#pin_code').css('border', '1px solid red');
       $('#pin_code_astrik').show();
+       $('#pin_code').focus();
       return false;
     }
     else{
         $('#pin_code').css('border', '');
       $('#pin_code_astrik').hide();
-    }
-    if(pan=="")
-    {
-       $('#pan').css('border', '1px solid red');
-      $('#pan_astrik').show();
-      return false;
-    }else{
-       $('#pan').css('border', '');
-      $('#pan_astrik').hide();
     }
 
 
@@ -747,7 +986,7 @@ $('#add_portfolio_submit').click(function() {
         port_address: $('#port_address').val(),
         port_city: $('#port_city').val(),
         port_country: $('#port_country').val(),
-        pin_code: $('#pin_code').val(),
+        pin_code: $('#pin_code').val(), 
         pan: $('#pan').val()
     };
     $.ajax({
@@ -756,11 +995,18 @@ $('#add_portfolio_submit').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#port_alert-msg').html('<div class="alert alert-success text-center">Your Group has been added successfully!</div>');    $("#addPortfolio").modal('hide');  location.reload(true);}
+                 $("#addPortfolio").modal('hide'); 
+                 toastr.success(msg, "New Portfolio has been addedd successfully!!");
+                    $('#add_port_form').trigger("reset");
+                    var validator_add_port = $( "#add_port_form" ).validate();
+                    validator_add_port.resetForm();
+                         }
             else if (msg == 'NO'){
-                $('#port_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg);
+            }
             else
-               {$('#port_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');}
+               { toastr.error(msg);
+               }
         }
     });
     return false;
@@ -769,10 +1015,10 @@ $('#add_portfolio_submit').click(function() {
 
 
 //edit portfolio fetch code start.........
+  
 
-
-$('#update_portfolio_name').change(function()
- {  var portfolio_name = $('#update_portfolio_name').val();
+$('#update_portfolio_name').change(function() {
+    var portfolio_name = $('#update_portfolio_name').val();
     
    if(portfolio_name != '')
   { 
@@ -780,10 +1026,25 @@ $('#update_portfolio_name').change(function()
         url:"<?php echo base_url(); ?>Add_details/fetch_edit_portfolio",
         type: 'POST',
         data: {portfolio_name:portfolio_name},
-        success: function(msg) {
-         
-                $('#hideblankdata').remove();
-                             $('#fetchport_data').html(msg);  
+        dataType: "JSON",
+        success: function(jsonStr) {
+             var res_data = JSON.stringify(jsonStr);
+             var response = JSON.parse(res_data);
+             var responseData = response['responseData'];
+                if ((responseData != null)) 
+                 { 
+                   $("#hide_portname").val(responseData['id']);
+                   $("#update_port_date").val(responseData['port_date']);
+                   $("#update_full_name").val(responseData['full_name']);  
+                   $("#update_port_gender").val(responseData['port_gender']);  
+                   $("#update_port_address").val(responseData['port_address']); 
+                   $("#update_port_city").val(responseData['port_city']); 
+                   $("#update_pran").val(responseData['pran']); 
+                   $("#update_einsurance_no").val(responseData['einsurance_no']); 
+                   $("#update_port_country").val(responseData['port_country']); 
+                   $("#update_pin_code").val(responseData['pin_code']); 
+                   $("#update_pan").val(responseData['pan']); 
+                 }  
         }
        });
        }
@@ -793,9 +1054,23 @@ $('#update_portfolio_name').change(function()
         }
 });
 // end of edit portfolio fetch data....
+ //update portfolio key/change code while typing
+var up_ch='#update_portfolio_name,#update_port_date,#update_full_name,#update_port_gender,#update_port_address,#update_port_city,#update_port_country,#update_pin_code';
+var up_pkey="#update_port_gender_astrik,#update_port_address_astrik,#update_port_city_astrik,#update_port_country_astrik,#update_full_name_astrik,#update_port_date_astrik";
+$(up_ch).on('change', function() {
+  $(up_ch).css('border', '');
+  $(up_pkey).hide();      
+})
 
+$(up_ch).keyup(function(e) {
+  $(up_ch).css('border', '');
+  $(up_pkey).hide();
+})
+  //update portfolio key/change code while typing ends here
+  
 //update_portfolio code start.........
 $('#update_portfolio_name_astrik').hide();
+
 $('#update_port').click(function() {
 
 var oldportfolio_name= $('#update_portfolio_name').val();
@@ -811,127 +1086,74 @@ var oldportfolio_name= $('#update_portfolio_name').val();
     var    pin_code= $('#update_pin_code').val();
     var    pan= $('#update_pan').val();
  
-  if(oldportfolio_name==""){
-      $('#update_portfolio_name').css('border', '1px solid red');
-      $('#update_portfolio_name_astrik').show();
-      return false;
-    }else{
-      $('#update_portfolio_name').css('border', '');
-      $('#update_portfolio_name_astrik').hide();
-    }
+if ('Choose portfolio name' == oldportfolio_name) {
+    $('#update_portfolio_name').css('border', '1px solid red');
+    $('#update_portfolio_name').focus();
+    return false;
+  } else {
+  }
 
-   if(port_date=="")
-    {
-      $('#update_port_date').css('border', '1px solid red');
-      $('#update_port_date_astrik').show();
-      return false;
-    }
-    else{
-        $('#update_port_date').css('border', '');
-      $('#update_port_date_astrik').hide();
-    }
+  if (port_date == "") {
+    $('#update_port_date').css('border', '1px solid red');
+    $('#update_port_date_astrik').show();
+    $('#update_port_date').focus();
+    return false;
+  } else {
+  }
 
-      if(full_name=="")
-    {
-        $('#update_full_name').css('border', '1px solid red');
-      $('#update_full_name_astrik').show();
-      return false;
-    }
-    else{
-        $('#update_full_name').css('border', '');
-      $('#update_full_name_astrik').hide();
-    }
+  if (full_name == "") {
+    $('#update_full_name').css('border', '1px solid red');
+    $('#update_full_name_astrik').show();
+    $('#update_full_name').focus();
+    return false;
+  } else {
+  }  
 
-   /*  if(port_group=="")
-    {
-       $('#update_port_group').css('border', '1px solid red');
-      $('#update_port_group_astrik').show();
-      return false;
-    }
-    else{
-      $('#update_port_group').css('border', '');
-      $('#update_port_group_astrik').hide();
-    }*/
+  if (port_gender == "") {
+    $('#update_port_gender').css('border', '1px solid red');
+    $('#update_port_gender_astrik').show();
+    $('#update_port_gender').focus();
+    return false;
+  } else {       
+  }
 
-    if(port_gender=="")
-    {
-       $('#update_port_gender').css('border', '1px solid red');
-      $('#update_port_gender_astrik').show();
-      return false;
-    }
-    else{
-        $('#update_port_gender').css('border', '');
-      $('#update_port_gender_astrik').hide();
-    }
-    if(pran=="")
-    {
-       $('#update_pran').css('border', '1px solid red');
-      $('#update_pran_astrik').show();
-      return false;
-    }
-    else{
-      $('#update_pran').css('border', '');
-      $('#update_pran_astrik').hide();
-    }
-    if(einsurance_no=="")
-    {
-       $('#update_einsurance_no').css('border', '1px solid red');
-      $('#update_ance_no_astrik').show();
-      return false;
-    }
-    else{
-      $('#update_einsurance_no').css('border', '');
-      $('#update_einsurance_no_astrik').hide();
-    }
-    if(port_address=="")
-    {
-       $('#update_port_address').css('border', '1px solid red');
-      $('#update_port_address_astrik').show();
-      return false;
-    }
-    else{
-      $('#update_port_address').css('border', '');
-      $('#update_port_address_astrik').hide();
-    }
-    if(port_city=="")
-    {
-       $('#update_port_city').css('border', '1px solid red');
-      $('#update_port_city_astrik').show();
-      return false;
-    }
-    else{
-       $('#update_port_city').css('border', '');
-      $('#update_port_city_astrik').hide();
-    }
-    if(port_country=="")
-    {
-       $('#update_port_country').css('border', '1px solid red');
-      $('#update_port_country_astrik').show();
-      return false;
-    }
-    else{
-       $('#update_port_country').css('border', '');
-      $('#update_port_country_astrik').hide();
-    }
-    if(pin_code=="")
-    {
-       $('#update_pin_code').css('border', '1px solid red');
-      $('#update_pin_code_astrik').show();
-      return false;
-    }
-    else{
-        $('#update_pin_code').css('border', '');
-      $('#update_pin_code_astrik').hide();
-    }
-    if(pan=="")
-    {
-       $('#update_pan').css('border', '1px solid red');
-      $('#update_pan_astrik').show();
-      return false;
-    }else{
-       $('#update_pan').css('border', '');
-      $('#update_pan_astrik').hide();
-    }
+  if (port_address == "") {
+    $('#update_port_address').css('border', '1px solid red');
+    $('#update_port_address_astrik').show();
+    $('#update_port_address').focus();
+    return false;
+  } else {
+  
+  }
+  if (port_city == "") {
+    $('#update_port_city').css('border', '1px solid red');
+    $('#update_port_city_astrik').show();
+    $('#update_port_city').focus();
+    return false;
+  } else {
+  
+  }
+  if (port_country == "") {
+    $('#update_port_country').css('border', '1px solid red');
+    $('#update_port_country_astrik').show();
+    $('#update_port_country').focus();
+    return false;
+  } else {
+ 
+  }
+  if (pin_code == "") {
+    $('#update_pin_code').css('border', '1px solid red');
+    $('#update_pin_code_astrik').show();
+    $('#update_pin_code').focus();
+    return false;
+  } else {
+  
+  }
+  
+      if (oldportfolio_name != "" && port_date != "" && full_name !== "" &&
+        port_group != "" && port_gender !== "" &&
+        port_address !== "" && port_city != "" &&
+        port_country !== "" && pin_code !== "") {
 
     var form_data = {
         user_id: $('#user_id').val(),
@@ -953,13 +1175,24 @@ var oldportfolio_name= $('#update_portfolio_name').val();
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                  $("#editPortfolio").modal('hide');  location.reload(true); }
+                  $("#editPortfolio").modal('hide');
+                  $("#edit_port_form").trigger("reset");
+                  toastr.success(msg);
+                //   location.reload(true);
+                             }
             else if (msg == 'NO'){
-                $('#update_port_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                  toastr.error(msg);
+           
+                
+            }
             else
-               {$('#update_port_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');}
+               {
+                     toastr.error(msg);
+               
+               }
         }
     });
+}
     return false;
 });
 // edit portfolio update code ....
@@ -990,9 +1223,10 @@ var oldportfolio_name= $('#update_portfolio_name').val();
           success:function(data)
           {
             if(data=="NO")
-            { alert("Not deleted");  }
+            {  toastr.error(data);  }
             else{ 
-             $("#editPortfolio").modal('hide'); // location.reload(true); 
+             toastr.error(data, oldportfolio_name+"    Portfolio successfully deleted"); 
+             $("#editPortfolio").modal('hide'); 
 
             }
           }
@@ -1001,7 +1235,7 @@ var oldportfolio_name= $('#update_portfolio_name').val();
         }
         else
         { 
-           alert("Server error..!!!");
+             toastr.error(data);
         }
       }
    });
@@ -1043,114 +1277,6 @@ var oldportfolio_name= $('#update_portfolio_name').val();
 //delete stock code end here ....
 
 
-
-//3rd search code start here ....
- $("#search_goback").hide();
-  $("#search_nodata").hide(); 
- $("#search_submit").on('click',function(){
-     var myinput= $('#myinput').val();
-       if(myinput==""){
-         $('#myinput').css('border', '1px solid red');    
-            return false;
-       } else{
-        $('#myinput').css('border', ''); 
-       }   
-
-        if(myinput != '')
-        { 
-         $.ajax({
-          url:"<?php echo base_url(); ?>Dashboard/dashboard_search",
-          method:"POST",
-          data:{myinput:myinput},
-          success:function(data)
-          {
-            if(data=="NO")
-            { alert("hello");  }
-            else if(data==""){
-               $("#search_nodata").show();
-                $("#search_nodata").html('No data'); 
-                $("#search_goback").show(); 
-            $("#search_goback").html('Go Back'); 
-                 jQuery('#group_hide').remove();
-              jQuery('#goback').remove();jQuery('#clickgroupdata').remove();
-            }
-            else{ 
-               $("#search_nodata").hide(); 
-             $('#fetch_search_Portfolio').html(data);
-               
-            $("#search_goback").show(); 
-            $("#search_goback").html('Go Back'); 
-                 jQuery('#group_hide').remove();
-              jQuery('#goback').remove();jQuery('#clickgroupdata').remove();
-
-            }
-          }
-             
-         });
-        }
-        else
-        { 
-           alert("Server error..!!!");
-        }
-   });
-
-
-//3rd toolbar portfolio fect code ......
-
-  $(".aa a").on('click',function(){
-      var group_name =  $(this).text();
-
-        if(group_name != '')
-        { 
-         $.ajax({
-          url:"<?php echo base_url(); ?>Dashboard/fetch_portfolio",
-          method:"POST",
-          data:{group_name:group_name},
-          success:function(data)
-          {
-            if(data=="NO")
-            {   }
-            else{ 
-             
-             $('#fetch_Portfolio').html(data);
-               jQuery('#clickgroupdata').html(group_name).toggle('show');
-            }
-          }
-             
-         });
-        }
-        else
-        { 
-           alert("Server error..!!!");
-        }
-   });
-      
-      $("#goback").hide(); $("#clickgroupdata").hide(); 
-    jQuery('.aa #group_value').on('click', function(event) { 
-           jQuery('#goback').html('Go Back').toggle('show');
-          
-         
-         jQuery('.aa #group_value').toggle('hide');
-      });
-
-    jQuery('#goback').on('click', function(event) {
-       $("#goback").hide(); $("#clickgroupdata").hide(); jQuery('#fetch_Portfolio').toggle('hide');
-       location.reload(true);
-    });
-
-    jQuery('#clickgroupdata').on('click', function(event) {
-      $("#clickgroupdata").show(); 
-    });
-
-     jQuery('#search_goback').on('click', function(event) {
-      location.reload(true);
-      $("#search_goback").hide(); $("#search_nodata").hide(); 
-    });
-
-     
-
-//3rd toolbar portfolio fetch code finish here ......
- 
 //add transaction sub asstes fetch code start here ......
   $('#select_assets').change(function(){
       var assets_id = $('#select_assets').val();
@@ -1176,127 +1302,314 @@ var oldportfolio_name= $('#update_portfolio_name').val();
   //add transaction sub asstes fetch code ends here ......
 
 
-// add asstes agriculture land code start here ...
 
-  $('#assets_avg_price').keypress(function(e) {
-      if (e.shiftKey || e.ctrlKey || e.altKey) {
-        e.preventDefault();
-      } else {
-      /*  var key = e.keyCode;
-        if (!( key < 97 || key > 122 )) {
-          e.preventDefault();
-        }*/
-          var inputValue = e.charCode;
-        //alert(inputValue);
-        if(!((inputValue > 47 && inputValue < 58) ||(inputValue==32) || (inputValue==0))){
-            event.preventDefault();
-             $('#assets_avg_price_astrik').css('font-size','15px');
-             $('#assets_avg_price').css('border', '1px solid red');
-            $('#assets_avg_price_astrik').show();
-            $('#assets_avg_price_astrik').html("&nbsp;Only Number");
-        }
-        else{
-          $('#assets_avg_price_astrik').hide();
-          $('#assets_avg_price').css('border', '');
-        }
-        
-      } 
-    });
+//assets transaction astrik hide
+  var all_assets_astrik_var = '#assets_transaction_type_astrik,#assets_date_astrik,#assets_avg_price_astrik,#assets_quantity_astrik,#assets_amt_invested_astrik,#assets_present_value_astrik';
+  $(all_assets_astrik_var).hide();
 
+  ///trigger reset/validate reset on cancel/close click of all forms
+  var cancle_of_all = " #can_epf, #can_ppf,#can_ulip_form, #can_nsc, #can_insurance_form,#can_trv_form, #can_lifeInsuranceEnd_form, #closesgb, #sgbcancle,#bondcancle, #can_kisan, #loancancle, #can_sukanya, #can_stock, #can_mutual, #can_nps, #can_ncd, #can_bond, #can_fd, #can_private, #can_scss, #can_rd, #grp_cancel, #assetsCancle, #asstesClose, #portf_cancel, #edit_port_cancel,#grp_update_cancle,#emergencycancle,#emergencyclose";
+  
+   $('#close_add').on('click', function() {
+          var a = $('#form_add').trigger("reset");
+          var sel_port_var = '#select_portfolio_name,#select_assets,#select_sub_Assets';
+          var sel_port_ast = '#select_portfolio_astrik,#select_assets_astrik,#select_sub_Assets_astrik';
+    if (a) {
+      $(sel_port_var).css('border', '');
+      $(sel_port_ast).hide();
+    }
+   });
 
-  $('#assets_quantity').keypress(function(e) {
-      if (e.shiftKey || e.ctrlKey || e.altKey) {
-        e.preventDefault();
-      } else {
-      /*  var key = e.keyCode;
-        if (!( key < 97 || key > 122 )) {
-          e.preventDefault();
-        }*/
-          var inputValue = e.charCode;
-        //alert(inputValue);
-        if(!((inputValue > 47 && inputValue < 58) ||(inputValue==32) || (inputValue==0))){
-            event.preventDefault();
-             $('#assets_quantity_astrik').css('font-size','15px');
-             $('#assets_quantity').css('border', '1px solid red');
-            $('#assets_quantity_astrik').show();
-            $('#assets_quantity_astrik').html("&nbsp;Only Number");
-        }
-        else{
-          $('#assets_quantity_astrik').hide();
-          $('#assets_quantity').css('border', '');
-        }
-        
-      } 
-    });
+  $(cancle_of_all).on('click', function() {
 
-     $('#assets_amt_invested').keypress(function(e) {
-      if (e.shiftKey || e.ctrlKey || e.altKey) {
-        e.preventDefault();
-      } 
-      else
-       {
+    //add transaction ke pehle form ka cancel button(close add)
+    // $(".form_validation_class").data('validator').resetForm();
+ 
+    
+    
+    // group cancel ki cancel button ka code(grp cancle)
+    var b = $('#grpform').trigger("reset");
+    var validator_grp = $( "#grpform" ).validate();
+    validator_grp.resetForm();
+    if (b) {
+      $('#group_name').css('border', '');
+      $('#astrik').hide();
+    }
 
-          var inputValue = e.charCode;
-        if(!((inputValue > 47 && inputValue < 58) ||(inputValue==32) || (inputValue==0))){
-            event.preventDefault();
-             $('#assets_amt_invested_astrik').css('font-size','15px');
-             $('#assets_amt_invested').css('border', '1px solid red');
-              $('#assets_amt_invested_astrik').show();
-              $('#assets_amt_invested_astrik').html("&nbsp;Only Number");
-        }
-        else{
-          $('#assets_amt_invested_astrik').hide();
-          $('#assets_amt_invested').css('border', '');
-        }
-        
-      } 
-    });
+    //(grp update cancle)
+    var grp = $('#update_grp_form').trigger("reset");
+    if (grp) {
+      $('#update_group_value_astrik').hide();
+      $('#update_group_name_astrik').hide();
+      $('#update_group_value').css('border', '');
+      $('#update_group_name').css('border', '');
+      var validator_up_grp = $( "#update_grp_form" ).validate();
+      validator_up_grp.resetForm();
+    }
 
-     $('#assets_present_value').keypress(function(e) {
-      if (e.shiftKey || e.ctrlKey || e.altKey) {
-        e.preventDefault();
-      } 
-      else
-       {
-         var inputValue = e.charCode;
-        if(!((inputValue > 47 && inputValue < 58) ||(inputValue==32) || (inputValue==0))){
-            event.preventDefault();
-             $('#assets_present_value_astrik').css('font-size','15px');
-             $('#assets_present_value').css('border', '1px solid red');
-             $('#assets_present_value_astrik').show();
-             $('#assets_present_value_astrik').html("&nbsp;Only Number");
-        }
-        else{
-          $('#assets_present_value_astrik').hide();
-          $('#assets_present_value').css('border', '');
-        }
-        
-      } 
-    });
+    //asset form ki cancle button ka code (assets cancle)
+    var c = $('#asset_cancel_form').trigger("reset");
+    if (c) {
+      $(all_assets_astrik_var).hide();
+      $(all_assets_var).css('border', '');
+      var validator_asset = $( "#asset_cancel_form" ).validate();
+      validator_asset.resetForm();
+      
 
-// asstes add code start here ....
-$('#assetsCancle, #asstesClose').click(function() { 
+    }
 
-$('#assets_transaction_type').val("");
- $('#assets_date').val("");
- $('#assets_avg_price').val("");
-  $('#assets_quantity').val("");
-    $('#assets_amt_invested').val("");
-  $('#assets_present_value').val(""); 
+    //emerge form ki validate reset ka code
+    var emerge_only_var = '#cash_bank_name,#cashinhand_date,#amt_invested,#current_value';        
+    var emerge_ast_var = '#cashinhand_date_astrik,#cash_amt_invested_astrik,#cash_current_value_astrik';
+    var d = $('#emerge_cancel_form').trigger("reset");
+    if (d) {
+      $(emerge_only_var).css('border', '');
+      $(emerge_ast_var).hide();
+      var validator_emerge = $( "#emerge_cancel_form" ).validate();
+      validator_emerge.resetForm();
 
-});
+    }
 
+    //add portfolio ki cancel button ka code (portf_cancel)
+    var m = $('#add_port_form').trigger("reset");
+    var validator_add_port = $( "#add_port_form" ).validate();
+    validator_add_port.resetForm();
+    if (m) {
+      $(portfolio_all_var).css('border', '');
+      $(portfolio_all_var_ast).hide();
 
-$('#assets_transaction_type_astrik').hide();
-$('#assets_date_astrik').hide();
-$('#assets_avg_price_astrik').hide();
-$('#assets_quantity_astrik').hide();
-$('#assets_amt_invested_astrik').hide();
-$('#assets_present_value_astrik').hide();
+    }
 
+    //edit portfolio ki cancel button ka code(edit port)
+    var up_port_all_var = '#update_portfolio_name,#update_port_date,#update_full_name,#update_port_gender,#update_port_address,#update_port_city,#update_port_country,#update_pin_code';
+    var up_port_ast_var = "#update_port_gender_astrik,#update_port_address_astrik,#update_port_city_astrik,#update_port_country_astrik,#update_full_name_astrik,#update_port_date_astrik";
+    var q = $('#edit_port_form').trigger("reset");
+    var validator_edit_port = $( "#edit_port_form" ).validate();
+    validator_edit_port.resetForm();
+    if (q) {
+      $(up_port_all_var).css('border', '');
+    }
+    
+
+   //Insurance ki cancel button ka code
+    var ins_ast="#insurance_company_name_astrik,#travel_sum_assured_astrik,#insurance_no_claim_astrik,#insurance_sum_assured_astrik,#insurance_premium_tenure_astrik,#insurance_nextpremium_date_astrik,#insurance_frequency_astrik,#insurance_premium_amt_astrik,#insurance_policy_name_astrik,#insurance_policy_no_astrik,#insurance_value_astrik,#insurance_policy_start_date_astrik,#insurance_maturity_date_astrik,#insurance_premium_date_astrik";
+    var ins_val="#insurance_company_name,#insurance_nextpremium_date,#insurance_sum_assured,#insurance_no_claim,#insurance_frequency,#insurance_maturity_date,#insurance_maturity_benifits,#insurance_lockin_period,#insurance_premium_date,#insurance_premium_amt,#insurance_premium_tenure,#insurance_policy_start_date,#insurance_value,#insurance_policy_no,#travel_sum_assured,#insurance_policy_name";
+    var ins = $('#insurance_form').trigger("reset");
+    // var validator_insurance = $( "#insurance_form" ).validate();
+    // validator_insurance.resetForm();
+    if (ins) {
+      $(ins_val).css('border', '');
+       $(ins_ast).hide();
+    }
+    //lifeInsuranceEnd_form ki cancel button ka code
+    var life_var_ast="#life_company_name_astrik,#life_moneyback_date_astrik,#insurance_totalpremium_astrik,#insurance_topup_astrik,#life_moneyback_amt_astrik,#life_vasted_bonus_astrik,#life_bonus_accumulated_astrik,#life_sum_assured_astrik,#life_no_claim_astrik,#life_sum_assured_astrik,#life_premium_tenure_astrik,#life_nextpremium_date_astrik,#life_frequency_astrik,#life_premium_amt_astrik,#life_premium_date_astrik,#life_maturity_date_astrik,#life_policy_start_date_astrik,#life_policy_name_astrik,#life_policy_no_astrik,#life_value_astrik";
+    var life_var="#life_company_name, #life_moneyback_amt, #life_frequency,#life_moneyback_date, #life_nextpremium_date, #life_premium_tenure, #life_bonus_accumulated, #life_vasted_bonus, #life_policy_name, #life_policy_no, #life_sum_assured, #life_policy_start_date, #life_maturity_date, #life_premium_date, #life_premium_amt";
+    var lifeIns = $('#lifeInsuranceEnd_form').trigger("reset");
+    var validator_lifeInsuranceEnd = $( "#lifeInsuranceEnd_form" ).validate();
+    validator_lifeInsuranceEnd.resetForm();
+    if (lifeIns) {
+      $( life_var).css('border', '');
+       $(life_var_ast).hide();
+    }
+    //trv_form ki cancel button ka code
+    var tra_var_ast="#travel_company_name_astrik, #travel_policy_name_astrik, #travel_policy_no_astrik, #trvlsum_assured_astrik, #travel_value_astrik, #travel_policy_start_date_astrik, #travel_maturity_date_astrik, #travel_premium_date_astrik, #travel_premium_amt_astrik, #travel_frequency_astrik, #travel_premium_tenure_astrik, #travel_nextpremium_date_astrik";
+    var tra_var="#travel_company_name, #travel_policy_name, #travel_policy_no, #trvlsum_assured, #travel_policy_start_date, #travel_maturity_date, #travel_premium_date, #travel_premium_amt, #travel_frequency, #travel_nextpremium_date, #travel_premium_tenure";
+    var trv = $('#trv_form').trigger("reset");
+    var validator_trv = $( "#trv_form" ).validate();
+    validator_trv.resetForm();
+    if (trv) {
+      $(tra_var).css('border', '');
+       $(tra_var_ast).hide();
+    }
+    //ulip_form ki cancel button ka code
+    var ulip_var_ast="#ulip_totalpremium_astrik,#ulip_company_name_astrik,#ulip_policy_name_astrik,#ulip_policy_no_astrik,#ulip_value_astrik,#ulip_policy_start_date_astrik,#ulip_maturity_date_astrik,#ulip_premium_date_astrik,#ulip_premium_amt_astrik,#ulip_frequency_astrik,#ulip_topup_astrik,#ulip_no_claim_astrik,#ulip_sum_assured_astrik,#ulip_premium_tenure_astrik,#ulip_nextpremium_date_astrik ";
+    var ulip_var="#ulip_company_name,#ulip_policy_name,#ulip_policy_no,#ulip_sum_assured,#ulip_policy_start_date,#ulip_maturity_date,#ulip_premium_date,#ulip_premium_amt,#ulip_frequency,#ulip_nextpremium_date,#ulip_premium_tenure,#ulip_topup,#ulip_totalpremium";
+    var ulip = $('#ulip_form').trigger("reset");
+    var validator_ulip = $( "#ulip_form" ).validate();
+    validator_ulip.resetForm();
+    if (ulip) {
+      $(ulip_var).css('border', '');
+       $( ulip_var_ast).hide();
+    }
+    //sgb_form ki cancel button ka code
+    var sgb_var_ast="#sgb_stock_name_astrik,#sgb_transaction_type_astrik,#sgb_broker_astrik,#sgb_date_astrik,#sgb_qty_astrik,#sgb_purchase_price_astrik,#sgb_amt_invested_astrik,#sgb_net_rate_astrik,#sgb_net_amt_astrik";
+    var sgb_var="#sgb_stock_name,#sgb_transaction_type,#sgb_broker,#sgb_date,#sgb_qty,#sgb_purchase_price,#sgb_amt_invested,#sgb_net_rate,#sgb_net_amt";
+    var sgb = $('#sgb_form').trigger("reset");
+    var validator_sgb = $( "#sgb_form" ).validate();
+    validator_sgb.resetForm();
+    if (sgb) {
+      $(sgb_var).css('border', '');
+       $(sgb_var_ast).hide();
+    }
+    //bond_form ki cancel button ka code
+    var bond_var_ast="#bond_stock_name_astrik,#bond_transaction_type_astrik,#bond_broker_astrik,#bond_date_astrik,#bond_qty_astrik,#bond_purchase_price_astrik,#bond_amt_invested_astrik,#bond_net_rate_astrik,#bond_net_amt_astrik";
+    var bond_var="#bond_stock_name,#bond_transaction_type,#bond_broker,#bond_date,#bond_qty,#bond_purchase_price,#bond_amt_invested,#bond_net_rate,#bond_net_amt";
+    var bond = $('#bond_form').trigger("reset");
+    var validator_bond = $( "#bond_form" ).validate();
+    validator_bond.resetForm();
+    if (bond) {
+      $(bond_var).css('border', '');
+       $(bond_var_ast).hide();
+    }
+    //loan_form ki cancel button ka code
+    var loan_var_ast="#loan_bank_name_astrik,#loan_account_no_astrik,#loan_start_date_astrik,#loan_amount_astrik,#loan_period_astrik,#loan_emi_amt_astrik,#loan_emi_date_astrik,#loan_downpayment_amt_astrik,#loan_Interest_rate_type_astrik,#loan_fixed_rate_value_astrik";
+    var loan_var="#loan_bank_name, #loan_account_no, #loan_topup_amt, #loan_fixed_rate_value, #loan_balance_amt, #loan_pre_emi_amt, #loan_end_date, #loan_processing_fees, #loan_total_emipaid, #loan_start_date, #loan_amount, #loan_period, #loan_emi_amt, #loan_emi_date, #loan_downpayment_amt, #loan_Interest_rate_type";
+    var loan = $('#loan_form').trigger("reset");
+    var validator_loan = $( "#loan_form" ).validate();
+    validator_loan.resetForm();
+    if (loan) {
+      $(loan_var).css('border', '');
+       $(loan_var_ast).hide();
+    }
+    //sukanya_form ki cancel button ka code
+    var sukanya_ast="#sukanya_transaction_type_astrik,#sukanya_account_no_astrik,#sukanya_opening_date_astrik,#sukanya_maturity_date_astrik,#sukanya_date_astrik,#sukanya_amt_invested_astrik,#sukanya_interest_rate_astrik";
+    var sukanya_var="#sukanya_transaction_type, #sukanya_account_no, #sukanya_opening_date, #sukanya_maturity_date, #sukanya_date, #sukanya_amt_invested, #sukanya_interest_rate";
+    var sukanya = $('#sukanya_form').trigger("reset");
+    var validator_sukanya = $( "#sukanya_form" ).validate();
+    validator_sukanya.resetForm();
+    if (sukanya) {
+      $(sukanya_var).css('border', '');
+       $(sukanya_ast).hide();
+    }
+    //epf_form ki cancel button ka code
+    var epf_var_ast="#epf_transaction_type_astrik,#epf_account_no_astrik,#epf_start_date_astrik,#epf_maturity_date_astrik";
+    var epf_var="#epf_transaction_type,#epf_account_no,#epf_start_date,#epf_maturity_date";
+    var epf = $('#epf_form').trigger("reset");
+    var validator_epf = $( "#epf_form" ).validate();
+    validator_epf.resetForm();
+    if (epf) {
+      $( epf_var).css('border', '');
+       $(epf_var_ast).hide();
+    }
+    //ppf_form ki cancel button ka code
+    var ppf_var_ast="#ppf_transaction_type_astrik,#ppf_account_no_astrik,#ppf_opening_date_astrik,#ppf_date_astrik,#ppf_maturity_date_astrik,#ppf_amt_invested_astrik,#ppf_interest_rate_astrik";
+    var ppf_var="#ppf_transaction_type,#ppf_account_no,#ppf_date,#ppf_opening_date,#ppf_maturity_date,#ppf_amt_invested,#ppf_interest_rate";
+    var ppf = $('#ppf_form').trigger("reset");
+    var validator_ppf = $( "#ppf_form" ).validate();
+    validator_ppf.resetForm();
+    if (ppf) {
+      $(ppf_var).css('border', '');
+       $(ppf_var_ast).hide();
+    }
+    //nsc_form ki cancel button ka code
+    var nsc_var_ast="#nsc_transaction_type_astrik,#nsc_account_no_astrik,#nsc_type_astrik,#nsc_opening_date_astrik,#nsc_amt_invested_astrik,#nsc_interest_rate_astrik,#nsc_maturity_date_astrik,#nsc_maturity_amt_astrik";
+    var nsc_var="#nsc_transaction_type,#nsc_account_no,#nsc_type,#nsc_opening_date,#nsc_amt_invested,#nsc_interest_rate,#nsc_maturity_date,#nsc_maturity_amt";
+    var nsc = $('#nsc_form').trigger("reset");
+    var validator_nsc = $( "#nsc_form" ).validate();
+    validator_nsc.resetForm();
+    if (nsc) {
+      $(nsc_var).css('border', '');
+       $(nsc_var_ast).hide();
+    }
+    //kisan_form ki cancel button ka code
+    var kisan_var_ast="#kisan_transaction_type_astrik,#kisan_account_no_astrik,#kisan_start_date_astrik,#kisan_muturity_date_astrik,#kisan_amt_invested_astrik,#kisan_maturity_amt_astrik,#kisan_interest_rate_astrik";
+    var kisan_var="#kisan_transaction_type,#kisan_account_no,#kisan_start_date,#kisan_muturity_date,#kisan_amt_invested,#kisan_maturity_amt,#kisan_interest_rate";
+    var kisan = $('#kisan_form').trigger("reset");
+    var validator_kisan = $( "#kisan_form" ).validate();
+    validator_kisan.resetForm();
+    if (kisan) {
+      $( kisan_var).css('border', '');
+       $(kisan_var_ast).hide();
+    }
+    //nps_form ki cancel button ka code
+    var nps_var_ast="#nps_opening_date_astrik,#nps_type_astrik,#nps_pran_no_astrik,#nps_scheme_astrik,#nps_transaction_type_astrik,#nps_date_astrik,#nps_qty_astrik,#nps_purchase_price_astrik,#nps_amt_invested_astrik";
+    var nps_var="#nps_opening_date,#nps_type,#nps_pran_no,#nps_scheme,#nps_transaction_type,#nps_date,#nps_qty,#nps_purchase_price,#nps_amt_invested";
+    var nps = $('#nps_form').trigger("reset");
+    var validator_nps = $( "#nps_form" ).validate();
+    validator_nps.resetForm();
+    if (nps) {
+      $( nps_var).css('border', '');
+       $(nps_var_ast).hide();
+    }
+    //private_form ki cancel button ka code
+    var pe_var_ast="#pe_asset_name_astrik,#pe_startup_astrik,#pe_start_date_astrik,#pe_transaction_type_astrik,#pe_date_astrik,#pe_qty_purchase_astrik,#pe_purchase_rate_astrik,#pe_amt_invested_astrik";
+    var pe_var="#pe_asset_name,#pe_startup,#pe_start_date,#pe_transaction_type,#pe_date,#pe_qty_purchase,#pe_purchase_rate,#pe_amt_invested";
+    var priv = $('#private_form').trigger("reset");
+    var validator_private = $( "#private_form" ).validate();
+    validator_private.resetForm();
+    if (priv ) {
+      $(pe_var).css('border', '');
+       $(pe_var_ast).hide();
+    }
+    //scss_form ki cancel button ka code
+    var scss_var_ast="#scss_transaction_type_astrik, #scss_account_no_astrik, #scss_muturity_date_astrik, #scss_lockin_period_astrik, #scss_date_astrik, #scss_amt_invested_astrik";
+    var scss_var="#scss_transaction_type,#scss_account_no,#scss_muturity_date,#scss_lockin_period,#scss_date,#scss_amt_invested";
+    var scss = $('#scss_form').trigger("reset");
+    var validator_scss = $( "#scss_form" ).validate();
+    validator_scss.resetForm();
+    if (scss) {
+      $(scss_var).css('border', '');
+       $(scss_var_ast).hide();
+    }
+    //rd_form ki cancel button ka code
+    var rd_ast_var="#rd_type_astrik,#rd_account_no_astrik,#rd_transaction_type_astrik,#rd_interest_rate_astrik,#rd_maturity_date_astrik,#rd_start_date_astrik,#rd_amt_invested_astrik";
+    var rd_var="#rd_type,#rd_account_no,#rd_transaction_type,#rd_interest_rate,#rd_maturity_date,#rd_start_date,#rd_amt_invested";
+    var rd = $('#rd_form').trigger("reset");
+    var validator_rd = $( "#rd_form" ).validate();
+    validator_rd.resetForm();
+    if (rd) {
+      $(rd_var).css('border', '');
+       $(rd_ast_var).hide();
+    }
+    //fd_form ki cancel button ka code
+    var fd_var_ast="#fd_type_astrik,#fd_account_no_astrik,#fd_transaction_type_astrik,#fd_interest_rate_astrik,#fd_maturity_date_astrik,#fd_start_date_astrik,#fd_amt_invested_astrik";
+    var fd_var="#fd_type,#fd_account_no,#fd_transaction_type,#fd_interest_rate,#fd_maturity_date,#fd_start_date,#fd_amt_invested";
+    var fd = $('#fd_form').trigger("reset");
+    var validator_fd = $( "#fd_form" ).validate();
+    validator_fd.resetForm();
+    if (fd) {
+      $(fd_var).css('border', '');
+       $(fd_var_ast).hide();
+    }
+    //ncd_form ki cancel button ka code
+    var ncd_var_ast="#ncd_type_astrik,#ncd_name_astrik,#ncd_transaction_type_astrik,#ncd_date_astrik,#ncd_purchase_price_astrik,#ncd_quantity_astrik,#ncd_amt_invested_astrik,#ncd_interest_payout_astrik,#ncd_interest_rate_astrik,#ncd_interest_payable_astrik,#ncd_maturity_date_astrik";
+    var ncd_var="#ncd_type,#ncd_name,#ncd_transaction_type,#ncd_date,#ncd_purchase_price,#ncd_quantity,#ncd_amt_invested,#ncd_interest_payout,#ncd_interest_rate,#ncd_interest_payable,#ncd_maturity_date";
+    var ncd = $('#ncd_form').trigger("reset");
+    var validator_ncd = $( "#ncd_form" ).validate();
+    validator_ncd.resetForm();
+    if (ncd) {
+      $(ncd_var).css('border', '');
+       $(ncd_var_ast).hide();
+    }
+    //mutual_form ki cancel button ka code
+    var mut_var_ast="#mutual_company_name_astrik,#mutual_scheme_astrik,#mutual_folio_no_astrik,#mutual_transaction_astrik,#mutual_type_astrik,#mutual_sip_date_astrik,#mutual_date_astrik,#mutual_quantity_astrik,#mutual_amt_invested_astrik,#mutual_nav_astrik";
+    var mut_var="#mutual_company_name,#mutual_scheme,#mutual_folio_no,#mutual_transaction,#mutual_type,#mutual_date,#mutual_quantity,#mutual_nav,#mutual_amt_invested";
+    var mutual = $('#mutual_form').trigger("reset");
+    var validator_mutual = $( "#mutual_form" ).validate();
+    validator_mutual.resetForm();
+    if (mutual) {
+      $(mut_var).css('border', '');
+       $(mut_var_ast).hide();
+    }
+    //stock_form ki cancel button ka code
+    var stok_var_ast="#stock_net_amt_astrik, #stock_name_astrik, #stock_transaction_type_astrik, #stock_broker_astrik, #stock_date_astrik, #stock_qty_astrik, #stock_net_rate_astrik, #stock_amt_invested_astrik, #stock_purchase_price_astrik";
+    var stok_var="#stock_name,#stock_transaction_type,#stock_broker,#stock_date,#stock_qty,#stock_purchase_price,#stock_amt_invested,#stock_net_rate,#stock_net_amt";
+    var stoc = $('#stock_form').trigger("reset");
+    $("#stock_form")[0].reset();
+    var validator_stock = $( "#stock_form" ).validate();
+    validator_stock.resetForm();
+    if (stoc) {
+      $(stok_var).css('border', '');
+       $(stok_var_ast).hide();
+    }
+   
+    
+  })
+  
+var all_assets_var = '#assets_transaction_type,#assets_date,#assets_avg_price,#assets_quantity,#assets_amt_invested,#assets_present_value';
+  $(all_assets_var).on('change', function() {
+    $(all_assets_var).css('border', '');
+    $(all_assets_astrik_var).hide();
+  })
+
+  $(all_assets_var).keyup(function(e) {
+    $(all_assets_var).css('border', '');
+    $(all_assets_astrik_var).hide();
+  })
+ 
 $('#Asstes_submit').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
 
@@ -1306,68 +1619,59 @@ $('#Asstes_submit').click(function() {
    var assets_quantity = $('#assets_quantity').val();
    var assets_amt_invested = $('#assets_amt_invested').val();
    var assets_present_value = $('#assets_present_value').val();
-     
-   
-    if(assets_transaction_type==""){
+    grp_asset=gr_assetn()
+ 
+
+if (assets_transaction_type == "") {
       $('#assets_transaction_type').css('border', '1px solid red');
       $('#assets_transaction_type_astrik').show();
+      $('#assets_transaction_type').focus();
       return false;
-    }else{
-     $('#assets_transaction_type').css('border', '');
-      $('#assets_transaction_type_astrik').hide();
-    }
-      if(assets_date==""){
-      $('#assets_date').css('border', '1px solid red');
-      $('#assets_date_astrik').show();
-      return false;
-    }else{
-     $('#assets_date').css('border', '');
-      $('#assets_date_astrik').hide();
-    }
-       if(assets_avg_price==""){
-      $('#assets_avg_price').css('border', '1px solid red');
-      $('#assets_avg_price_astrik').show();
-      return false;
-    }else{
-     $('#assets_avg_price').css('border', '');
-      $('#assets_avg_price_astrik').hide();
-    }
-      if(assets_quantity==""){
-      $('#assets_quantity').css('border', '1px solid red');
-      $('#assets_quantity_astrik').show();
-      return false;
-    }
-    else{
-     $('#assets_quantity').css('border', '');
-      $('#assets_quantity_astrik').hide();
-    }
-      if(assets_amt_invested==""){
-      $('#assets_amt_invested').css('border', '1px solid red');
-      $('#assets_amt_invested_astrik').show();
-      return false;
-    }else{
-     $('#assets_amt_invested').css('border', '');
-      $('#assets_amt_invested_astrik').hide();
-    }
-      if(assets_present_value==""){
-      $('#assets_present_value').css('border', '1px solid red');
-      $('#assets_present_value_astrik').show();
-      return false;
-    }else{
-     $('#assets_present_value').css('border', '');
-      $('#assets_present_value_astrik').hide();
+    } else {
     }
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+    if (assets_date == "") {
+      $('#assets_date').css('border', '1px solid red');
+      $('#assets_date_astrik').show();
+      $('#assets_date').focus();
+      return false;
+    } else {
+    }
+    if (assets_avg_price == "") {
+      $('#assets_avg_price').css('border', '1px solid red');
+      $('#assets_avg_price_astrik').show();
+      $('#assets_avg_price').focus();
+      return false;
+    } else {
+    }
+    if (assets_quantity == "") {
+      $('#assets_quantity').css('border', '1px solid red');
+      $('#assets_quantity_astrik').show();
+      $('#assets_quantity').focus();
+      return false;
+    } else {
+    }
+    if (assets_amt_invested == "") {
+      $('#assets_amt_invested').css('border', '1px solid red');
+      $('#assets_amt_invested_astrik').show();
+      $('#assets_amt_invested').focus();
+      return false;
+    } else {
+    }
+    if (assets_present_value == "") {
+      $('#assets_present_value').css('border', '1px solid red');
+      $('#assets_present_value_astrik').show();
+      $('#assets_present_value').focus();
+      return false;
+    } else {
+    }
+
 
      var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
         assets_transaction_type : $('#assets_transaction_type').val(),
        assets_date : $('#assets_date').val(),
@@ -1389,12 +1693,20 @@ $('#Asstes_submit').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#assets_alert-msg').html('<div class="alert alert-success text-center">Your Group has been added successfully!</div>');    $("#addAsset").modal('hide'); location.reload(true);
+                toastr.success(msg, "Asset form submitted successfully!!");
+                $("#addAsset").modal('hide');
+                var validator_asset = $( "#asset_cancel_form" ).validate();
+                validator_asset.resetForm();
+                $(all_assets_var).val('');
+
               }
             else if (msg == 'NO'){
-                $('#assets_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                   toastr.error(msg);
+                // $('#assets_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>');
+                }
             else
-               {$('#assets_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {   toastr.error(msg);
+                //   $('#assets_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
                  
            }
         }
@@ -1407,68 +1719,70 @@ $('#Asstes_submit').click(function() {
   else{alert("Table is not avaliable..!!");}
 });
 
-// emergency asstes code start ....
-$('#emergencyclose, #emergencycancle').click(function() { 
 
-$('#cash_bank_name').val("");
- $('#cashinhand_date').val("");
- $('#cash_amt_invested').val("");
-  $('#cash_current_value').val("");
-    $('#cash_interest_rate').val("");
-  $('#cash_interest_type').val(""); 
- $('#cash_interest_payment').val("");
-});
+var emerge_ast_var = '#cashinhand_date_astrik,#cash_amt_invested_astrik,#cash_current_value_astrik,#cash_bank_name_astrik';
+  $(emerge_ast_var).hide();
+  
+  var emerge_only_var = '#cash_bank_name,#cashinhand_date,#amt_invested,#current_value,#cash_interest_rate,#cash_interest_type,#cash_interest_payment';
 
-$('#cash_bank_name_astrik').hide();
-$('#cashinhand_date_astrik').hide();
-
-$('#cash_amt_invested_astrik').hide();
-
-$('#cash_current_value_astrik').hide();
+  $(emerge_only_var).on('change', function() {
+    $(emerge_only_var).css('border', '');
+    $(emerge_ast_var).hide();
+  });
+  $(emerge_only_var).keyup(function(e) {
+    $(emerge_only_var).css('border', '');
+    $(emerge_ast_var).hide();
+  });
 
 $('#add_emergency').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
   var cash_bank_name = $('#cash_bank_name').val();
    var cashinhand_date = $('#cashinhand_date').val();
-   var cash_amt_invested = $('#cash_amt_invested').val();
-    var cash_current_value = $('#cash_current_value').val();
+   var amt_invested = $('#amt_invested').val();
+    var current_value = $('#current_value').val();
    var cash_interest_rate = $('#cash_interest_rate').val();
    var cash_interest_type = $('#cash_interest_type').val();
    var cash_interest_payment = $('#cash_interest_payment').val();
-   
-  if(cashinhand_date==""){
+    var grp_asset = gr_assetn();
+    
+    // if (cash_bank_name == "") {
+    //         $('#cash_bank_name').css('border', '1px solid red');
+    //         $('#cash_bank_name_astrik').show();
+    //         $('#cash_bank_name').focus();
+    //         return false;
+    //       } else {
+    //         $('#cash_bank_name').css('border', '');
+    //         $('#cash_bank_name_astrik').hide();
+    //       }
+
+if (cashinhand_date == "") {
       $('#cashinhand_date').css('border', '1px solid red');
       $('#cashinhand_date_astrik').show();
+      $('#cashinhand_date').focus();
       return false;
-    }else{
-     $('#cashinhand_date').css('border', '');
-      $('#cashinhand_date_astrik').hide();
+    } else {
     }
-     if(cash_amt_invested==""){
-      $('#cash_amt_invested').css('border', '1px solid red');
+    
+    if (amt_invested == "") {
+      $('#amt_invested').css('border', '1px solid red');
       $('#cash_amt_invested_astrik').show();
+      $('#amt_invested').focus();
       return false;
-    }else{
-     $('#cash_amt_invested').css('border', '');
-      $('#cash_amt_invested_astrik').hide();
+    } else {
     }
-     if(cash_current_value==""){
-      $('#cash_current_value').css('border', '1px solid red');
+    
+    if (current_value == "") {
+      $('#current_value').css('border', '1px solid red');
       $('#cash_current_value_astrik').show();
+      $('#current_value').focus();
       return false;
-    }else{
-     $('#cash_current_value').css('border', '');
-      $('#cash_current_value_astrik').hide();
+    } else {
     }
+    
 
-    if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
 
 
     if(valu == "Cash in post office saving A/c" || valu == "Cash in Hand")
@@ -1476,12 +1790,13 @@ $('#add_emergency').click(function() {
      var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+        assets_name: grp_asset[1],
+         group_name: grp_asset[0],
        sub_assets_name : valu,
 
       cashinhand_date : $('#cashinhand_date').val(),
-      cash_amt_invested : $('#cash_amt_invested').val(),
-      cash_current_value : $('#cash_current_value').val(),
+      amt_invested : $('#amt_invested').val(),
+      current_value : $('#current_value').val(),
       cash_interest_rate : $('#cash_interest_rate').val(),
       cash_interest_type : $('#cash_interest_type').val(),
       cash_interest_payment : $('#cash_interest_payment').val()
@@ -1489,24 +1804,23 @@ $('#add_emergency').click(function() {
   }else if(valu == "Cash in Saving A/C" || valu == "Cash in wallet")
   {
       var cash_bank_name = $("#cash_bank_name").val();  
-       if(cash_bank_name==""){
+      if(cash_bank_name==""){
       $('#cash_bank_name').css('border', '1px solid red');
       $('#cash_bank_name_astrik').show();
+      $('#cash_bank_name').focus();
       return false;
     }else{
-     $('#cash_bank_name').css('border', '');
-      $('#cash_bank_name_astrik').hide();
     }
        var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name: grp_asset[0],
        sub_assets_name : valu,
-
       bank_name : $('#cash_bank_name').val(),
       cashinhand_date : $('#cashinhand_date').val(),
-      cash_amt_invested : $('#cash_amt_invested').val(),
-      cash_current_value : $('#cash_current_value').val(),
+      amt_invested : $('#amt_invested').val(),
+      current_value : $('#current_value').val(),
       cash_interest_rate : $('#cash_interest_rate').val(),
       cash_interest_type : $('#cash_interest_type').val(),
       cash_interest_payment : $('#cash_interest_payment').val()
@@ -1522,12 +1836,22 @@ $('#add_emergency').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#emergency_alert-msg').html('<div class="alert alert-success text-center">Your data has been added successfully!</div>');    $("#addEmergencyfund").modal('hide'); location.reload(true);
+                 $("#addEmergencyfund").modal('hide');
+                toastr.success(msg, "Emergency fund form has been submitted successfully!!");
+                 var validator_emerge = $( "#emerge_cancel_form" ).validate();
+                 validator_emerge.resetForm();
+                 $(emerge_only_var).val('');
+                
+                  
               }
             else if (msg == 'NO'){
-                $('#emergency_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg);
+              
+                }
             else
-               {$('#emergency_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {
+                toastr.error(msg);
+            
                  
            }
         }
@@ -1540,45 +1864,28 @@ $('#add_emergency').click(function() {
   else{alert("Table is not avaliable..!!");}
 });
 
-//Emergency sub-assets stock code end here..... 
+$('#travelandTermplanhidecolumn').hide();
+$('#healthhidecolumn').hide();
+var ins_ast="#insurance_company_name_astrik,#travel_sum_assured_astrik,#insurance_no_claim_astrik,#insurance_sum_assured_astrik,#insurance_premium_tenure_astrik,#insurance_nextpremium_date_astrik,#insurance_frequency_astrik,#insurance_premium_amt_astrik,#insurance_policy_name_astrik,#insurance_policy_no_astrik,#insurance_value_astrik,#insurance_policy_start_date_astrik,#insurance_maturity_date_astrik,#insurance_premium_date_astrik";
+$(ins_ast).hide();
+var ins_val="#insurance_company_name,#insurance_nextpremium_date,#insurance_sum_assured,#insurance_no_claim,#insurance_frequency,#insurance_maturity_date,#insurance_maturity_benifits,#insurance_lockin_period,#insurance_premium_date,#insurance_premium_amt,#insurance_premium_tenure,#insurance_policy_start_date,#insurance_value,#insurance_policy_no,#travel_sum_assured,#insurance_policy_name";
 
 
-//Insurance sub asstes code start here....
-$('#emergencyclose, #emergencycancle').click(function() { 
 
-$('#cash_bank_name').val("");
- $('#cashinhand_date').val("");
- $('#cash_amt_invested').val("");
-  $('#cash_current_value').val("");
-    $('#cash_interest_rate').val("");
-  $('#cash_interest_type').val(""); 
- $('#cash_interest_payment').val("");
-});
+     $(ins_val).on('change', function() {
+                  $(ins_ast).hide();
+                  $(ins_val).css('border', '');
+    });
+    $(ins_val).keyup(function(e) {
+                  $(ins_ast).hide();
+                  $(ins_val).css('border', '');
+    });
 
-$('#insurance_company_name_astrik').hide();
-$('#insurance_policy_name_astrik').hide();
-
-$('#insurance_policy_no_astrik').hide();
-
-$('#insurance_value_astrik').hide();
-$('#insurance_policy_start_date_astrik').hide();
-$('#insurance_maturity_date_astrik').hide();
-$('#insurance_premium_date_astrik').hide();
-$('#insurance_premium_amt_astrik').hide();
-$('#insurance_frequency_astrik').hide();
-$('#insurance_nextpremium_date_astrik').hide();
-$('#insurance_premium_tenure_astrik').hide();
- $('#healthhidecolumn').hide();
-  $('#insurance_sum_assured_astrik').hide();
-   $('#insurance_no_claim_astrik').hide();
-
- $('#travelandTermplanhidecolumn').hide();
-  $('#travel_sum_assured_astrik').hide();
 
 $('#add_insurance').click(function()
  {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
   var insurance_company_name = $('#insurance_company_name').val();
@@ -1604,103 +1911,125 @@ $('#add_insurance').click(function()
      var insurance_frequency = $('#insurance_frequency').val();
      var insurance_nextpremium_date = $('#insurance_nextpremium_date').val();
      var insurance_premium_tenure = $('#insurance_premium_tenure').val();
-
+     var grp_asset = gr_assetn();
    
-  if(insurance_company_name==""){
-      $('#insurance_company_name').css('border', '1px solid red');
-      $('#insurance_company_name_astrik').show();
-      return false;
-    }else{
-     $('#insurance_company_name').css('border', '');
-      $('#insurance_company_name_astrik').hide();
-    }
-     if(insurance_policy_name==""){
-      $('#insurance_policy_name').css('border', '1px solid red');
-      $('#insurance_policy_name_astrik').show();
-      return false;
-    }else{
-     $('#insurance_policy_name').css('border', '');
-      $('#insurance_policy_name_astrik').hide();
-    }
-     if(insurance_policy_no==""){
-      $('#insurance_policy_no').css('border', '1px solid red');
-      $('#insurance_policy_no_astrik').show();
-      return false;
-    }else{
-     $('#insurance_policy_no').css('border', '');
-      $('#insurance_policy_no_astrik').hide();
-    }
-    if(insurance_value==""){
-      $('#insurance_value').css('border', '1px solid red');
-      $('#insurance_value_astrik').show();
-      return false;
-    }else{
-     $('#insurance_value').css('border', '');
-      $('#insurance_value_astrik').hide();
-    }
-    if(insurance_policy_start_date==""){
-      $('#insurance_policy_start_date').css('border', '1px solid red');
-      $('#insurance_policy_start_date_astrik').show();
-      return false;
-    }else{
-     $('#insurance_policy_start_date').css('border', '');
-      $('#insurance_policy_start_date_astrik').hide();
-    }
-      if(insurance_maturity_date==""){
-      $('#insurance_maturity_date').css('border', '1px solid red');
-      $('#insurance_maturity_date_astrik').show();
-      return false;
-    }else{
-     $('#insurance_maturity_date').css('border', '');
-      $('#insurance_maturity_date_astrik').hide();
-    }
-    if(insurance_premium_date==""){
-      $('#insurance_premium_date').css('border', '1px solid red');
-      $('#insurance_premium_date_astrik').show();
-      return false;
-    }else{
-     $('#insurance_premium_date').css('border', '');
-      $('#insurance_premium_date_astrik').hide();
-    }
-     if(insurance_premium_amt==""){
-      $('#insurance_premium_amt').css('border', '1px solid red');
-      $('#insurance_premium_amt_astrik').show();
-      return false;
-    }else{
-     $('#insurance_premium_amt').css('border', '');
-      $('#insurance_premium_amt_astrik').hide();
-    }
-     if(insurance_frequency==""){
-      $('#insurance_frequency').css('border', '1px solid red');
-      $('#insurance_frequency_astrik').show();
-      return false;
-    }else{
-     $('#insurance_frequency').css('border', '');
-      $('#insurance_frequency_astrik').hide();
-    }
-       if(insurance_nextpremium_date==""){
-      $('#insurance_nextpremium_date').css('border', '1px solid red');
-      $('#insurance_nextpremium_date_astrik').show();
-      return false;
-    }else{
-     $('#insurance_nextpremium_date').css('border', '');
-      $('#insurance_nextpremium_date_astrik').hide();
-    }
-       if(insurance_premium_tenure==""){
-      $('#insurance_premium_tenure').css('border', '1px solid red');
-      $('#insurance_premium_tenure_astrik').show();
-      return false;
-    }else{
-     $('#insurance_premium_tenure').css('border', '');
-      $('#insurance_premium_tenure_astrik').hide();
-    }
-
-
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+   if (insurance_company_name == "") {
+            $('#insurance_company_name').css('border', '1px solid red');
+            $('#insurance_company_name').focus();
+            $('#insurance_company_name_astrik').show();
+            return false;
+        } else {
+            $('#insurance_company_name').css('border', '');
+            $('#insurance_company_name_astrik').hide();
+        }
+        if (insurance_policy_name == "") {
+            $('#insurance_policy_name').css('border', '1px solid red');
+            $('#insurance_policy_name').focus();
+            $('#insurance_policy_name_astrik').show();
+            return false;
+        } else {
+            $('#insurance_policy_name').css('border', '');
+            $('#insurance_policy_name_astrik').hide();
+        }
+        // if (insurance_sum_assured == "") {
+        //     $('#insurance_sum_assured').css('border', '1px solid red');
+        //     $('#insurance_sum_assured').focus();
+        //     $('#insurance_sum_assured_astrik').show();
+        //     return false;
+        // } else {
+        //     $('#insurance_sum_assured').css('border', '');
+        //     $('#insurance_sum_assured_astrik').hide();
+        // }
+        // if (insurance_no_claim == "") {
+        //     $('#insurance_no_claim').css('border', '1px solid red');
+        //     $('#insurance_no_claim').focus();
+        //     $('#insurance_no_claim_astrik').show();
+        //     return false;
+        // } else {
+        //     $('#insurance_no_claim').css('border', '');
+        //     $('#insurance_no_claim_astrik').hide();
+        // }
+        if (insurance_policy_no == "") {
+            $('#insurance_policy_no').css('border', '1px solid red');
+            $('#insurance_policy_no').focus();
+            $('#insurance_policy_no_astrik').show();
+            return false;
+        } else {
+            $('#insurance_policy_no').css('border', '');
+            $('#insurance_policy_no_astrik').hide();
+        }
+        if (insurance_value == "") {
+            $('#insurance_value').css('border', '1px solid red');
+            $('#insurance_value').focus();
+            $('#insurance_value_astrik').show();
+            return false;
+        } else {
+            $('#insurance_value').css('border', '');
+            $('#insurance_value_astrik').hide();
+        }
+        if (insurance_policy_start_date == "") {
+            $('#insurance_policy_start_date').css('border', '1px solid red');
+            $('#insurance_policy_start_date').focus();
+            $('#insurance_policy_start_date_astrik').show();
+            return false;
+        } else {
+            $('#insurance_policy_start_date').css('border', '');
+            $('#insurance_policy_start_date_astrik').hide();
+        }
+        if (insurance_maturity_date == "") {
+            $('#insurance_maturity_date').css('border', '1px solid red');
+            $('#insurance_maturity_date').focus();
+            $('#insurance_maturity_date_astrik').show();
+            return false;
+        } else {
+            $('#insurance_maturity_date').css('border', '');
+            $('#insurance_maturity_date_astrik').hide();
+        }
+        if (insurance_premium_date == "") {
+            $('#insurance_premium_date').css('border', '1px solid red');
+            $('#insurance_premium_date').focus();
+            $('#insurance_premium_date_astrik').show();
+            return false;
+        } else {
+            $('#insurance_premium_date').css('border', '');
+            $('#insurance_premium_date_astrik').hide();
+        }
+        if (insurance_premium_amt == "") {
+            $('#insurance_premium_amt').css('border', '1px solid red');
+            $('#insurance_premium_amt').focus();
+            $('#insurance_premium_amt_astrik').show();
+            return false;
+        } else {
+            $('#insurance_premium_amt').css('border', '');
+            $('#insurance_premium_amt_astrik').hide();
+        }
+        if (insurance_frequency == "") {
+            $('#insurance_frequency').css('border', '1px solid red');
+            $('#insurance_frequency').focus();
+            $('#insurance_frequency_astrik').show();
+            return false;
+        } else {
+            $('#insurance_frequency').css('border', '');
+            $('#insurance_frequency_astrik').hide();
+        }
+        if (insurance_nextpremium_date == "") {
+            $('#insurance_nextpremium_date').css('border', '1px solid red');
+            $('#insurance_nextpremium_date').focus();
+            $('#insurance_nextpremium_date_astrik').show();
+            return false;
+        } else {
+            $('#insurance_nextpremium_date').css('border', '');
+            $('#insurance_nextpremium_date_astrik').hide();
+        }
+        if (insurance_premium_tenure == "") {
+            $('#insurance_premium_tenure').css('border', '1px solid red');
+            $('#insurance_premium_tenure').focus();
+            $('#insurance_premium_tenure_astrik').show();
+            return false;
+        } else {
+            $('#insurance_premium_tenure').css('border', '');
+            $('#insurance_premium_tenure_astrik').hide();
+        }
 
 
    if(valu == "Bike Insurance" || valu == "Car Insurance" || valu == "Home Insurance")
@@ -1708,8 +2037,9 @@ $('#add_insurance').click(function()
      var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
-       sub_assets_name : valu,
+       assets_name: grp_asset[1],
+        group_name:grp_asset[0],    
+      sub_assets_name : valu,
 
       insurance_company_name : $('#insurance_company_name').val(),
    insurance_policy_name : $('#insurance_policy_name').val(),
@@ -1734,6 +2064,7 @@ $('#add_insurance').click(function()
 
       if(insurance_sum_assured==""){
       $('#insurance_sum_assured').css('border', '1px solid red');
+      $('#insurance_sum_assured').focus();
       $('#insurance_sum_assured_astrik').show();
       return false;
     }else{
@@ -1742,6 +2073,7 @@ $('#add_insurance').click(function()
     }
       if(insurance_no_claim==""){
       $('#insurance_no_claim').css('border', '1px solid red');
+      $('#insurance_no_claim').focus();
       $('#insurance_no_claim_astrik').show();
       return false;
     }else{
@@ -1752,7 +2084,8 @@ $('#add_insurance').click(function()
    var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
 
     insurance_company_name : $('#insurance_company_name').val(),
@@ -1781,6 +2114,7 @@ $('#add_insurance').click(function()
 
       if(travel_sum_assured==""){
       $('#travel_sum_assured').css('border', '1px solid red');
+      $('#travel_sum_assured').focus();
       $('#travel_sum_assured_astrik').show();
       return false;
     }else{
@@ -1790,7 +2124,8 @@ $('#add_insurance').click(function()
        var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
 
     insurance_company_name : $('#insurance_company_name').val(),
@@ -1825,12 +2160,20 @@ $('#add_insurance').click(function()
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#insurance_alert-msg').html('<div class="alert alert-success text-center">Your data has been added successfully!</div>');    $("#addBikeCarHomeInsurance").modal('hide'); location.reload(true);
+                toastr.success("Insurance Form has been submitted successfully!!");
+                // $('#insurance_alert-msg').html('<div class="alert alert-success text-center">Your data has been added successfully!</div>');  
+                  $("#addBikeCarHomeInsurance").modal('hide'); 
+                  $(ins_val).val('');
+              
               }
+              
             else if (msg == 'NO'){
-                $('#insurance_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                 toastr.error(msg);
+                // $('#insurance_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); 
+                
+            }
             else
-               {$('#insurance_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -1845,40 +2188,27 @@ $('#add_insurance').click(function()
 });
 
 // Insurance endowment and money back code strat here ....
-$('#life_company_name_astrik').hide();
-$('#life_policy_name_astrik').hide();
+var life_var_ast="#life_company_name_astrik,#insurance_totalpremium_astrik,#life_moneyback_date_astrik,#insurance_topup_astrik,#life_moneyback_amt_astrik,#life_vasted_bonus_astrik,#life_bonus_accumulated_astrik,#life_sum_assured_astrik,#life_no_claim_astrik,#life_sum_assured_astrik,#life_premium_tenure_astrik,#life_nextpremium_date_astrik,#life_frequency_astrik,#life_premium_amt_astrik,#life_premium_date_astrik,#life_maturity_date_astrik,#life_policy_start_date_astrik,#life_policy_name_astrik,#life_policy_no_astrik,#life_value_astrik";
+$(life_var_ast).hide();
+var life_var="#life_company_name, #life_moneyback_amt, #life_maturity_benifits,#life_lockin_period,#life_moneyback_date, #life_frequency, #life_nextpremium_date, #life_premium_tenure, #life_bonus_accumulated, #life_vasted_bonus, #life_policy_name, #life_policy_no, #life_sum_assured, #life_policy_start_date, #life_maturity_date, #life_premium_date, #life_premium_amt";
+    $(life_var).on('change', function() {
+        $(life_var).css('border', '');
+        $(life_var_ast).hide();
+        
+    });
+    
+     $(life_var).keyup(function(e) {
+        $(life_var).css('border', '');
+        $(life_var_ast).hide();
+    });
+$('#hidemoneyback').hide();
+$('#hideULIP').hide();
 
-$('#life_policy_no_astrik').hide();
-
-$('#life_value_astrik').hide();
-$('#life_policy_start_date_astrik').hide();
-$('#life_maturity_date_astrik').hide();
-$('#life_premium_date_astrik').hide();
-$('#life_premium_amt_astrik').hide();
-$('#life_frequency_astrik').hide();
-
-$('#life_nextpremium_date_astrik').hide();
-$('#life_premium_tenure_astrik').hide();
-
-  $('#life_sum_assured_astrik').hide();
-   $('#life_no_claim_astrik').hide();
-
-  $('#life_sum_assured_astrik').hide();
-   $('#life_bonus_accumulated_astrik').hide();
-    $('#life_vasted_bonus_astrik').hide();
-
-  $('#hidemoneyback').hide();
-    $('#life_moneyback_amt_astrik').hide();
-      $('#life_moneyback_date_astrik').hide();
-
-   $('#hideULIP').hide();
-      $('#insurance_topup_astrik').hide();
-      $('#insurance_totalpremium_astrik').hide();
 
 $('#AddIsuranceEndoMoney').click(function()
  {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
   var life_company_name = $('#life_company_name').val();
@@ -1906,10 +2236,12 @@ $('#AddIsuranceEndoMoney').click(function()
 
        var life_moneyback_amt = $('#life_moneyback_amt').val();
      var life_moneyback_date = $('#life_moneyback_date').val();
+     var grp_asset = gr_assetn();
 
 
   if(life_company_name==""){
       $('#life_company_name').css('border', '1px solid red');
+      $('#life_company_name').focus();
       $('#life_company_name_astrik').show();
       return false;
     }else{
@@ -1918,6 +2250,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
      if(life_policy_name==""){
       $('#life_policy_name').css('border', '1px solid red');
+      $('#life_policy_name').focus();
       $('#life_policy_name_astrik').show();
       return false;
     }else{
@@ -1926,6 +2259,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
          if(life_policy_no==""){
       $('#life_policy_no').css('border', '1px solid red');
+      $('#life_policy_no').focus();
       $('#life_policy_no_astrik').show();
       return false;
     }else{
@@ -1934,6 +2268,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
       if(life_sum_assured==""){
       $('#life_sum_assured').css('border', '1px solid red');
+      $('#life_sum_assured').focus();
       $('#life_sum_assured_astrik').show();
       return false;
     }else{
@@ -1944,6 +2279,7 @@ $('#AddIsuranceEndoMoney').click(function()
   
     if(life_policy_start_date==""){
       $('#life_policy_start_date').css('border', '1px solid red');
+      $('#life_policy_start_date').focus();
       $('#life_policy_start_date_astrik').show();
       return false;
     }else{
@@ -1952,6 +2288,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
       if(life_maturity_date==""){
       $('#life_maturity_date').css('border', '1px solid red');
+      $('#life_maturity_date').focus();
       $('#life_maturity_date_astrik').show();
       return false;
     }else{
@@ -1960,6 +2297,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
     if(life_premium_date==""){
       $('#life_premium_date').css('border', '1px solid red');
+      $('#life_premium_date').focus();
       $('#life_premium_date_astrik').show();
       return false;
     }else{
@@ -1968,6 +2306,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
      if(life_premium_amt==""){
       $('#life_premium_amt').css('border', '1px solid red');
+      $('#life_premium_amt').focus();
       $('#life_premium_amt_astrik').show();
       return false;
     }else{
@@ -1976,6 +2315,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
      if(life_frequency==""){
       $('#life_frequency').css('border', '1px solid red');
+      $('#life_frequency').focus();
       $('#life_frequency_astrik').show();
       return false;
     }else{
@@ -1984,6 +2324,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
        if(life_nextpremium_date==""){
       $('#life_nextpremium_date').css('border', '1px solid red');
+      $('#life_nextpremium_date').focus();
       $('#life_nextpremium_date_astrik').show();
       return false;
     }else{
@@ -1992,6 +2333,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
        if(life_premium_tenure==""){
       $('#life_premium_tenure').css('border', '1px solid red');
+      $('#life_premium_tenure').focus();
       $('#life_premium_tenure_astrik').show();
       return false;
     }else{
@@ -2001,6 +2343,7 @@ $('#AddIsuranceEndoMoney').click(function()
 
      if(life_bonus_accumulated==""){
       $('#life_bonus_accumulated').css('border', '1px solid red');
+      $('#life_bonus_accumulated').focus();
       $('#life_bonus_accumulated_astrik').show();
       return false;
     }else{
@@ -2009,6 +2352,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
     if(life_vasted_bonus==""){
       $('#life_vasted_bonus').css('border', '1px solid red');
+      $('#life_vasted_bonus').focus();
       $('#life_vasted_bonus_astrik').show();
       return false;
     }else{
@@ -2017,18 +2361,15 @@ $('#AddIsuranceEndoMoney').click(function()
     }
 
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
  if(valu == "Life Insurance (Endowment)")
   {
       var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
 
     insurance_company_name : $('#life_company_name').val(),
@@ -2058,6 +2399,7 @@ $('#AddIsuranceEndoMoney').click(function()
   {
     if(life_moneyback_amt==""){
       $('#life_moneyback_amt').css('border', '1px solid red');
+      $('#life_moneyback_amt').focus();
       $('#life_moneyback_amt_astrik').show();
       return false;
     }else{
@@ -2066,6 +2408,7 @@ $('#AddIsuranceEndoMoney').click(function()
     }
         if(life_moneyback_date==""){
       $('#life_moneyback_date').css('border', '1px solid red');
+      $('#life_moneyback_date').focus();
       $('#life_moneyback_date_astrik').show();
       return false;
     }else{
@@ -2076,7 +2419,8 @@ $('#AddIsuranceEndoMoney').click(function()
     var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
 
     insurance_company_name : $('#life_company_name').val(),
@@ -2114,12 +2458,15 @@ $('#AddIsuranceEndoMoney').click(function()
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#insuranceEndoMoney_alert-msg').html('<div class="alert alert-success text-center">Your data has been added successfully!</div>');    $("#addLifeInsuranceEndowment").modal('hide'); location.reload(true);
+                toastr.success("Your form submitted successfully!!");
+                $("#addLifeInsuranceEndowment").modal('hide');
+                $(life_var).val('');
+                
               }
             else if (msg == 'NO'){
-                $('#insuranceEndoMoney_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+               toastr.error(msg);}
             else
-               {$('#insuranceEndoMoney_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -2135,25 +2482,24 @@ $('#AddIsuranceEndoMoney').click(function()
 
 
 //Insurance Travel sub asstes code starts here..
-$('#travel_company_name_astrik').hide();
-$('#travel_policy_name_astrik').hide();
 
-$('#travel_policy_no_astrik').hide();
-  $('#trvlsum_assured_astrik').hide();
-$('#travel_value_astrik').hide();
-$('#travel_policy_start_date_astrik').hide();
-$('#travel_maturity_date_astrik').hide();
-$('#travel_premium_date_astrik').hide();
-$('#travel_premium_amt_astrik').hide();
-$('#travel_frequency_astrik').hide();
-$('#travel_nextpremium_date_astrik').hide();
-$('#travel_premium_tenure_astrik').hide();
-
-
+var tra_var_ast="#travel_company_name_astrik, #travel_policy_name_astrik, #travel_policy_no_astrik, #trvlsum_assured_astrik, #travel_value_astrik, #travel_policy_start_date_astrik, #travel_maturity_date_astrik, #travel_premium_date_astrik, #travel_premium_amt_astrik, #travel_frequency_astrik, #travel_premium_tenure_astrik, #travel_nextpremium_date_astrik";
+$(tra_var_ast).hide();
+var tra_var="#travel_company_name, #travel_policy_name, #travel_policy_no, #trvlsum_assured, #travel_policy_start_date, #travel_maturity_date, #travel_premium_date, #travel_premium_amt, #travel_frequency, #travel_nextpremium_date, #travel_premium_tenure";
+$(tra_var).on('change', function() {
+    $(tra_var_ast).hide();
+    $(tra_var).css('border', '');
+    
+});
+$(tra_var).keyup(function(e) {
+    $(tra_var_ast).hide();
+     $(tra_var).css('border', '');
+    
+});
 $('#Addtrvlinsurance').click(function()
  {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
   var travel_company_name = $('#travel_company_name').val();
@@ -2174,10 +2520,11 @@ $('#Addtrvlinsurance').click(function()
      var travel_frequency = $('#travel_frequency').val();
      var travel_nextpremium_date = $('#travel_nextpremium_date').val();
      var travel_premium_tenure = $('#travel_premium_tenure').val();
-
+    var grp_asset = gr_assetn();
    
   if(travel_company_name==""){
       $('#travel_company_name').css('border', '1px solid red');
+      $('#travel_company_name').focus();
       $('#travel_company_name_astrik').show();
       return false;
     }else{
@@ -2186,6 +2533,7 @@ $('#Addtrvlinsurance').click(function()
     }
      if(travel_policy_name==""){
       $('#travel_policy_name').css('border', '1px solid red');
+      $('#travel_policy_name').focus();
       $('#travel_policy_name_astrik').show();
       return false;
     }else{
@@ -2194,6 +2542,7 @@ $('#Addtrvlinsurance').click(function()
     }
      if(travel_policy_no==""){
       $('#travel_policy_no').css('border', '1px solid red');
+      $('#travel_policy_no').focus();
       $('#travel_policy_no_astrik').show();
       return false;
     }else{
@@ -2202,6 +2551,7 @@ $('#Addtrvlinsurance').click(function()
     }
     if(travel_sum_assured==""){
       $('#trvlsum_assured').css('border', '1px solid red');
+      $('#trvlsum_assured').focus();
       $('#trvlsum_assured_astrik').show();
       return false;
     }else{
@@ -2211,6 +2561,7 @@ $('#Addtrvlinsurance').click(function()
 
     if(travel_policy_start_date==""){
       $('#travel_policy_start_date').css('border', '1px solid red');
+      $('#travel_policy_start_date').focus();
       $('#travel_policy_start_date_astrik').show();
       return false;
     }else{
@@ -2219,6 +2570,7 @@ $('#Addtrvlinsurance').click(function()
     }
       if(travel_maturity_date==""){
       $('#travel_maturity_date').css('border', '1px solid red');
+      $('#travel_maturity_date').focus();
       $('#travel_maturity_date_astrik').show();
       return false;
     }else{
@@ -2227,6 +2579,7 @@ $('#Addtrvlinsurance').click(function()
     }
     if(travel_premium_date==""){
       $('#travel_premium_date').css('border', '1px solid red');
+      $('#travel_premium_date').focus();
       $('#travel_premium_date_astrik').show();
       return false;
     }else{
@@ -2235,6 +2588,7 @@ $('#Addtrvlinsurance').click(function()
     }
      if(travel_premium_amt==""){
       $('#travel_premium_amt').css('border', '1px solid red');
+      $('#travel_premium_amt').focus();
       $('#travel_premium_amt_astrik').show();
       return false;
     }else{
@@ -2243,6 +2597,7 @@ $('#Addtrvlinsurance').click(function()
     }
      if(travel_frequency==""){
       $('#travel_frequency').css('border', '1px solid red');
+      $('#travel_frequency').focus();
       $('#travel_frequency_astrik').show();
       return false;
     }else{
@@ -2251,6 +2606,7 @@ $('#Addtrvlinsurance').click(function()
     }
        if(travel_nextpremium_date==""){
       $('#travel_nextpremium_date').css('border', '1px solid red');
+      $('#travel_nextpremium_date').focus();
       $('#travel_nextpremium_date_astrik').show();
       return false;
     }else{
@@ -2259,6 +2615,7 @@ $('#Addtrvlinsurance').click(function()
     }
        if(travel_premium_tenure==""){
       $('#travel_premium_tenure').css('border', '1px solid red');
+      $('#travel_premium_tenure').focus();
       $('#travel_premium_tenure_astrik').show();
       return false;
     }else{
@@ -2267,18 +2624,14 @@ $('#Addtrvlinsurance').click(function()
     }
 
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
 
 
 
        var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
 
     insurance_company_name : $('#travel_company_name').val(),
@@ -2313,12 +2666,15 @@ $('#Addtrvlinsurance').click(function()
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#Travel_alert-msg').html('<div class="alert alert-success text-center">Your data has been added successfully!</div>');    $("#Addtravelinsurancedata").modal('hide'); location.reload(true);
+                toastr.success("Your form submitted successfully!!");
+                $("#Addtravelinsurancedata").modal('hide'); 
+                $(tra_var).val('');
+              
               }
             else if (msg == 'NO'){
-                $('#Travel_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg); }
             else
-               {$('#Travel_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -2334,32 +2690,24 @@ $('#Addtrvlinsurance').click(function()
 
 //Insurance ULIP sub asstes code ...
 
-$('#ulip_company_name_astrik').hide();
-$('#ulip_policy_name_astrik').hide();
 
-$('#ulip_policy_no_astrik').hide();
-
-$('#ulip_value_astrik').hide();
-$('#ulip_policy_start_date_astrik').hide();
-$('#ulip_maturity_date_astrik').hide();
-$('#ulip_premium_date_astrik').hide();
-$('#ulip_premium_amt_astrik').hide();
-$('#ulip_frequency_astrik').hide();
-
-$('#ulip_nextpremium_date_astrik').hide();
-$('#ulip_premium_tenure_astrik').hide();
-
-  $('#ulip_sum_assured_astrik').hide();
-   $('#ulip_no_claim_astrik').hide();
-
- $('#ulip_topup_astrik').hide();
-$('#ulip_totalpremium_astrik').hide();
-
+var ulip_var_ast="#ulip_totalpremium_astrik,#ulip_company_name_astrik,#ulip_policy_name_astrik,#ulip_policy_no_astrik,#ulip_value_astrik,#ulip_policy_start_date_astrik,#ulip_maturity_date_astrik,#ulip_premium_date_astrik,#ulip_premium_amt_astrik,#ulip_frequency_astrik,#ulip_topup_astrik,#ulip_no_claim_astrik,#ulip_sum_assured_astrik,#ulip_premium_tenure_astrik,#ulip_nextpremium_date_astrik ";
+$(ulip_var_ast).hide();
+var ulip_var="#ulip_company_name,#ulip_policy_name,#ulip_policy_no,#ulip_sum_assured,#ulip_policy_start_date,#ulip_maturity_date,#ulip_premium_date,#ulip_premium_amt,#ulip_frequency,#ulip_nextpremium_date,#ulip_premium_tenure,#ulip_topup,#ulip_totalpremium";
+$(ulip_var).on('change', function() {
+    $(ulip_var_ast).hide();
+    $(ulip_var).css('border', '');
+    
+});
+$(ulip_var).keyup(function(e) {
+    $(ulip_var_ast).hide();
+    $(ulip_var).css('border', '');
+});
 $('#addulipdata').click(function()
  {
 
      var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
   var ulip_company_name = $('#ulip_company_name').val();
@@ -2383,15 +2731,13 @@ $('#addulipdata').click(function()
 
      var ulip_topup = $('#ulip_topup').val();
      var ulip_totalpremium = $('#ulip_totalpremium').val();
+     var grp_asset = gr_assetn();
 
-        if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      if(ulip_company_name==""){
       $('#ulip_company_name').css('border', '1px solid red');
+      $('#ulip_company_name').focus();
       $('#ulip_company_name_astrik').show();
       return false;
     }else{
@@ -2400,6 +2746,7 @@ $('#addulipdata').click(function()
     }
      if(ulip_policy_name==""){
       $('#ulip_policy_name').css('border', '1px solid red');
+      $('#ulip_policy_name').focus();
       $('#ulip_policy_name_astrik').show();
       return false;
     }else{
@@ -2408,6 +2755,7 @@ $('#addulipdata').click(function()
     }
          if(ulip_policy_no==""){
       $('#ulip_policy_no').css('border', '1px solid red');
+      $('#ulip_policy_no').focus();
       $('#ulip_policy_no_astrik').show();
       return false;
     }else{
@@ -2416,6 +2764,7 @@ $('#addulipdata').click(function()
     }
       if(ulip_sum_assured==""){
       $('#ulip_sum_assured').css('border', '1px solid red');
+      $('#ulip_sum_assured').focus();
       $('#ulip_sum_assured_astrik').show();
       return false;
     }else{
@@ -2426,6 +2775,7 @@ $('#addulipdata').click(function()
   
     if(ulip_policy_start_date==""){
       $('#ulip_policy_start_date').css('border', '1px solid red');
+      $('#ulip_policy_start_date').focus();
       $('#ulip_policy_start_date_astrik').show();
       return false;
     }else{
@@ -2434,6 +2784,7 @@ $('#addulipdata').click(function()
     }
       if(ulip_maturity_date==""){
       $('#ulip_maturity_date').css('border', '1px solid red');
+      $('#ulip_maturity_date').focus();
       $('#ulip_maturity_date_astrik').show();
       return false;
     }else{
@@ -2442,6 +2793,7 @@ $('#addulipdata').click(function()
     }
     if(ulip_premium_date==""){
       $('#ulip_premium_date').css('border', '1px solid red');
+      $('#ulip_premium_date').focus();
       $('#ulip_premium_date_astrik').show();
       return false;
     }else{
@@ -2450,6 +2802,7 @@ $('#addulipdata').click(function()
     }
      if(ulip_premium_amt==""){
       $('#ulip_premium_amt').css('border', '1px solid red');
+      $('#ulip_premium_amt').focus();
       $('#ulip_premium_amt_astrik').show();
       return false;
     }else{
@@ -2458,6 +2811,7 @@ $('#addulipdata').click(function()
     }
      if(ulip_frequency==""){
       $('#ulip_frequency').css('border', '1px solid red');
+      $('#ulip_frequency').focus();
       $('#ulip_frequency_astrik').show();
       return false;
     }else{
@@ -2466,6 +2820,7 @@ $('#addulipdata').click(function()
     }
        if(ulip_nextpremium_date==""){
       $('#ulip_nextpremium_date').css('border', '1px solid red');
+      $('#ulip_nextpremium_date').focus();
       $('#ulip_nextpremium_date_astrik').show();
       return false;
     }else{
@@ -2474,6 +2829,7 @@ $('#addulipdata').click(function()
     }
        if(ulip_premium_tenure==""){
       $('#ulip_premium_tenure').css('border', '1px solid red');
+      $('#ulip_premium_tenure').focus();
       $('#ulip_premium_tenure_astrik').show();
       return false;
     }else{
@@ -2483,6 +2839,7 @@ $('#addulipdata').click(function()
 
      if(ulip_topup==""){
       $('#ulip_topup').css('border', '1px solid red');
+      $('#ulip_topup').focus();
       $('#ulip_topup_astrik').show();
       return false;
     }else{
@@ -2491,6 +2848,7 @@ $('#addulipdata').click(function()
     }
     if(ulip_totalpremium==""){
       $('#ulip_totalpremium').css('border', '1px solid red');
+      $('#ulip_totalpremium').focus();
       $('#ulip_totalpremium_astrik').show();
       return false;
     }else{
@@ -2502,7 +2860,8 @@ $('#addulipdata').click(function()
   var form_data = {
         user_id: $('#user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+              assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
 
       insurance_company_name : $('#ulip_company_name').val(),
@@ -2538,12 +2897,14 @@ $('#addulipdata').click(function()
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#insuranceEndoMoney_alert-msg').html('<div class="alert alert-success text-center">Your data has been added successfully!</div>');    $("#addULIPInsurance").modal('hide'); location.reload(true);
+                toastr.success("Your form submitted successfully!!"); 
+                $("#addULIPInsurance").modal('hide'); 
+                $(ulip_var).val('');
               }
             else if (msg == 'NO'){
-                $('#insuranceEndoMoney_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg); }
             else
-               {$('#insuranceEndoMoney_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -2584,14 +2945,22 @@ $("#epf_contribution_date").change(function () {
 
 });
 $("#epf_interest_rate").attr('disabled', true);   
-$('#epf_transaction_type_astrik').hide();
-$('#epf_account_no_astrik').hide();
-$('#epf_start_date_astrik').hide();
-$('#epf_maturity_date_astrik').hide();
 
+
+var epf_var_ast="#epf_transaction_type_astrik,#epf_account_no_astrik,#epf_start_date_astrik,#epf_maturity_date_astrik";
+$(epf_var_ast).hide();
+var epf_var="#epf_transaction_type, #epf_account_no, #epf_start_date, #epf_maturity_date, #epf_lockin_date, #epf_contribution_date, #epf_employee_contribution, #epf_employer_contribution, #epf_total_contribution, #epf_interest_rate";
+$(epf_var).on('change', function(){
+    $(epf_var_ast).hide();
+    $(epf_var).css('border', '');
+});
+$(epf_var).keyup(function(e){
+    $(epf_var_ast).hide();
+    $(epf_var).css('border', '');
+});
 $('#addepfdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
    var epf_transaction_type = $('#epf_transaction_type').val();
@@ -2604,9 +2973,11 @@ $('#addepfdata').click(function() {
      var epf_employee_contribution = $('#epf_employee_contribution').val();
       var epf_employer_contribution = $('#epf_employer_contribution').val();
         var epf_total_contribution = $('#epf_total_contribution').val();
+        var grp_asset = gr_assetn();
   
     if(epf_transaction_type==""){
       $('#epf_transaction_type').css('border', '1px solid red');
+      $('#epf_transaction_type').focus();
       $('#epf_transaction_type_astrik').show();
       return false;
     }else{
@@ -2615,6 +2986,7 @@ $('#addepfdata').click(function() {
     }
       if(epf_account_no==""){
       $('#epf_account_no').css('border', '1px solid red');
+      $('#epf_account_no').focus();
       $('#epf_account_no_astrik').show();
       return false;
     }else{
@@ -2623,6 +2995,7 @@ $('#addepfdata').click(function() {
     }
        if(epf_start_date==""){
       $('#epf_start_date').css('border', '1px solid red');
+      $('#epf_start_date').focus();
       $('#epf_start_date_astrik').show();
       return false;
     }else{
@@ -2631,6 +3004,7 @@ $('#addepfdata').click(function() {
     }
      if(epf_maturity_date==""){
       $('#epf_maturity_date').css('border', '1px solid red');
+      $('#epf_maturity_date').focus();
       $('#epf_maturity_date_astrik').show();
       return false;
     }else{
@@ -2638,16 +3012,13 @@ $('#addepfdata').click(function() {
       $('#epf_maturity_date_astrik').hide();
     }
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+        assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
        epf_transaction_type : $('#epf_transaction_type').val(),
@@ -2670,21 +3041,23 @@ $('#addepfdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#epf_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');    $('#epf_transaction_type').val("");
-                       $('#epf_account_no').val("");
-                       $('#epf_start_date').val("");
-                        $('#epf_maturity_date').val("");
-                        $('#epf_lockin_date').val("");
-                         $('#epf_interest_rate').val(""); 
-                          $('#epf_contribution_date').val("");
-                         $('#epf_employee_contribution').val("");
-                          $('#epf_employer_contribution').val(""); 
-                          $('#epf_total_contribution').val("");
+                $('#addEPF').modal('hide');
+                toastr.success("Your form submitted successfully!!");
+                $(epf_var).val('');
+            //           $('#epf_account_no').val("");
+            //           $('#epf_start_date').val("");
+            //             $('#epf_maturity_date').val("");
+            //             $('#epf_lockin_date').val("");
+            //              $('#epf_interest_rate').val(""); 
+            //               $('#epf_contribution_date').val("");
+            //              $('#epf_employee_contribution').val("");
+            //               $('#epf_employer_contribution').val(""); 
+            //               $('#epf_total_contribution').val("");
               }
             else if (msg == 'NO'){
-                $('#epf_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg); }
             else
-               {$('#epf_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -2698,17 +3071,23 @@ $('#addepfdata').click(function() {
 
 //FD codes starts heres .....
    
-$('#fd_type_astrik').hide();
-$('#fd_account_no_astrik').hide();
-$('#fd_transaction_type_astrik').hide();
-$('#fd_interest_rate_astrik').hide();
-$('#fd_maturity_date_astrik').hide();
-$('#fd_start_date_astrik').hide();
-$('#fd_amt_invested_astrik').hide();
 
+
+var fd_var_ast="#fd_type_astrik,#fd_account_no_astrik,#fd_transaction_type_astrik,#fd_interest_rate_astrik,#fd_maturity_date_astrik,#fd_start_date_astrik,#fd_amt_invested_astrik";
+$(fd_var_ast).hide();
+var fd_var="#fd_type,#fd_account_no,#fd_transaction_type,#fd_interest_rate,#fd_maturity_date,#fd_start_date,#fd_amt_invested";
+
+$(fd_var).on('change', function(){
+    $(fd_var_ast).hide();
+    $(fd_var).css('border', '');
+});
+$(fd_var).keyup(function(e){
+    $(fd_var_ast).hide();
+    $(fd_var).css('border', '');
+});
 $('#addfddata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
    var fd_type = $('#fd_type').val();
@@ -2722,10 +3101,12 @@ $('#addfddata').click(function() {
       var fd_maturity_date = $('#fd_maturity_date').val();
         var fd_start_date = $('#fd_start_date').val();
       var fd_amt_invested = $('#fd_amt_invested').val();
+      var grp_asset = gr_assetn();
   
   
     if(fd_type==""){
       $('#fd_type').css('border', '1px solid red');
+      $('#fd_type').focus();
       $('#fd_type_astrik').show();
       return false;
     }else{
@@ -2734,6 +3115,7 @@ $('#addfddata').click(function() {
     }
       if(fd_account_no==""){
       $('#fd_account_no').css('border', '1px solid red');
+      $('#fd_account_no').focus();
       $('#fd_account_no_astrik').show();
       return false;
     }else{
@@ -2742,6 +3124,7 @@ $('#addfddata').click(function() {
     }
        if(fd_transaction_type==""){
       $('#fd_transaction_type').css('border', '1px solid red');
+      $('#fd_transaction_type').focus();
       $('#fd_transaction_type_astrik').show();
       return false;
     }else{
@@ -2750,6 +3133,7 @@ $('#addfddata').click(function() {
     }
      if(fd_interest_rate==""){
       $('#fd_interest_rate').css('border', '1px solid red');
+      $('#fd_interest_rate').focus();
       $('#fd_interest_rate_astrik').show();
       return false;
     }else{
@@ -2758,6 +3142,7 @@ $('#addfddata').click(function() {
     }
          if(fd_maturity_date==""){
       $('#fd_maturity_date').css('border', '1px solid red');
+      $('#fd_maturity_date').focus();
       $('#fd_maturity_date_astrik').show();
       return false;
     }else{
@@ -2766,6 +3151,7 @@ $('#addfddata').click(function() {
     }
         if(fd_start_date==""){
       $('#fd_start_date').css('border', '1px solid red');
+      $('#fd_start_date').focus();
       $('#fd_start_date_astrik').show();
       return false;
     }else{
@@ -2774,6 +3160,7 @@ $('#addfddata').click(function() {
     }
      if(fd_amt_invested==""){
       $('#fd_amt_invested').css('border', '1px solid red');
+      $('#fd_amt_invested').focus();
       $('#fd_amt_invested_astrik').show();
       return false;
     }else{
@@ -2781,16 +3168,13 @@ $('#addfddata').click(function() {
       $('#fd_amt_invested_astrik').hide();
     }
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+            group_name:grp_asset[0],
        sub_assets_name : valu,
        
        fd_type : $('#fd_type').val(),
@@ -2814,22 +3198,24 @@ $('#addfddata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#fd_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');    $('#fd_type').val("");
-                      $('#fd_account_no').val("");
-                      $('#fd_transaction_type').val("");
-                      $('#fd_interest_payout').val("");
-                      $('#fd_interest_payment').val("");
-                      $('#fd_interest_rate').val("");
-                      $('#fd_interest_type').val("");
-                      $('#fd_maturity_amt').val("");
-                      $('#fd_maturity_date').val("");
-                      $('#fd_start_date').val("");
-                      $('#fd_amt_invested').val(""); 
+                $('#addFD').modal('hide');
+                 toastr.success("Your form submitted successfully!!");
+                 $(fd_var).val('');
+                    //   $('#fd_account_no').val("");
+                    //   $('#fd_transaction_type').val("");
+                    //   $('#fd_interest_payout').val("");
+                    //   $('#fd_interest_payment').val("");
+                    //   $('#fd_interest_rate').val("");
+                    //   $('#fd_interest_type').val("");
+                    //   $('#fd_maturity_amt').val("");
+                    //   $('#fd_maturity_date').val("");
+                    //   $('#fd_start_date').val("");
+                    //   $('#fd_amt_invested').val(""); 
               }
             else if (msg == 'NO'){
-                $('#fd_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                 toastr.error(msg); }
             else
-               {$('#fd_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               { toastr.error(msg);
                  
            }
         }
@@ -2845,17 +3231,21 @@ $('#addfddata').click(function() {
 
 //KisanVikasPatra codes starts heres .....
    
-$('#kisan_transaction_type_astrik').hide();
-$('#kisan_account_no_astrik').hide();
-$('#kisan_start_date_astrik').hide();
-$('#kisan_muturity_date_astrik').hide();
-$('#kisan_amt_invested_astrik').hide();
-$('#kisan_maturity_amt_astrik').hide();
-$('#kisan_interest_rate_astrik').hide();
 
+var kisan_var_ast="#kisan_transaction_type_astrik,#kisan_account_no_astrik,#kisan_start_date_astrik,#kisan_muturity_date_astrik,#kisan_amt_invested_astrik,#kisan_maturity_amt_astrik,#kisan_interest_rate_astrik";
+$(kisan_var_ast).hide();
+var kisan_var="#kisan_transaction_type,#kisan_account_no,#kisan_start_date,#kisan_muturity_date,#kisan_amt_invested,#kisan_maturity_amt,#kisan_interest_rate";
+$(kisan_var).on('change', function(){
+    $(kisan_var_ast).hide();
+    $(kisan_var).css('border', '');
+});
+$(kisan_var).keyup(function(e){
+    $(kisan_var_ast).hide();
+    $(kisan_var).css('border', '');
+});
 $('#addkisanvikasdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
    var kisan_transaction_type = $('#kisan_transaction_type').val();
@@ -2865,12 +3255,14 @@ $('#addkisanvikasdata').click(function() {
    var kisan_lockin_period = $('#kisan_lockin_period').val();
     var kisan_amt_invested = $('#kisan_amt_invested').val();
    var kisan_maturity_amt = $('#kisan_maturity_amt').val();
-    var kisan_interest_rate = $('#kisan_interest_rate').val();   
+    var kisan_interest_rate = $('#kisan_interest_rate').val(); 
+    var grp_asset = gr_assetn();
      
   
   
     if(kisan_transaction_type==""){
       $('#kisan_transaction_type').css('border', '1px solid red');
+      $('#kisan_transaction_type').focus();
       $('#kisan_transaction_type_astrik').show();
       return false;
     }else{
@@ -2879,6 +3271,7 @@ $('#addkisanvikasdata').click(function() {
     }
       if(kisan_account_no==""){
       $('#kisan_account_no').css('border', '1px solid red');
+      $('#kisan_account_no').focus();
       $('#kisan_account_no_astrik').show();
       return false;
     }else{
@@ -2887,6 +3280,7 @@ $('#addkisanvikasdata').click(function() {
     }
        if(kisan_start_date==""){
       $('#kisan_start_date').css('border', '1px solid red');
+      $('#kisan_start_date').focus();
       $('#kisan_start_date_astrik').show();
       return false;
     }else{
@@ -2895,6 +3289,7 @@ $('#addkisanvikasdata').click(function() {
     }
       if(kisan_muturity_date==""){
       $('#kisan_muturity_date').css('border', '1px solid red');
+      $('#kisan_muturity_date').focus();
       $('#kisan_muturity_date_astrik').show();
       return false;
     }else{
@@ -2903,6 +3298,7 @@ $('#addkisanvikasdata').click(function() {
     }
        if(kisan_amt_invested==""){
       $('#kisan_amt_invested').css('border', '1px solid red');
+      $('#kisan_amt_invested').focus();
       $('#kisan_amt_invested_astrik').show();
       return false;
     }else{
@@ -2911,6 +3307,7 @@ $('#addkisanvikasdata').click(function() {
     }
      if(kisan_maturity_amt==""){
       $('#kisan_maturity_amt').css('border', '1px solid red');
+      $('#kisan_maturity_amt').focus();
       $('#kisan_maturity_amt_astrik').show();
       return false;
     }else{
@@ -2919,6 +3316,7 @@ $('#addkisanvikasdata').click(function() {
     }
          if(kisan_interest_rate==""){
       $('#kisan_interest_rate').css('border', '1px solid red');
+      $('#kisan_interest_rate').focus();
       $('#kisan_interest_rate_astrik').show();
       return false;
     }else{
@@ -2927,16 +3325,13 @@ $('#addkisanvikasdata').click(function() {
     }
  
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+          assets_name: grp_asset[1],
+            group_name:grp_asset[0],
        sub_assets_name : valu,
        
        kisan_transaction_type : $('#kisan_transaction_type').val(),
@@ -2957,20 +3352,21 @@ $('#addkisanvikasdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#kisanvikas_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');   
-                         $('#kisan_transaction_type').val("");
-                         $('#kisan_account_no').val("");
-                         $('#kisan_start_date').val("");
-                         $('#kisan_muturity_date').val("");
-                         $('#kisan_lockin_period').val("");
-                         $('#kisan_amt_invested').val("");
-                         $('#kisan_maturity_amt').val("");
-                         $('#kisan_interest_rate').val("");  
+                $('#addKisanVikasPatra').modal('hide');
+                   toastr.success("Your form submitted successfully!!"); 
+                        //  $('#kisan_transaction_type').val("");
+                        //  $('#kisan_account_no').val("");
+                        //  $('#kisan_start_date').val("");
+                        //  $('#kisan_muturity_date').val("");
+                        //  $('#kisan_lockin_period').val("");
+                        //  $('#kisan_amt_invested').val("");
+                        //  $('#kisan_maturity_amt').val("");
+                        //  $('#kisan_interest_rate').val("");  
               }
             else if (msg == 'NO'){
-                $('#kisanvikas_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                     toastr.error(msg);}
             else
-               {$('#kisanvikas_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {     toastr.error(msg);
                  
            }
         }
@@ -2984,23 +3380,21 @@ $('#addkisanvikasdata').click(function() {
 
 
 //add mutual fund code start heress.....
- $('#mutual_company_name_astrik').hide();
-$('#mutual_scheme_astrik').hide();
-$('#mutual_folio_no_astrik').hide();
-$('#mutual_transaction_astrik').hide();
 
-$('#mutual_type_astrik').hide();
-$('#mutual_sip_date_astrik').hide();
-$('#mutual_date_astrik').hide();
-$('#mutual_quantity_astrik').hide();
-
-$('#mutual_amt_invested_astrik').hide();
-
-$('#mutual_nav_astrik').hide();
-
+var mut_var_ast="#mutual_company_name_astrik,#mutual_scheme_astrik,#mutual_folio_no_astrik,#mutual_transaction_astrik,#mutual_type_astrik,#mutual_sip_date_astrik,#mutual_date_astrik,#mutual_quantity_astrik,#mutual_amt_invested_astrik,#mutual_nav_astrik";
+$(mut_var_ast).hide();
+var mut_var="#mutual_company_name,#mutual_scheme,#mutual_folio_no,#mutual_transaction,#mutual_type,#mutual_date,#mutual_quantity,#mutual_nav,#mutual_amt_invested";
+$(mut_var).on('change', function(){
+    $(mut_var_ast).hide();
+    $(mut_var).css('border', '');
+});
+$(mut_var).keyup(function(e){
+    $(mut_var_ast).hide();
+    $(mut_var).css('border', '');
+});
 $('#apply_mutual_fund').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
    var mutual_company_name = $('#mutual_company_name').val();
@@ -3016,11 +3410,13 @@ $('#apply_mutual_fund').click(function() {
     var mutual_amt_invested = $('#mutual_amt_invested').val();
     var mutual_stamp_charge = $('#mutual_stamp_charge').val();
     var mutual_exit_load = $('#mutual_exit_load').val();
+    var grp_asset = gr_assetn();
   
 
    
     if(mutual_company_name==""){
       $('#mutual_company_name').css('border', '1px solid red');
+      $('#mutual_company_name').focus();
       $('#mutual_company_name_astrik').show();
       return false;
     }else{
@@ -3029,6 +3425,7 @@ $('#apply_mutual_fund').click(function() {
     }
       if(mutual_scheme==""){
       $('#mutual_scheme').css('border', '1px solid red');
+      $('#mutual_scheme').focus();
       $('#mutual_scheme_astrik').show();
       return false;
     }else{
@@ -3037,6 +3434,7 @@ $('#apply_mutual_fund').click(function() {
     }
        if(mutual_folio_no==""){
       $('#mutual_folio_no').css('border', '1px solid red');
+      $('#mutual_folio_no').focus();
       $('#mutual_folio_no_astrik').show();
       return false;
     }else{
@@ -3045,6 +3443,7 @@ $('#apply_mutual_fund').click(function() {
     }
       if(mutual_transaction==""){
       $('#mutual_transaction').css('border', '1px solid red');
+      $('#mutual_transaction').focus();
       $('#mutual_transaction_astrik').show();
       return false;
     }
@@ -3056,6 +3455,7 @@ $('#apply_mutual_fund').click(function() {
    
        if(mutual_type==""){
       $('#mutual_type').css('border', '1px solid red');
+      $('#mutual_type').focus();
       $('#mutual_type_astrik').show();
       return false;
     }else{
@@ -3064,6 +3464,7 @@ $('#apply_mutual_fund').click(function() {
     }
        if(mutual_date==""){
       $('#mutual_date').css('border', '1px solid red');
+      $('#mutual_date').focus();
       $('#mutual_date_astrik').show();
       return false;
     }else{
@@ -3072,6 +3473,7 @@ $('#apply_mutual_fund').click(function() {
     }
        if(mutual_quantity==""){
       $('#mutual_quantity').css('border', '1px solid red');
+      $('#mutual_quantity').focus();
       $('#mutual_quantity_astrik').show();
       return false;
     }else{
@@ -3081,6 +3483,7 @@ $('#apply_mutual_fund').click(function() {
    
        if(mutual_nav==""){
       $('#mutual_nav').css('border', '1px solid red');
+      $('#mutual_nav').focus();
       $('#mutual_nav_astrik').show();
       return false;
     }else{
@@ -3090,6 +3493,7 @@ $('#apply_mutual_fund').click(function() {
     
       if(mutual_amt_invested==""){
       $('#mutual_amt_invested').css('border', '1px solid red');
+      $('#mutual_amt_invested').focus();
       $('#mutual_amt_invested_astrik').show();
       return false;
     }else{
@@ -3097,16 +3501,17 @@ $('#apply_mutual_fund').click(function() {
       $('#mutual_amt_invested_astrik').hide();
     }
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+//   if(select_assets=="1"){select_assets="Investment";}
+//   else if(select_assets=="2"){select_assets="Insurance";}
+//   else if(select_assets=="3"){select_assets="Assets";}
+//   else if(select_assets=="4"){select_assets="Emergency Fund";}
+//   else{select_assets="Liability"; }
 
      var form_data = {
       user_id: $('#mutual_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+            group_name:grp_asset[0],
        sub_assets_name : valu,
        
     mutual_company_name : $('#mutual_company_name').val(),
@@ -3132,26 +3537,28 @@ $('#apply_mutual_fund').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-          $('#mutual_fund_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');    
-                        $('#mutual_company_name').val("");
-                        $('#mutual_scheme').val("");
-                        $('#mutual_folio_no').val("");
-                        $('#mutual_transaction').val("");
-                        $('#mutual_type').val("");
-                        $('#mutual_advisor').val("");
-                        $('#mutual_sip_date').val("");
-                        $('#mutual_date').val("");
-                        $('#mutual_quantity').val("");
-                        $('#mutual_nav').val("");
-                        $('#mutual_amt_invested').val("");
-                        $('#mutual_stamp_charge').val("");
-                        $('#mutual_exit_load').val("");
+                $('#addMutualFund').modal('hide');
+          toastr.success("Your form submitted successfully!!");    
+          $(mutual_var).val('');
+                        // $('#mutual_company_name').val("");
+                        // $('#mutual_scheme').val("");
+                        // $('#mutual_folio_no').val("");
+                        // $('#mutual_transaction').val("");
+                        // $('#mutual_type').val("");
+                        // $('#mutual_advisor').val("");
+                        // $('#mutual_sip_date').val("");
+                        // $('#mutual_date').val("");
+                        // $('#mutual_quantity').val("");
+                        // $('#mutual_nav').val("");
+                        // $('#mutual_amt_invested').val("");
+                        // $('#mutual_stamp_charge').val("");
+                        // $('#mutual_exit_load').val("");
                         $("#mutualfund_table_data").DataTable().ajax.reload();
               }
             else if (msg == 'NO'){
-                $('#mutual_fund_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                     toastr.error(msg); }
             else
-               {$('#mutual_fund_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {     toastr.error(msg);
                  
            }
         }
@@ -3169,21 +3576,23 @@ $('#apply_mutual_fund').click(function() {
 
 
 //add NCD start heress.....
-$('#ncd_type_astrik').hide();
-$('#ncd_name_astrik').hide();
-$('#ncd_transaction_type_astrik').hide();
-$('#ncd_date_astrik').hide();
-$('#ncd_purchase_price_astrik').hide();
-$('#ncd_quantity_astrik').hide();
-$('#ncd_amt_invested_astrik').hide();
-$('#ncd_interest_payout_astrik').hide();
-$('#ncd_interest_rate_astrik').hide();
-$('#ncd_interest_payable_astrik').hide();
-$('#ncd_maturity_date_astrik').hide();
 
+
+var ncd_var_ast="#ncd_type_astrik,#ncd_name_astrik,#ncd_transaction_type_astrik,#ncd_date_astrik,#ncd_purchase_price_astrik,#ncd_quantity_astrik,#ncd_amt_invested_astrik,#ncd_interest_payout_astrik,#ncd_interest_rate_astrik,#ncd_interest_payable_astrik,#ncd_maturity_date_astrik";
+$(ncd_var_ast).hide();
+var ncd_var="#ncd_type,#ncd_name,#ncd_transaction_type,#ncd_date,#ncd_purchase_price,#ncd_quantity,#ncd_amt_invested,#ncd_interest_payout,#ncd_interest_rate,#ncd_interest_payable,#ncd_maturity_date";
+
+$(ncd_var).on('change', function(){
+    $(ncd_var_ast).hide();
+    $(ncd_var).css('border', '');
+});
+$(ncd_var).keyup(function(e){
+    $(ncd_var_ast).hide();
+    $(ncd_var).css('border', '');
+});
 $('#addNCDdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
     var ncd_type = $('#ncd_type').val();
@@ -3198,9 +3607,11 @@ $('#addNCDdata').click(function() {
     var ncd_interest_payable = $('#ncd_interest_payable').val();
     var ncd_maturity_date = $('#ncd_maturity_date').val();
     var ncd_locking_period = $('#ncd_locking_period').val();
+    var grp_asset = gr_assetn();
    
     if(ncd_type==""){
       $('#ncd_type').css('border', '1px solid red');
+      $('#ncd_type').focus();
       $('#ncd_type_astrik').show();
       return false;
     }else{
@@ -3209,6 +3620,7 @@ $('#addNCDdata').click(function() {
     }
       if(ncd_name==""){
       $('#ncd_name').css('border', '1px solid red');
+      $('#ncd_name').focus();
       $('#ncd_name_astrik').show();
       return false;
     }else{
@@ -3217,6 +3629,7 @@ $('#addNCDdata').click(function() {
     }
        if(ncd_transaction_type==""){
       $('#ncd_transaction_type').css('border', '1px solid red');
+      $('#ncd_transaction_type').focus();
       $('#ncd_transaction_type_astrik').show();
       return false;
     }else{
@@ -3225,6 +3638,7 @@ $('#addNCDdata').click(function() {
     }
       if(ncd_date==""){
       $('#ncd_date').css('border', '1px solid red');
+      $('#ncd_date').focus();
       $('#ncd_date_astrik').show();
       return false;
     }
@@ -3234,6 +3648,7 @@ $('#addNCDdata').click(function() {
     }
        if(ncd_purchase_price==""){
       $('#ncd_purchase_price').css('border', '1px solid red');
+      $('#ncd_purchase_price').focus();
       $('#ncd_purchase_price_astrik').show();
       return false;
     }else{
@@ -3242,6 +3657,7 @@ $('#addNCDdata').click(function() {
     }
        if(ncd_quantity==""){
       $('#ncd_quantity').css('border', '1px solid red');
+      $('#ncd_quantity').focus();
       $('#ncd_quantity_astrik').show();
       return false;
     }else{
@@ -3250,6 +3666,7 @@ $('#addNCDdata').click(function() {
     }
        if(ncd_amt_invested==""){
       $('#ncd_amt_invested').css('border', '1px solid red');
+      $('#ncd_amt_invested').focus();
       $('#ncd_amt_invested_astrik').show();
       return false;
     }else{
@@ -3259,6 +3676,7 @@ $('#addNCDdata').click(function() {
    
        if(ncd_interest_payout==""){
       $('#ncd_interest_payout').css('border', '1px solid red');
+      $('#ncd_interest_payout').focus();
       $('#ncd_interest_payout_astrik').show();
       return false;
     }else{
@@ -3268,6 +3686,7 @@ $('#addNCDdata').click(function() {
     
       if(ncd_interest_rate==""){
       $('#ncd_interest_rate').css('border', '1px solid red');
+      $('#ncd_interest_rate').focus();
       $('#ncd_interest_rate_astrik').show();
       return false;
     }else{
@@ -3276,6 +3695,7 @@ $('#addNCDdata').click(function() {
     }
          if(ncd_interest_payable==""){
       $('#ncd_interest_payable').css('border', '1px solid red');
+      $('#ncd_interest_payable').focus();
       $('#ncd_interest_payable_astrik').show();
       return false;
     }else{
@@ -3285,6 +3705,7 @@ $('#addNCDdata').click(function() {
 
      if(ncd_maturity_date==""){
       $('#ncd_maturity_date').css('border', '1px solid red');
+      $('#ncd_maturity_date').focus();
       $('#ncd_maturity_date_astrik').show();
       return false;
     }else{
@@ -3293,16 +3714,13 @@ $('#addNCDdata').click(function() {
     }
 
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#mutual_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+        assets_name: grp_asset[1],
+            group_name: grp_asset[0],
        sub_assets_name : valu,
        
        ncd_type : $('#ncd_type').val(),
@@ -3311,7 +3729,7 @@ $('#addNCDdata').click(function() {
        ncd_date : $('#ncd_date').val(),
        ncd_purchase_price : $('#ncd_purchase_price').val(),
        ncd_quantity : $('#ncd_quantity').val(),
-       ncd_amt_invested : $('#ncd_amt_invested').val(),
+       amt_invested : $('#ncd_amt_invested').val(),
        ncd_interest_payout : $('#ncd_interest_payout').val(),
        ncd_interest_rate : $('#ncd_interest_rate').val(),
        ncd_interest_payable : $('#ncd_interest_payable').val(),
@@ -3327,25 +3745,26 @@ $('#addNCDdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-          $('#NCD_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');    
-                     
-                 $('#ncd_type').val("");
-                 $('#ncd_name').val("");
-                 $('#ncd_transaction_type').val("");
-                 $('#ncd_date').val("");
-                 $('#ncd_purchase_price').val("");
-                 $('#ncd_quantity').val("");
-                 $('#ncd_amt_invested').val("");
-                 $('#ncd_interest_payout').val("");
-                 $('#ncd_interest_rate').val("");
-                 $('#ncd_interest_payable').val("");
-                 $('#ncd_maturity_date').val("");
-                 $('#ncd_locking_period').val("");
+                $('#addNCDebenture').modal('hide');
+          toastr.success("Your form submitted successfully!!");
+                     $(ncd_var).val('');
+                //  $('#ncd_type').val("");
+                //  $('#ncd_name').val("");
+                //  $('#ncd_transaction_type').val("");
+                //  $('#ncd_date').val("");
+                //  $('#ncd_purchase_price').val("");
+                //  $('#ncd_quantity').val("");
+                //  $('#ncd_amt_invested').val("");
+                //  $('#ncd_interest_payout').val("");
+                //  $('#ncd_interest_rate').val("");
+                //  $('#ncd_interest_payable').val("");
+                //  $('#ncd_maturity_date').val("");
+                //  $('#ncd_locking_period').val("");
               }
             else if (msg == 'NO'){
-                $('#NCD_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg); }
             else
-               {$('#NCD_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -3364,19 +3783,22 @@ $('#addNCDdata').click(function() {
 
 //NPS codes starts heres .....
    
-$('#nps_opening_date_astrik').hide();
-$('#nps_type_astrik').hide();
-$('#nps_pran_no_astrik').hide();
-$('#nps_scheme_astrik').hide();
-$('#nps_transaction_type_astrik').hide();
-$('#nps_date_astrik').hide();
-$('#nps_qty_astrik').hide();
-$('#nps_purchase_price_astrik').hide();
-$('#nps_amt_invested_astrik').hide();
 
+
+var nps_var_ast="#nps_opening_date_astrik,#nps_type_astrik,#nps_pran_no_astrik,#nps_scheme_astrik,#nps_transaction_type_astrik,#nps_date_astrik,#nps_qty_astrik,#nps_purchase_price_astrik,#nps_amt_invested_astrik";
+$(nps_var_ast).hide();
+var nps_var="#nps_opening_date,#nps_type,#nps_pran_no,#nps_scheme,#nps_transaction_type,#nps_date,#nps_qty,#nps_purchase_price,#nps_amt_invested";
+$(nps_var).on('change', function(){
+    $(nps_var_ast).hide();
+    $(nps_var).css('border', '');
+});
+$(nps_var).keyup(function(e){
+    $(nps_var_ast).hide();
+    $(nps_var).css('border', '');
+});
 $('#addnpsdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
    var nps_opening_date = $('#nps_opening_date').val();
@@ -3388,9 +3810,21 @@ $('#addnpsdata').click(function() {
     var nps_qty = $('#nps_qty').val();
      var nps_purchase_price = $('#nps_purchase_price').val();
       var nps_amt_invested = $('#nps_amt_invested').val();
+      var grp_asset = gr_assetn();
   
+  
+         if(nps_pran_no==""){
+      $('#nps_pran_no').css('border', '1px solid red');
+      $('#nps_pran_no').focus();
+      $('#nps_pran_no_astrik').show();
+      return false;
+    }else{
+     $('#nps_pran_no').css('border', '');
+      $('#nps_pran_no_astrik').hide();
+    }
     if(nps_opening_date==""){
       $('#nps_opening_date').css('border', '1px solid red');
+      $('#nps_opening_date').focus();
       $('#nps_opening_date_astrik').show();
       return false;
     }else{
@@ -3399,22 +3833,17 @@ $('#addnpsdata').click(function() {
     }
       if(nps_type==""){
       $('#nps_type').css('border', '1px solid red');
+      $('#nps_type').focus();
       $('#nps_type_astrik').show();
       return false;
     }else{
      $('#nps_type').css('border', '');
       $('#nps_type_astrik').hide();
     }
-       if(nps_pran_no==""){
-      $('#nps_pran_no').css('border', '1px solid red');
-      $('#nps_pran_no_astrik').show();
-      return false;
-    }else{
-     $('#nps_pran_no').css('border', '');
-      $('#nps_pran_no_astrik').hide();
-    }
+
      if(nps_scheme==""){
       $('#nps_scheme').css('border', '1px solid red');
+      $('#nps_scheme').focus();
       $('#nps_scheme_astrik').show();
       return false;
     }else{
@@ -3423,6 +3852,7 @@ $('#addnpsdata').click(function() {
     }
          if(nps_transaction_type==""){
       $('#nps_transaction_type').css('border', '1px solid red');
+      $('#nps_transaction_type').focus();
       $('#nps_transaction_type_astrik').show();
       return false;
     }else{
@@ -3431,6 +3861,7 @@ $('#addnpsdata').click(function() {
     }
      if(nps_date==""){
       $('#nps_date').css('border', '1px solid red');
+      $('#nps_date').focus();
       $('#nps_date_astrik').show();
       return false;
     }else{
@@ -3439,6 +3870,7 @@ $('#addnpsdata').click(function() {
     }
       if(nps_qty==""){
       $('#nps_qty').css('border', '1px solid red');
+      $('#nps_qty').focus();
       $('#nps_qty_astrik').show();
       return false;
     }else{
@@ -3447,6 +3879,7 @@ $('#addnpsdata').click(function() {
     }
     if(nps_purchase_price==""){
       $('#nps_purchase_price').css('border', '1px solid red');
+      $('#nps_purchase_price').focus();
       $('#nps_purchase_price_astrik').show();
       return false;
     }else{
@@ -3455,6 +3888,7 @@ $('#addnpsdata').click(function() {
     }
      if(nps_amt_invested==""){
       $('#nps_amt_invested').css('border', '1px solid red');
+      $('#nps_amt_invested').focus();
       $('#nps_amt_invested_astrik').show();
       return false;
     }else{
@@ -3462,16 +3896,13 @@ $('#addnpsdata').click(function() {
       $('#nps_amt_invested_astrik').hide();
     }
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+          assets_name: grp_asset[1],
+            group_name:grp_asset[0],
        sub_assets_name : valu,
        
       nps_opening_date : $('#nps_opening_date').val(),
@@ -3494,21 +3925,23 @@ $('#addnpsdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#nps_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>'); $('#nps_opening_date').val("");
-                   $('#nps_type').val("");
-                   $('#nps_pran_no').val("");
-                   $('#nps_scheme').val("");
-                  $('#nps_transaction_type').val("");
-                  $('#nps_date').val("");
-                   $('#nps_qty').val("");
-                   $('#nps_purchase_price').val("");
-                   $('#nps_amt_invested').val(""); 
+                // $('#addNPS').modal('hide');
+                toastr.success("Your form submitted successfully!!");
+                $(nps_var).val('');
+                //   $('#nps_type').val("");
+                //   $('#nps_pran_no').val("");
+                //   $('#nps_scheme').val("");
+                //   $('#nps_transaction_type').val("");
+                //   $('#nps_date').val("");
+                //   $('#nps_qty').val("");
+                //   $('#nps_purchase_price').val("");
+                //   $('#nps_amt_invested').val(""); 
                    $("#nps_table_data").DataTable().ajax.reload();
               }
             else if (msg == 'NO'){
-                $('#nps_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg); }
             else
-               {$('#nps_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -3524,18 +3957,23 @@ $('#addnpsdata').click(function() {
 
 //NSC codes starts heres .....
    
-$('#nsc_transaction_type_astrik').hide();
-$('#nsc_account_no_astrik').hide();
-$('#nsc_type_astrik').hide();
-$('#nsc_opening_date_astrik').hide();
-$('#nsc_amt_invested_astrik').hide();
-$('#nsc_interest_rate_astrik').hide();
-$('#nsc_maturity_date_astrik').hide();
-$('#nsc_maturity_amt_astrik').hide();
 
+
+var nsc_var_ast="#nsc_transaction_type_astrik,#nsc_account_no_astrik,#nsc_type_astrik,#nsc_opening_date_astrik,#nsc_amt_invested_astrik,#nsc_interest_rate_astrik,#nsc_maturity_date_astrik,#nsc_maturity_amt_astrik";
+$(nsc_var_ast).hide();
+var nsc_var="#nsc_transaction_type,#nsc_account_no,#nsc_type,#nsc_opening_date,#nsc_amt_invested,#nsc_interest_rate,#nsc_maturity_date,#nsc_maturity_amt";
+
+$(nsc_var).on('change', function(){
+    $(nsc_var_ast).hide();
+    $(nsc_var).css('border', '');
+});
+$(nsc_var).keyup(function(e){
+    $(nsc_var_ast).hide();
+    $(nsc_var).css('border', '');
+});
 $('#addnscdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
     var nsc_transaction_type = $('#nsc_transaction_type').val();
@@ -3547,9 +3985,11 @@ $('#addnscdata').click(function() {
     var nsc_interest_rate = $('#nsc_interest_rate').val(); 
     var nsc_maturity_date = $('#nsc_maturity_date').val();
     var nsc_maturity_amt = $('#nsc_maturity_amt').val();     
+  var grp_asset = gr_assetn();
   
     if(nsc_transaction_type==""){
       $('#nsc_transaction_type').css('border', '1px solid red');
+      $('#nsc_transaction_type').focus();
       $('#nsc_transaction_type_astrik').show();
       return false;
     }else{
@@ -3558,6 +3998,7 @@ $('#addnscdata').click(function() {
     }
       if(nsc_account_no==""){
       $('#nsc_account_no').css('border', '1px solid red');
+      $('#nsc_account_no').focus();
       $('#nsc_account_no_astrik').show();
       return false;
     }else{
@@ -3566,6 +4007,7 @@ $('#addnscdata').click(function() {
     }
        if(nsc_type==""){
       $('#nsc_type').css('border', '1px solid red');
+      $('#nsc_type').focus();
       $('#nsc_type_astrik').show();
       return false;
     }else{
@@ -3574,6 +4016,7 @@ $('#addnscdata').click(function() {
     }
        if(nsc_opening_date==""){
       $('#nsc_opening_date').css('border', '1px solid red');
+      $('#nsc_opening_date').focus();
       $('#nsc_opening_date_astrik').show();
       return false;
     }else{
@@ -3582,6 +4025,7 @@ $('#addnscdata').click(function() {
     }
        if(nsc_amt_invested==""){
       $('#nsc_amt_invested').css('border', '1px solid red');
+      $('#nsc_amt_invested').focus();
       $('#nsc_amt_invested_astrik').show();
       return false;
     }else{
@@ -3590,6 +4034,7 @@ $('#addnscdata').click(function() {
     }
      if(nsc_interest_rate==""){
       $('#nsc_interest_rate').css('border', '1px solid red');
+      $('#nsc_interest_rate').focus();
       $('#nsc_interest_rate_astrik').show();
       return false;
     }else{
@@ -3598,6 +4043,7 @@ $('#addnscdata').click(function() {
     }
        if(nsc_maturity_date==""){
       $('#nsc_maturity_date').css('border', '1px solid red');
+      $('#nsc_maturity_date').focus();
       $('#nsc_maturity_date_astrik').show();
       return false;
     }else{
@@ -3606,6 +4052,7 @@ $('#addnscdata').click(function() {
     }
      if(nsc_maturity_amt==""){
       $('#nsc_maturity_amt').css('border', '1px solid red');
+      $('#nsc_maturity_amt').focus();
       $('#nsc_maturity_amt_astrik').show();
       return false;
     }else{
@@ -3615,16 +4062,12 @@ $('#addnscdata').click(function() {
    
  
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+            assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
         nsc_transaction_type : $('#nsc_transaction_type').val(),
@@ -3646,21 +4089,23 @@ $('#addnscdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#nsc_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');   
-                      $('#nsc_transaction_type').val("");
-                      $('#nsc_account_no').val("");
-                      $('#nsc_type').val("");
-                      $('#nsc_opening_date').val("");
-                      $('#nsc_lockin_period').val("");
-                      $('#nsc_amt_invested').val("");
-                      $('#nsc_interest_rate').val(""); 
-                      $('#nsc_maturity_date').val("");
-                      $('#nsc_maturity_amt').val("");  
+                $('#addNSC').modal('hide');
+                toastr.success(msg, "Asset form submitted successfully!!"); 
+                $(nsc_var).val('');
+                    //   $('#nsc_transaction_type').val("");
+                    //   $('#nsc_account_no').val("");
+                    //   $('#nsc_type').val("");
+                    //   $('#nsc_opening_date').val("");
+                    //   $('#nsc_lockin_period').val("");
+                    //   $('#nsc_amt_invested').val("");
+                    //   $('#nsc_interest_rate').val(""); 
+                    //   $('#nsc_maturity_date').val("");
+                    //   $('#nsc_maturity_amt').val("");  
               }
             else if (msg == 'NO'){
-                $('#nsc_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+             toastr.error(msg); }
             else
-               {$('#nsc_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -3675,18 +4120,22 @@ $('#addnscdata').click(function() {
 
 //PPF codes starts heres .....
    
-$('#ppf_transaction_type_astrik').hide();
-$('#ppf_account_no_astrik').hide();
 
-$('#ppf_opening_date_astrik').hide();
-$('#ppf_date_astrik').hide();
-$('#ppf_maturity_date_astrik').hide();
-$('#ppf_amt_invested_astrik').hide();
-$('#ppf_interest_rate_astrik').hide();
 
+var ppf_var_ast="#ppf_transaction_type_astrik,#ppf_account_no_astrik,#ppf_opening_date_astrik,#ppf_date_astrik,#ppf_maturity_date_astrik,#ppf_amt_invested_astrik,#ppf_interest_rate_astrik";
+$(ppf_var_ast).hide();
+var ppf_var="#ppf_transaction_type,#ppf_account_no,#ppf_date, #ppf_opening_date,#ppf_maturity_date,#ppf_amt_invested,#ppf_interest_rate";
+$(ppf_var).on('change', function(){
+    $(ppf_var_ast).hide();
+    $(ppf_var).css('border', '');
+});
+$(ppf_var).keyup(function(e){
+    $(ppf_var_ast).hide();
+    $(ppf_var).css('border', '');
+});
 $('#addppfdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
     var ppf_transaction_type = $('#ppf_transaction_type').val();
@@ -3697,10 +4146,11 @@ $('#addppfdata').click(function() {
     var ppf_maturity_date = $('#ppf_maturity_date').val();
     var ppf_amt_invested = $('#ppf_amt_invested').val();
     var ppf_interest_rate = $('#ppf_interest_rate').val();
-     
+     var grp_asset = gr_assetn();
   
     if(ppf_transaction_type==""){
       $('#ppf_transaction_type').css('border', '1px solid red');
+      $('#ppf_transaction_type').focus();
       $('#ppf_transaction_type_astrik').show();
       return false;
     }else{
@@ -3709,6 +4159,7 @@ $('#addppfdata').click(function() {
     }
       if(ppf_account_no==""){
       $('#ppf_account_no').css('border', '1px solid red');
+      $('#ppf_account_no').focus();
       $('#ppf_account_no_astrik').show();
       return false;
     }else{
@@ -3718,6 +4169,7 @@ $('#addppfdata').click(function() {
 
        if(ppf_opening_date==""){
       $('#ppf_opening_date').css('border', '1px solid red');
+      $('#ppf_opening_date').focus();
       $('#ppf_opening_date_astrik').show();
       return false;
     }else{
@@ -3726,6 +4178,7 @@ $('#addppfdata').click(function() {
     }
        if(ppf_maturity_date==""){
       $('#ppf_maturity_date').css('border', '1px solid red');
+      $('#ppf_maturity_date').focus();
       $('#ppf_maturity_date_astrik').show();
       return false;
     }else{
@@ -3734,6 +4187,7 @@ $('#addppfdata').click(function() {
     }
        if(ppf_amt_invested==""){
       $('#ppf_amt_invested').css('border', '1px solid red');
+      $('#ppf_amt_invested').focus();
       $('#ppf_amt_invested_astrik').show();
       return false;
     }else{
@@ -3742,6 +4196,7 @@ $('#addppfdata').click(function() {
     }
        if(ppf_interest_rate==""){
       $('#ppf_interest_rate').css('border', '1px solid red');
+      $('#ppf_interest_rate').focus();
       $('#ppf_interest_rate_astrik').show();
       return false;
     }else{
@@ -3750,16 +4205,13 @@ $('#addppfdata').click(function() {
     }
      
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+             assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
         ppf_transaction_type : $('#ppf_transaction_type').val(),
@@ -3780,20 +4232,22 @@ $('#addppfdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#ppf_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');   
-                       $('#ppf_transaction_type').val("");
-                       $('#ppf_account_no').val("");
-                       $('#ppf_opening_date').val("");
-                       $('#ppf_date').val("");
-                       $('#ppf_lockin_period').val("");    
-                       $('#ppf_maturity_date').val("");
-                       $('#ppf_amt_invested').val("");
-                       $('#ppf_interest_rate').val("");  
+                $('#addPPF').modal('hide');
+                toastr.success("Your form submitted successfully!");  
+                $(ppf_var).val("");
+                    //   $('#ppf_transaction_type').val("");
+                    //   $('#ppf_account_no').val("");
+                    //   $('#ppf_opening_date').val("");
+                    //   $('#ppf_date').val("");
+                    //   $('#ppf_lockin_period').val("");    
+                    //   $('#ppf_maturity_date').val("");
+                    //   $('#ppf_amt_invested').val("");
+                    //   $('#ppf_interest_rate').val("");  
               }
             else if (msg == 'NO'){
-                $('#ppf_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                 toastr.error(msg); }
             else
-               {$('#ppf_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               { toastr.error(msg);
                  
            }
         }
@@ -3809,18 +4263,21 @@ $('#addppfdata').click(function() {
 
 //Private Equity/ stratup codes starts heres .....
    
-$('#pe_asset_name_astrik').hide();
-$('#pe_startup_astrik').hide();
-$('#pe_start_date_astrik').hide();
-$('#pe_transaction_type_astrik').hide();
-$('#pe_date_astrik').hide();
-$('#pe_qty_purchase_astrik').hide();
-$('#pe_purchase_rate_astrik').hide();
-$('#pe_amt_invested_astrik').hide();
 
+var pe_var_ast="#pe_asset_name_astrik,#pe_startup_astrik,#pe_start_date_astrik,#pe_transaction_type_astrik,#pe_date_astrik,#pe_qty_purchase_astrik,#pe_purchase_rate_astrik,#pe_amt_invested_astrik";
+$('pe_var_ast').hide();
+var pe_var="#pe_asset_name,#pe_startup,#pe_start_date,#pe_transaction_type,#pe_date,#pe_qty_purchase,#pe_purchase_rate,#pe_amt_invested";
+$(pe_var).on('change', function(){
+    $(pe_var_ast).hide();
+    $(pe_var).css('border', '');
+});
+$(pe_var).keyup(function(e){
+    $(pe_var_ast).hide();
+    $(pe_var).css('border', '');
+});
 $('#addprivateequitydata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
     var pe_asset_name = $('#pe_asset_name').val();
@@ -3833,10 +4290,12 @@ $('#addprivateequitydata').click(function() {
     var pe_amt_invested = $('#pe_amt_invested').val();   
     var pe_current_rate = $('#pe_current_rate').val();
     var pe_present_value = $('#pe_present_value').val();
+    var grp_asset = gr_assetn();
   
   
     if(pe_asset_name==""){
       $('#pe_asset_name').css('border', '1px solid red');
+      $('#pe_asset_name').focus();
       $('#pe_asset_name_astrik').show();
       return false;
     }else{
@@ -3845,6 +4304,7 @@ $('#addprivateequitydata').click(function() {
     }
       if(pe_startup==""){
       $('#pe_startup').css('border', '1px solid red');
+      $('#pe_startup').focus();
       $('#pe_startup_astrik').show();
       return false;
     }else{
@@ -3853,6 +4313,7 @@ $('#addprivateequitydata').click(function() {
     }
        if(pe_start_date==""){
       $('#pe_start_date').css('border', '1px solid red');
+      $('#pe_start_date').focus();
       $('#pe_start_date_astrik').show();
       return false;
     }else{
@@ -3861,6 +4322,7 @@ $('#addprivateequitydata').click(function() {
     }
      if(pe_transaction_type==""){
       $('#pe_transaction_type').css('border', '1px solid red');
+      $('#pe_transaction_type').focus();
       $('#pe_transaction_type_astrik').show();
       return false;
     }else{
@@ -3869,6 +4331,7 @@ $('#addprivateequitydata').click(function() {
     }
          if(pe_date==""){
       $('#pe_date').css('border', '1px solid red');
+      $('#pe_date').focus();
       $('#pe_date_astrik').show();
       return false;
     }else{
@@ -3877,6 +4340,7 @@ $('#addprivateequitydata').click(function() {
     }
         if(pe_qty_purchase==""){
       $('#pe_qty_purchase').css('border', '1px solid red');
+      $('#pe_qty_purchase').focus();
       $('#pe_qty_purchase_astrik').show();
       return false;
     }else{
@@ -3885,6 +4349,7 @@ $('#addprivateequitydata').click(function() {
     }
      if(pe_purchase_rate==""){
       $('#pe_purchase_rate').css('border', '1px solid red');
+      $('#pe_purchase_rate').focus();
       $('#pe_purchase_rate_astrik').show();
       return false;
     }else{
@@ -3893,6 +4358,7 @@ $('#addprivateequitydata').click(function() {
     }
          if(pe_amt_invested==""){
       $('#pe_amt_invested').css('border', '1px solid red');
+      $('#pe_amt_invested').focus();
       $('#pe_amt_invested_astrik').show();
       return false;
     }else{
@@ -3902,16 +4368,13 @@ $('#addprivateequitydata').click(function() {
     
  
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+              assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
        pe_asset_name : $('#pe_asset_name').val(),
@@ -3921,7 +4384,7 @@ $('#addprivateequitydata').click(function() {
        pe_date : $('#pe_date').val(),
        pe_qty_purchase : $('#pe_qty_purchase').val(),
        pe_purchase_rate : $('#pe_purchase_rate').val(),
-       pe_amt_invested : $('#pe_amt_invested').val(),   
+       amt_invested : $('#pe_amt_invested').val(),   
        pe_current_rate : $('#pe_current_rate').val(),
        pe_present_value : $('#pe_present_value').val()
     };  
@@ -3934,22 +4397,24 @@ $('#addprivateequitydata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#privateEquity_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');
-                 $('#pe_asset_name').val("");
-                 $('#pe_startup').val("");
-                 $('#pe_start_date').val("");
-                 $('#pe_transaction_type').val("");
-                 $('#pe_date').val("");
-                 $('#pe_qty_purchase').val("");
-                 $('#pe_purchase_rate').val("");
-                 $('#pe_amt_invested').val("");   
-                 $('#pe_current_rate').val("");
-                 $('#pe_present_value').val("");
+                $('#addPrivateEquity').modal('hide');
+                  toastr.success("Your form submitted successfully!!");
+                  $(pe_var).val('');
+                //  $('#pe_asset_name').val("");
+                //  $('#pe_startup').val("");
+                //  $('#pe_start_date').val("");
+                //  $('#pe_transaction_type').val("");
+                //  $('#pe_date').val("");
+                //  $('#pe_qty_purchase').val("");
+                //  $('#pe_purchase_rate').val("");
+                //  $('#pe_amt_invested').val("");   
+                //  $('#pe_current_rate').val("");
+                //  $('#pe_present_value').val("");
               }
             else if (msg == 'NO'){
-                $('#privateEquity_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+               toastr.error(msg); }
             else
-               {$('#privateEquity_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -3963,17 +4428,24 @@ $('#addprivateequitydata').click(function() {
 
 
 //RD codes starts heres .....
- $('#rd_type_astrik').hide();
-$('#rd_account_no_astrik').hide();
-$('#rd_transaction_type_astrik').hide();
-$('#rd_interest_rate_astrik').hide();
-$('#rd_maturity_date_astrik').hide();
-$('#rd_start_date_astrik').hide();
-$('#rd_amt_invested_astrik').hide();
+
+
+
+var rd_ast_var="#rd_type_astrik,#rd_account_no_astrik,#rd_transaction_type_astrik,#rd_interest_rate_astrik,#rd_maturity_date_astrik,#rd_start_date_astrik,#rd_amt_invested_astrik";
+$(rd_ast_var).hide();
+var rd_var="#rd_type,#rd_account_no,#rd_transaction_type,#rd_interest_rate,#rd_maturity_date,#rd_start_date,#rd_amt_invested";
+$(rd_var).on('change', function(){
+    $(rd_ast_var).hide();
+    $(rd_var).css('border', '');
+});
+$(rd_var).keyup(function(e){
+    $(rd_ast_var).hide();
+    $(rd_var).css('border', '');
+});
 
 $('#RDaddddata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
     var rd_type = $('#rd_type').val();
@@ -3987,10 +4459,11 @@ $('#RDaddddata').click(function() {
     var rd_maturity_date = $('#rd_maturity_date').val();
     var rd_start_date = $('#rd_start_date').val();
     var rd_amt_invested = $('#rd_amt_invested').val();
-  
+    var grp_asset = gr_assetn(); 
   
     if(rd_type==""){
       $('#rd_type').css('border', '1px solid red');
+      $('#rd_type').focus();
       $('#rd_type_astrik').show();
       return false;
     }else{
@@ -3999,6 +4472,7 @@ $('#RDaddddata').click(function() {
     }
       if(rd_account_no==""){
       $('#rd_account_no').css('border', '1px solid red');
+      $('#rd_account_no').focus();
       $('#rd_account_no_astrik').show();
       return false;
     }else{
@@ -4007,6 +4481,7 @@ $('#RDaddddata').click(function() {
     }
        if(rd_transaction_type==""){
       $('#rd_transaction_type').css('border', '1px solid red');
+      $('#rd_transaction_type').focus();
       $('#rd_transaction_type_astrik').show();
       return false;
     }else{
@@ -4015,6 +4490,7 @@ $('#RDaddddata').click(function() {
     }
      if(rd_interest_rate==""){
       $('#rd_interest_rate').css('border', '1px solid red');
+      $('#rd_interest_rate').focus();
       $('#rd_interest_rate_astrik').show();
       return false;
     }else{
@@ -4023,6 +4499,7 @@ $('#RDaddddata').click(function() {
     }
          if(rd_maturity_date==""){
       $('#rd_maturity_date').css('border', '1px solid red');
+      $('#rd_maturity_date').focus();
       $('#rd_maturity_date_astrik').show();
       return false;
     }else{
@@ -4031,6 +4508,7 @@ $('#RDaddddata').click(function() {
     }
         if(rd_start_date==""){
       $('#rd_start_date').css('border', '1px solid red');
+      $('#rd_start_date').focus();
       $('#rd_start_date_astrik').show();
       return false;
     }else{
@@ -4039,6 +4517,7 @@ $('#RDaddddata').click(function() {
     }
      if(rd_amt_invested==""){
       $('#rd_amt_invested').css('border', '1px solid red');
+      $('#rd_amt_invested').focus();
       $('#rd_amt_invested_astrik').show();
       return false;
     }else{
@@ -4046,16 +4525,12 @@ $('#RDaddddata').click(function() {
       $('#rd_amt_invested_astrik').hide();
     }
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+              assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
        rd_type : $('#rd_type').val(),
@@ -4068,7 +4543,7 @@ $('#RDaddddata').click(function() {
        rd_maturity_amt : $('#rd_maturity_amt').val(),
        rd_maturity_date : $('#rd_maturity_date').val(),
        rd_start_date : $('#rd_start_date').val(),
-       rd_amt_invested : $('#rd_amt_invested').val()
+       amt_invested : $('#rd_amt_invested').val()
     };  
 
    if(valu != "")
@@ -4079,22 +4554,24 @@ $('#RDaddddata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#RD_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');    $('#rd_type').val("");
-                      $('#rd_account_no').val("");
-                      $('#rd_transaction_type').val("");
-                      $('#rd_interest_payout').val("");
-                      $('#rd_interest_payment').val("");
-                      $('#rd_interest_rate').val("");
-                      $('#rd_interest_type').val("");
-                      $('#rd_maturity_amt').val("");
-                      $('#rd_maturity_date').val("");
-                      $('#rd_start_date').val("");
-                      $('#rd_amt_invested').val(""); 
+                $('#addRD').modal('hide');
+                        toastr.success("Your form submitted successfully!!");
+                        $(rd_var).val('');
+                    //   $('#rd_account_no').val("");
+                    //   $('#rd_transaction_type').val("");
+                    //   $('#rd_interest_payout').val("");
+                    //   $('#rd_interest_payment').val("");
+                    //   $('#rd_interest_rate').val("");
+                    //   $('#rd_interest_type').val("");
+                    //   $('#rd_maturity_amt').val("");
+                    //   $('#rd_maturity_date').val("");
+                    //   $('#rd_start_date').val("");
+                    //   $('#rd_amt_invested').val(""); 
               }
             else if (msg == 'NO'){
-                $('#RD_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                toastr.error(msg); }
             else
-               {$('#RD_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {toastr.error(msg);
                  
            }
         }
@@ -4109,16 +4586,22 @@ $('#RDaddddata').click(function() {
 
 //SCSS codes starts heres .....
    
-$('#scss_transaction_type_astrik').hide();
-$('#scss_account_no_astrik').hide();
-$('#scss_muturity_date_astrik').hide();
-$('#scss_lockin_period_astrik').hide();
-$('#scss_date_astrik').hide();
-$('#scss_amt_invested_astrik').hide();
 
+
+var scss_var_ast="#scss_transaction_type_astrik, #scss_account_no_astrik, #scss_muturity_date_astrik, #scss_lockin_period_astrik, #scss_date_astrik, #scss_amt_invested_astrik";
+$(scss_var_ast).hide();
+var scss_var="#scss_transaction_type,#scss_account_no,#scss_muturity_date,#scss_lockin_period,#scss_date,#scss_amt_invested";
+$(scss_var).on('change', function(){
+    $(scss_var_ast).hide();
+    $(scss_var).css('border', '');
+});
+$(scss_var).keyup(function(e){
+    $(scss_var_ast).hide();
+    $(scss_var).css('border', '');
+});
 $('#addscssdata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
    var scss_transaction_type = $('#scss_transaction_type').val();
@@ -4133,9 +4616,10 @@ $('#addscssdata').click(function() {
     var scss_interest_payment = $('#scss_interest_payment').val(); 
     var scss_interest_payout = $('#scss_interest_payout').val(); 
     var scss_maturity_amt = $('#scss_maturity_amt').val();    
-  
+  var grp_asset = gr_assetn();
     if(scss_transaction_type==""){
       $('#scss_transaction_type').css('border', '1px solid red');
+      $('#scss_transaction_type').focus();
       $('#scss_transaction_type_astrik').show();
       return false;
     }else{
@@ -4144,6 +4628,7 @@ $('#addscssdata').click(function() {
     }
       if(scss_account_no==""){
       $('#scss_account_no').css('border', '1px solid red');
+      $('#scss_account_no').focus();
       $('#scss_account_no_astrik').show();
       return false;
     }else{
@@ -4152,6 +4637,7 @@ $('#addscssdata').click(function() {
     }
       if(scss_muturity_date==""){
       $('#scss_muturity_date').css('border', '1px solid red');
+      $('#scss_muturity_date').focus();
       $('#scss_muturity_date_astrik').show();
       return false;
     }else{
@@ -4160,6 +4646,7 @@ $('#addscssdata').click(function() {
     }
       if(scss_lockin_period==""){
       $('#scss_lockin_period').css('border', '1px solid red');
+      $('#scss_lockin_period').focus();
       $('#scss_lockin_period_astrik').show();
       return false;
     }else{
@@ -4168,6 +4655,7 @@ $('#addscssdata').click(function() {
     }
        if(scss_date==""){
       $('#scss_date').css('border', '1px solid red');
+      $('#scss_date').focus();
       $('#scss_date_astrik').show();
       return false;
     }else{
@@ -4177,6 +4665,7 @@ $('#addscssdata').click(function() {
     
     if(scss_amt_invested==""){
       $('#scss_amt_invested').css('border', '1px solid red');
+      $('#scss_amt_invested').focus();
       $('#scss_amt_invested_astrik').show();
       return false;
     }else{
@@ -4185,16 +4674,12 @@ $('#addscssdata').click(function() {
     }
  
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+              assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
         scss_transaction_type : $('#scss_transaction_type').val(),
@@ -4219,23 +4704,28 @@ $('#addscssdata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#SCSS_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');   
-                            $('#scss_transaction_type').val("");
-                            $('#scss_account_no').val("");
-                            $('#scss_muturity_date').val("");
-                            $('#scss_lockin_period').val("");
-                            $('#scss_date').val("");
-                            $('#scss_amt_invested').val("");
-                            $('#scss_interest_rate').val(""); 
-                            $('#scss_interest_type').val("");
-                            $('#scss_interest_payment').val(""); 
-                            $('#scss_interest_payout').val(""); 
-                            $('#scss_maturity_amt').val("");  
+                $('#addSCSS').modal('hide');
+                toastr.success("Your form submitted successfully!!");
+                $(scss_var).val();
+                            // $('#scss_transaction_type').val("");
+                            // $('#scss_account_no').val("");
+                            // $('#scss_muturity_date').val("");
+                            // $('#scss_lockin_period').val("");
+                            // $('#scss_date').val("");
+                            // $('#scss_amt_invested').val("");
+                            // $('#scss_interest_rate').val(""); 
+                            // $('#scss_interest_type').val("");
+                            // $('#scss_interest_payment').val(""); 
+                            // $('#scss_interest_payout').val(""); 
+                            // $('#scss_maturity_amt').val("");  
               }
             else if (msg == 'NO'){
-                $('#SCSS_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                          toastr.error(msg);
+                
+               }
             else
-               {$('#SCSS_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               {          toastr.error(msg);
+                 
                  
            }
         }
@@ -4249,47 +4739,27 @@ $('#addscssdata').click(function() {
 
 //add SGB code start heress.....
 
-$('#closesgb, #sgbcancle').click(function() {
-  
-     $('#sgb_stock_name').val("");
-     $('#sgb_transaction_type').val("");
-     $('#sgb_broker').val("");
-     $('#sgb_date').val("");
-     $('#sgb_contract_no').val("");
-     $('#sgb_settlement_no').val("");
-     $('#sgb_qty').val("");
-     $('#sgb_purchase_price').val("");
-     $('#sgb_amt_invested').val("");
-     $('#sgb_brokerage').val("");
-     $('#sgb_net_rate').val("");
-     $('#sgb_tax_value').val("");
-     $('#sgb_cgst').val("");
-     $('#sgb_sgst').val("");
-     $('#sgb_igst').val("");
-     $('#sgb_exchange_transaction').val("");
-     $('#sgb_stt').val("");
-     $('#sgb_sebi_fee').val("");
-     $('#sgb_stamp_duty').val("");
-     $('#sgb_net_amt').val("");
 
-  });
 
- $('#sgb_stock_name_astrik').hide();
-$('#sgb_transaction_type_astrik').hide();
-$('#sgb_broker_astrik').hide();
-$('#sgb_date_astrik').hide();
-$('#sgb_qty_astrik').hide();
-$('#sgb_purchase_price_astrik').hide();
-$('#sgb_amt_invested_astrik').hide();
-$('#sgb_net_rate_astrik').hide();
-$('#sgb_net_amt_astrik').hide();
+
+var sgb_var_ast="#sgb_stock_name_astrik,#sgb_transaction_type_astrik,#sgb_broker_astrik,#sgb_date_astrik,#sgb_qty_astrik,#sgb_purchase_price_astrik,#sgb_amt_invested_astrik,#sgb_net_rate_astrik,#sgb_net_amt_astrik";
+$(sgb_var_ast).hide();
+var sgb_var="#sgb_stock_name,#sgb_transaction_type,#sgb_broker,#sgb_date,#sgb_qty,#sgb_purchase_price,#sgb_amt_invested,#sgb_net_rate,#sgb_net_amt";
+$(sgb_var).on('change', function(){
+    $(sgb_var_ast).hide();
+    $(sgb_var).css('border', '');
+});
+$(sgb_var).keyup(function(e){
+    $(sgb_var_ast).hide();
+    $(sgb_var).css('border', '');
+});
 //table data hide of bond and sgb......
-$('#sgb_table_data').hide();
-$('#bond_table_data').hide();
+// $('#sgb_table_data').hide();
+// $('#bond_table_data').hide();
 
 $('#addSGBdata').click(function() {
     var valu = $('#select_sub_Assets').val();
-    var select_portfolio_name = $('#select_portfolio_name').val();
+    var portfolio_name = $('#select_portfolio_name').val();
     var select_assets = $('#select_assets').val();
   
     var sgb_stock_name = $('#sgb_stock_name').val();
@@ -4312,9 +4782,12 @@ $('#addSGBdata').click(function() {
     var sgb_sebi_fee = $('#sgb_sebi_fee').val();
     var sgb_stamp_duty = $('#sgb_stamp_duty').val();
     var sgb_net_amt = $('#sgb_net_amt').val();
+    var grp_asset = gr_assetn();
+    
    
     if(sgb_stock_name==""){
       $('#sgb_stock_name').css('border', '1px solid red');
+      $('#sgb_stock_name').focus();
       $('#sgb_stock_name_astrik').show();
       return false;
     }else{
@@ -4323,6 +4796,7 @@ $('#addSGBdata').click(function() {
     }
       if(sgb_transaction_type==""){
       $('#sgb_transaction_type').css('border', '1px solid red');
+      $('#sgb_transaction_type').focus();
       $('#sgb_transaction_type_astrik').show();
       return false;
     }else{
@@ -4331,6 +4805,7 @@ $('#addSGBdata').click(function() {
     }
        if(sgb_broker==""){
       $('#sgb_broker').css('border', '1px solid red');
+      $('#sgb_broker').focus();
       $('#sgb_broker_astrik').show();
       return false;
     }else{
@@ -4339,6 +4814,7 @@ $('#addSGBdata').click(function() {
     }
       if(sgb_date==""){
       $('#sgb_date').css('border', '1px solid red');
+      $('#sgb_date').focus();
       $('#sgb_date_astrik').show();
       return false;
     }
@@ -4349,6 +4825,7 @@ $('#addSGBdata').click(function() {
     
        if(sgb_qty==""){
       $('#sgb_qty').css('border', '1px solid red');
+      $('#sgb_qty').focus();
       $('#sgb_qty_astrik').show();
       return false;
     }else{
@@ -4357,6 +4834,7 @@ $('#addSGBdata').click(function() {
     }
        if(sgb_purchase_price==""){
       $('#sgb_purchase_price').css('border', '1px solid red');
+      $('#sgb_purchase_price').focus();
       $('#sgb_purchase_price_astrik').show();
       return false;
     }else{
@@ -4365,41 +4843,41 @@ $('#addSGBdata').click(function() {
     }
         if(sgb_amt_invested==""){
       $('#sgb_amt_invested').css('border', '1px solid red');
+      $('#sgb_amt_invested').focus();
       $('#sgb_amt_invested_astrik').show();
       return false;
     }else{
      $('#sgb_amt_invested').css('border', '');
       $('#sgb_amt_invested_astrik').hide();
     }
-       if(sgb_net_rate==""){
-      $('#sgb_net_rate').css('border', '1px solid red');
-      $('#sgb_net_rate_astrik').show();
-      return false;
-    }else{
-     $('#sgb_net_rate').css('border', '');
-      $('#sgb_net_rate_astrik').hide();
-    }
+    //   if(sgb_net_rate==""){
+    //   $('#sgb_net_rate').css('border', '1px solid red');
+    //   $('#sgb_net_rate').focus();
+    //   $('#sgb_net_rate_astrik').show();
+    //   return false;
+    // }else{
+    //  $('#sgb_net_rate').css('border', '');
+    //   $('#sgb_net_rate_astrik').hide();
+    // }
    
-       if(sgb_net_amt==""){
-      $('#sgb_net_amt').css('border', '1px solid red');
-      $('#sgb_net_amt_astrik').show();
-      return false;
-    }else{
-     $('#sgb_net_amt').css('border', '');
-      $('#sgb_net_amt_astrik').hide();
-    }
+    //   if(sgb_net_amt==""){
+    //   $('#sgb_net_amt').css('border', '1px solid red');
+    //   $('#sgb_net_amt').focus();
+    //   $('#sgb_net_amt_astrik').show();
+    //   return false;
+    // }else{
+    //  $('#sgb_net_amt').css('border', '');
+    //   $('#sgb_net_amt_astrik').hide();
+    // }
     
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
        user_id: $('#sgb_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
   
         stock_name : $('#sgb_stock_name').val(),
@@ -4410,7 +4888,7 @@ $('#addSGBdata').click(function() {
         stock_settlement_no : $('#sgb_settlement_no').val(),
         stock_qty : $('#sgb_qty').val(),
         stock_purchase_price : $('#sgb_purchase_price').val(),
-        stock_amt_invested : $('#sgb_amt_invested').val(),
+        amt_invested : $('#sgb_amt_invested').val(),
         stock_brokerage : $('#sgb_brokerage').val(),
         stock_net_rate : $('#sgb_net_rate').val(),
         stock_tax_value : $('#sgb_tax_value').val(),
@@ -4433,38 +4911,40 @@ $('#addSGBdata').click(function() {
         type: 'POST',
         data: form_data,
         success: function(msg) {
-            if (msg == 'YES'){
-            $('#sgb_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');  
-            $("#sgb_table_data").DataTable().ajax.reload();
-            $("#bond_table_data").DataTable().ajax.reload();
-
-     $('#sgb_stock_name').val("");
-     $('#sgb_transaction_type').val("");
-     $('#sgb_broker').val("");
-     $('#sgb_date').val("");
-     $('#sgb_contract_no').val("");
-     $('#sgb_settlement_no').val("");
-     $('#sgb_qty').val("");
-     $('#sgb_purchase_price').val("");
-     $('#sgb_amt_invested').val("");
-     $('#sgb_brokerage').val("");
-     $('#sgb_net_rate').val("");
-     $('#sgb_tax_value').val("");
-     $('#sgb_cgst').val("");
-     $('#sgb_sgst').val("");
-     $('#sgb_igst').val("");
-     $('#sgb_exchange_transaction').val("");
-     $('#sgb_stt').val("");
-     $('#sgb_sebi_fee').val("");
-     $('#sgb_stamp_duty').val("");
-     $('#sgb_net_amt').val("");
-            }
-            else if (msg == 'NO'){
-                $('#sgb_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
-            else
-               {$('#sgb_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
-                 
-           }
+                 if (msg == 1){
+                // $('#addSGB').modal('hide');
+                 toastr.error("You don't have sufficient Shares for sale..!!");}
+                 else if(msg == 2){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(sgb_var).val('');
+                  $("#sgb_table_data").DataTable().ajax.reload();
+                //   $("#bond_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 3){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 4){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(sgb_var).val('');
+                  $("#sgb_table_data").DataTable().ajax.reload();
+                //   $("#bond_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 5){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 6){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(sgb_var).val('');
+                  $("#sgb_table_data").DataTable().ajax.reload();
+                //   $("#bond_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 7){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 8){
+                  toastr.error("You don't have sufficient Shares for sale..!!"); 
+                 }
+                
         }
     });
 
@@ -4474,20 +4954,242 @@ $('#addSGBdata').click(function() {
 });
 
 //add SGB code ends here......
+//add bond code starts here
+var bond_var_ast="#bond_stock_name_astrik,#bond_transaction_type_astrik,#bond_broker_astrik,#bond_date_astrik,#bond_qty_astrik,#bond_purchase_price_astrik,#bond_amt_invested_astrik,#bond_net_rate_astrik,#bond_net_amt_astrik";
+$(bond_var_ast).hide();
+var bond_var="#bond_stock_name,#bond_transaction_type,#bond_broker,#bond_date,#bond_qty,#bond_purchase_price,#bond_amt_invested,#bond_net_rate,#bond_net_amt";
+$(bond_var).on('change', function(){
+    $(bond_var_ast).hide();
+    $(bond_var).css('border', '');
+});
+$(bond_var).keyup(function(e){
+    $(bond_var_ast).hide();
+    $(bond_var).css('border', '');
+});
+//table data hide of bond and bond......
+// $('#bond_table_data').hide();
+// $('#bond_table_data').hide();
+
+$('#addbonddata').click(function() {
+    var valu = $('#select_sub_Assets').val();
+    var portfolio_name = $('#select_portfolio_name').val();
+    var select_assets = $('#select_assets').val();
+  
+    var bond_stock_name = $('#bond_stock_name').val();
+    var bond_transaction_type = $('#bond_transaction_type').val();
+    var bond_broker = $('#bond_broker').val();
+    var bond_date = $('#bond_date').val();
+    var bond_contract_no = $('#bond_contract_no').val();
+    var bond_settlement_no = $('#bond_settlement_no').val();
+    var bond_qty = $('#bond_qty').val();
+    var bond_purchase_price = $('#bond_purchase_price').val();
+    var bond_amt_invested = $('#bond_amt_invested').val();
+    var bond_brokerage = $('#bond_brokerage').val();
+    var bond_net_rate = $('#bond_net_rate').val();
+    var bond_tax_value = $('#bond_tax_value').val();
+    var bond_cgst = $('#bond_cgst').val();
+    var bond_sgst = $('#bond_sgst').val();
+    var bond_igst = $('#bond_igst').val();
+    var bond_exchange_transaction = $('#bond_exchange_transaction').val();
+    var bond_stt = $('#bond_stt').val();
+    var bond_sebi_fee = $('#bond_sebi_fee').val();
+    var bond_stamp_duty = $('#bond_stamp_duty').val();
+    var bond_net_amt = $('#bond_net_amt').val();
+    var grp_asset = gr_assetn();
+    
+   
+    if(bond_stock_name==""){
+      $('#bond_stock_name').css('border', '1px solid red');
+      $('#bond_stock_name').focus();
+      $('#bond_stock_name_astrik').show();
+      return false;
+    }else{
+     $('#bond_stock_name').css('border', '');
+      $('#bond_stock_name_astrik').hide();
+    }
+      if(bond_transaction_type==""){
+      $('#bond_transaction_type').css('border', '1px solid red');
+      $('#bond_transaction_type').focus();
+      $('#bond_transaction_type_astrik').show();
+      return false;
+    }else{
+     $('#bond_transaction_type').css('border', '');
+      $('#bond_transaction_type_astrik').hide();
+    }
+       if(bond_broker==""){
+      $('#bond_broker').css('border', '1px solid red');
+      $('#bond_broker').focus();
+      $('#bond_broker_astrik').show();
+      return false;
+    }else{
+     $('#bond_broker').css('border', '');
+      $('#bond_broker_astrik').hide();
+    }
+      if(bond_date==""){
+      $('#bond_date').css('border', '1px solid red');
+      $('#bond_date').focus();
+      $('#bond_date_astrik').show();
+      return false;
+    }
+    else{
+     $('#bond_date').css('border', '');
+      $('#bond_date_astrik').hide();
+    }
+    
+       if(bond_qty==""){
+      $('#bond_qty').css('border', '1px solid red');
+      $('#bond_qty').focus();
+      $('#bond_qty_astrik').show();
+      return false;
+    }else{
+     $('#bond_qty').css('border', '');
+      $('#bond_qty_astrik').hide();
+    }
+       if(bond_purchase_price==""){
+      $('#bond_purchase_price').css('border', '1px solid red');
+      $('#bond_purchase_price').focus();
+      $('#bond_purchase_price_astrik').show();
+      return false;
+    }else{
+     $('#bond_purchase_price').css('border', '');
+      $('#bond_purchase_price_astrik').hide();
+    }
+        if(bond_amt_invested==""){
+      $('#bond_amt_invested').css('border', '1px solid red');
+      $('#bond_amt_invested').focus();
+      $('#bond_amt_invested_astrik').show();
+      return false;
+    }else{
+     $('#bond_amt_invested').css('border', '');
+      $('#bond_amt_invested_astrik').hide();
+    }
+    //    if(bond_net_rate==""){
+    //   $('#bond_net_rate').css('border', '1px solid red');
+    //   $('#bond_net_rate').focus();
+    //   $('#bond_net_rate_astrik').show();
+    //   return false;
+    // }else{
+    //  $('#bond_net_rate').css('border', '');
+    //   $('#bond_net_rate_astrik').hide();
+    // }
+   
+       if(bond_net_amt==""){
+      $('#bond_net_amt').css('border', '1px solid red');
+      $('#bond_net_amt').focus();
+      $('#bond_net_amt_astrik').show();
+      return false;
+    }else{
+     $('#bond_net_amt').css('border', '');
+      $('#bond_net_amt_astrik').hide();
+    }
+    
+
+
+
+     var form_data = {
+       user_id: $('#bond_user_id').val(),
+       portfolio_name : $('#select_portfolio_name').val(),
+       assets_name: grp_asset[1],
+       group_name:grp_asset[0],
+       sub_assets_name : valu,
+  
+        stock_name : $('#bond_stock_name').val(),
+        stock_transaction_type : $('#bond_transaction_type').val(),
+        stock_broker : $('#bond_broker').val(),
+        stock_date : $('#bond_date').val(),
+        stock_contract_no : $('#bond_contract_no').val(),
+        stock_settlement_no : $('#bond_settlement_no').val(),
+        stock_qty : $('#bond_qty').val(),
+        stock_purchase_price : $('#bond_purchase_price').val(),
+        amt_invested : $('#bond_amt_invested').val(),
+        stock_brokerage : $('#bond_brokerage').val(),
+        stock_net_rate : $('#bond_net_rate').val(),
+        stock_tax_value : $('#bond_tax_value').val(),
+        stock_cgst : $('#bond_cgst').val(),
+        stock_sgst : $('#bond_sgst').val(),
+        stock_igst : $('#bond_igst').val(),
+        stock_exchange_transaction : $('#bond_exchange_transaction').val(),
+        stock_stt : $('#bond_stt').val(),
+        stock_sebi_fee : $('#bond_sebi_fee').val(),
+        stock_stamp_duty : $('#bond_stamp_duty').val(),
+        stock_net_amt : $('#bond_net_amt').val()       
+
+    };  
+
+   if(valu != "")
+   {
+  
+    $.ajax({
+        url:"<?php echo base_url(); ?>Add_details/add_stock",
+        type: 'POST',
+        data: form_data,
+        success: function(msg) {
+            if (msg == 1){
+                // $('#addbond').modal('hide');
+                 toastr.error("You don't have sufficient Shares for sale..!!");}
+                 else if(msg == 2){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(bond_var).val('');
+                  $("#bond_table_data").DataTable().ajax.reload();
+                  // $("#bond_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 3){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 4){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(bond_var).val('');
+                  // $("#sgb_table_data").DataTable().ajax.reload();
+                  $("#bond_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 5){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 6){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(bond_var).val('');
+                  // $("#bond_table_data").DataTable().ajax.reload();
+                  $("#bond_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 7){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 8){
+                  toastr.error("You don't have sufficient Shares for sale..!!"); 
+                 }
+                
+
+    
+                
+        
+        }
+    });
+
+    return false;
+  }
+  else{alert("Table is not avaliable..!!");}
+});
+//add bond code Ends here
 
 //sukanya codes starts heres .....
-   
-$('#sukanya_transaction_type_astrik').hide();
-$('#sukanya_account_no_astrik').hide();
-$('#sukanya_opening_date_astrik').hide();
-$('#sukanya_maturity_date_astrik').hide();
-$('#sukanya_date_astrik').hide();
-$('#sukanya_amt_invested_astrik').hide();
-$('#sukanya_interest_rate_astrik').hide();
+
+
+var sukanya_ast="#sukanya_transaction_type_astrik,#sukanya_account_no_astrik,#sukanya_opening_date_astrik,#sukanya_maturity_date_astrik,#sukanya_date_astrik,#sukanya_amt_invested_astrik,#sukanya_interest_rate_astrik";
+$(sukanya_ast).hide();
+var sukanya_var="#sukanya_transaction_type, #sukanya_account_no, #sukanya_opening_date, #sukanya_maturity_date, #sukanya_date, #sukanya_amt_invested, #sukanya_interest_rate";
+$(sukanya_var).on('change', function(){
+  $(sukanya_ast).hide();  
+  $(sukanya_var).css('border', ''); 
+    
+});
+$(sukanya_var).keyup(function(e){
+    $(sukanya_ast).hide();
+    $(sukanya_var).css('border', '');
+});
 
 $('#sukanyaadddata').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
     var sukanya_transaction_type = $('#sukanya_transaction_type').val();
@@ -4498,9 +5200,10 @@ $('#sukanyaadddata').click(function() {
     var sukanya_date = $('#sukanya_date').val();
    var sukanya_amt_invested = $('#sukanya_amt_invested').val();
     var sukanya_interest_rate = $('#sukanya_interest_rate').val();   
-  
+  var grp_asset = gr_assetn();
     if(sukanya_transaction_type==""){
       $('#sukanya_transaction_type').css('border', '1px solid red');
+      $('#sukanya_transaction_type').focus();
       $('#sukanya_transaction_type_astrik').show();
       return false;
     }else{
@@ -4509,6 +5212,7 @@ $('#sukanyaadddata').click(function() {
     }
       if(sukanya_account_no==""){
       $('#sukanya_account_no').css('border', '1px solid red');
+      $('#sukanya_account_no').focus();
       $('#sukanya_account_no_astrik').show();
       return false;
     }else{
@@ -4517,6 +5221,7 @@ $('#sukanyaadddata').click(function() {
     }
        if(sukanya_opening_date==""){
       $('#sukanya_opening_date').css('border', '1px solid red');
+      $('#sukanya_opening_date').focus();
       $('#sukanya_opening_date_astrik').show();
       return false;
     }else{
@@ -4525,6 +5230,7 @@ $('#sukanyaadddata').click(function() {
     }
      if(sukanya_maturity_date==""){
       $('#sukanya_maturity_date').css('border', '1px solid red');
+      $('#sukanya_maturity_date').focus();
       $('#sukanya_maturity_date_astrik').show();
       return false;
     }else{
@@ -4533,6 +5239,7 @@ $('#sukanyaadddata').click(function() {
     }
          if(sukanya_date==""){
       $('#sukanya_date').css('border', '1px solid red');
+      $('#sukanya_date').focus();
       $('#sukanya_date_astrik').show();
       return false;
     }else{
@@ -4541,6 +5248,7 @@ $('#sukanyaadddata').click(function() {
     }
         if(sukanya_amt_invested==""){
       $('#sukanya_amt_invested').css('border', '1px solid red');
+      $('#sukanya_amt_invested').focus();
       $('#sukanya_amt_invested_astrik').show();
       return false;
     }else{
@@ -4549,6 +5257,7 @@ $('#sukanyaadddata').click(function() {
     }
      if(sukanya_interest_rate==""){
       $('#sukanya_interest_rate').css('border', '1px solid red');
+      $('#sukanya_interest_rate').focus();
       $('#sukanya_interest_rate_astrik').show();
       return false;
     }else{
@@ -4556,16 +5265,13 @@ $('#sukanyaadddata').click(function() {
       $('#sukanya_interest_rate_astrik').hide();
     }
 
-      if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+           assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
        sukanya_transaction_type : $('#sukanya_transaction_type').val(),
@@ -4587,15 +5293,18 @@ $('#sukanyaadddata').click(function() {
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-                $('#sukanya_alert-msg').html('<div class="alert alert-success text-center">Your Data has been added successfully!</div>');    
-                   $('#sukanya_transaction_type').val("");
-                   $('#sukanya_account_no').val("");
-                   $('#sukanya_opening_date').val("");
-                   $('#sukanya_maturity_date').val("");
-                   $('#sukanya_lockin_period').val("");
-                   $('#sukanya_date').val("");
-                   $('#sukanya_amt_invested').val("");
-                   $('#sukanya_interest_rate').val("");   
+                $('#addSukanya').modal('hide');
+                toastr.success("Your Form is submitted successfully!");
+                $(sukanya_var).val('');
+                   
+                //   $('#sukanya_transaction_type').val("");
+                //   $('#sukanya_account_no').val("");
+                //   $('#sukanya_opening_date').val("");
+                //   $('#sukanya_maturity_date').val("");
+                //   $('#sukanya_lockin_period').val("");
+                //   $('#sukanya_date').val("");
+                //   $('#sukanya_amt_invested').val("");
+                //   $('#sukanya_interest_rate').val("");   
   
               }
             else if (msg == 'NO'){
@@ -4615,22 +5324,21 @@ $('#sukanyaadddata').click(function() {
 
 
 //Stock sub assets code starts here....
- $('#stock_name_astrik').hide();
-$('#stock_transaction_type_astrik').hide();
-$('#stock_broker_astrik').hide();
-$('#stock_date_astrik').hide();
 
-$('#stock_qty_astrik').hide();
-$('#stock_purchase_price_astrik').hide();
-$('#stock_amt_invested_astrik').hide();
-
-$('#stock_net_rate_astrik').hide();
-
-$('#stock_net_amt_astrik').hide();
-
+var stok_var_ast="#stock_net_amt_astrik, #stock_name_astrik, #stock_transaction_type_astrik, #stock_broker_astrik, #stock_date_astrik, #stock_qty_astrik, #stock_net_rate_astrik, #stock_amt_invested_astrik, #stock_purchase_price_astrik";
+$(stok_var_ast).hide();
+var stok_var="#stock_name,#stock_transaction_type,#stock_broker,#stock_date,#stock_qty,#stock_purchase_price,#stock_amt_invested,#stock_net_rate,#stock_net_amt";
+$(stok_var).on('change',function(){
+    $(stok_var_ast).hide();
+    $(stok_var).css('border', '');
+});
+$(stok_var).keyup(function(e) {
+     $(stok_var_ast).hide();
+    $(stok_var).css('border', '');
+});
 $('#apply_stock').click(function() {
    var valu = $('#select_sub_Assets').val();
-   var select_portfolio_name = $('#select_portfolio_name').val();
+   var portfolio_name = $('#select_portfolio_name').val();
    var select_assets = $('#select_assets').val();
   
 
@@ -4654,9 +5362,10 @@ $('#apply_stock').click(function() {
     var stock_sebi_fee = $('#stock_sebi_fee').val();
     var stock_stamp_duty = $('#stock_stamp_duty').val();
     var stock_net_amt = $('#stock_net_amt').val();
-   
+    var grp_asset = gr_assetn();
     if(stock_name==""){
       $('#stock_name').css('border', '1px solid red');
+      $('#stock_name').focus();
       $('#stock_name_astrik').show();
       return false;
     }else{
@@ -4665,6 +5374,7 @@ $('#apply_stock').click(function() {
     }
       if(stock_transaction_type==""){
       $('#stock_transaction_type').css('border', '1px solid red');
+      $('#stock_transaction_type').focus();
       $('#stock_transaction_type_astrik').show();
       return false;
     }else{
@@ -4673,6 +5383,7 @@ $('#apply_stock').click(function() {
     }
        if(stock_broker==""){
       $('#stock_broker').css('border', '1px solid red');
+      $('#stock_broker').focus();
       $('#stock_broker_astrik').show();
       return false;
     }else{
@@ -4681,6 +5392,7 @@ $('#apply_stock').click(function() {
     }
       if(stock_date==""){
       $('#stock_date').css('border', '1px solid red');
+      $('#stock_date').focus();
       $('#stock_date_astrik').show();
       return false;
     }
@@ -4692,6 +5404,7 @@ $('#apply_stock').click(function() {
    
        if(stock_qty==""){
       $('#stock_qty').css('border', '1px solid red');
+      $('#stock_qty').focus();
       $('#stock_qty_astrik').show();
       return false;
     }else{
@@ -4700,6 +5413,7 @@ $('#apply_stock').click(function() {
     }
        if(stock_purchase_price==""){
       $('#stock_purchase_price').css('border', '1px solid red');
+      $('#stock_purchase_price').focus();
       $('#stock_purchase_price_astrik').show();
       return false;
     }else{
@@ -4708,6 +5422,7 @@ $('#apply_stock').click(function() {
     }
        if(stock_amt_invested==""){
       $('#stock_amt_invested').css('border', '1px solid red');
+      $('#stock_amt_invested').focus();
       $('#stock_amt_invested_astrik').show();
       return false;
     }else{
@@ -4717,6 +5432,7 @@ $('#apply_stock').click(function() {
    
        if(stock_net_rate==""){
       $('#stock_net_rate').css('border', '1px solid red');
+      $('#stock_net_rate').focus();
       $('#stock_net_rate_astrik').show();
       return false;
     }else{
@@ -4726,6 +5442,7 @@ $('#apply_stock').click(function() {
     
       if(stock_net_amt==""){
       $('#stock_net_amt').css('border', '1px solid red');
+      $('#stock_net_amt').focus();
       $('#stock_net_amt_astrik').show();
       return false;
     }else{
@@ -4733,16 +5450,14 @@ $('#apply_stock').click(function() {
       $('#stock_net_amt_astrik').hide();
     }
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
 
-     var form_data = {
+
+
+    var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+              assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
     stock_name : $('#stock_name').val(),
@@ -4753,7 +5468,7 @@ $('#apply_stock').click(function() {
    stock_settlement_no : $('#stock_settlement_no').val(),
     stock_qty : $('#stock_qty').val(),
     stock_purchase_price : $('#stock_purchase_price').val(),
-    stock_amt_invested : $('#stock_amt_invested').val(),
+    amt_invested : $('#stock_amt_invested').val(),
     stock_brokerage : $('#stock_brokerage').val(),
     stock_net_rate : $('#stock_net_rate').val(),
     stock_tax_value : $('#stock_tax_value').val(),
@@ -4765,7 +5480,7 @@ $('#apply_stock').click(function() {
     stock_sebi_fee : $('#stock_sebi_fee').val(),
     stock_stamp_duty : $('#stock_stamp_duty').val(),
     stock_net_amt : $('#stock_net_amt').val()
-    };  
+    }; 
 
    if(valu != "")
    {
@@ -4775,15 +5490,36 @@ $('#apply_stock').click(function() {
         type: 'POST',
         data: form_data,
         success: function(msg) {
-            if (msg == 'YES'){
-                $('#stock_alert-msg').html('<div class="alert alert-success text-center">Your Stock has been added successfully!</div>');    $("#stock_table_data").DataTable().ajax.reload();
-              }
-            else if (msg == 'NO'){
-                $('#stock_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
-            else
-               {$('#stock_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
-                 
-           }
+           if (msg == 1){
+                // $('#addSGB').modal('hide');
+                 toastr.error("You don't have sufficient share to sell ...");}
+                 else if(msg == 2){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(stok_var).val('');
+                  $("#stock_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 3){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 4){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(stok_var).val('');
+                  $("#stock_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 5){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 6){
+                  toastr.success("Data Inserted Successfully ..!!"); 
+                  $(stok_var).val('');
+                  $("#stock_table_data").DataTable().ajax.reload();
+                 }
+                 else if(msg == 7){
+                  toastr.error("Not Inserted ..!!"); 
+                 }
+                 else if(msg == 8){
+                  toastr.error("You don't have sufficient Shares to sale..!!"); 
+                 }
         }
     });
 
@@ -4798,47 +5534,29 @@ $('#apply_stock').click(function() {
 //Investment sub-assets stock code end here..... 
 
 
- 
-
-// original stock table add and delete from temp_stock end code here...
-
-   //  $('#floattxtbox tbody').on('click', 'tr', function() {
-          
-   //     var currentRow=$(this).closest("tr");                 
-   //     var floatfrom = currentRow.find("#floatfrom").val();
-   //   var  floatto =  currentRow.find("#floatto").val();
-   //   var floatval = currentRow.find("#floatval").val(); 
-
-   //  // alert(floatfrom+" "+floatto+" "+floatval);
-   // });
-
-
-
 // All investment forms code ends here ... 
-
-
- 
 
 // Libality all loan forms code start heres....
 
-$('#loan_bank_name_astrik').hide();
-$('#loan_account_no_astrik').hide();
-$('#loan_start_date_astrik').hide();
 
-$('#loan_amount_astrik').hide();
-$('#loan_period_astrik').hide();
 
-  $('#loan_emi_amt_astrik').hide();
-   $('#loan_emi_date_astrik').hide();
+var loan_var_ast="#loan_bank_name_astrik,#loan_account_no_astrik,#loan_start_date_astrik,#loan_amount_astrik,#loan_period_astrik,#loan_emi_amt_astrik,#loan_emi_date_astrik,#loan_downpayment_amt_astrik,#loan_Interest_rate_type_astrik,#loan_fixed_rate_value_astrik";
+$(loan_var_ast).hide();
+var loan_var="#loan_bank_name,#loan_account_no,#loan_topup_amt,#loan_fixed_rate_value,#loan_balance_amt,#loan_pre_emi_amt,#loan_end_date,#loan_processing_fees,#loan_total_emipaid,#loan_start_date,#loan_amount,#loan_period,#loan_emi_amt,#loan_emi_date,#loan_downpayment_amt,#loan_Interest_rate_type";
 
- $('#loan_downpayment_amt_astrik').hide();
-$('#loan_Interest_rate_type_astrik').hide();
-$('#loan_fixed_rate_value_astrik').hide();
+$(loan_var).on('change',function(){
+    $(loan_var_ast).hide();
+    $(loan_var).css('border', '');
+});
+$(loan_var).keyup(function(e) {
+     $(loan_var_ast).hide();
+    $(loan_var).css('border', '');
+});
 
 $('#addAllLoans').click(function()
  {
      var valu = $('#select_sub_Assets').val();
-     var select_portfolio_name = $('#select_portfolio_name').val();
+     var portfolio_name = $('#select_portfolio_name').val();
      var select_assets = $('#select_assets').val();  
 
      var loan_bank_name = $('#loan_bank_name').val();
@@ -4857,16 +5575,13 @@ $('#addAllLoans').click(function()
      var loan_topup_amt = $('#loan_topup_amt').val();
      var loan_Interest_rate_type = $('#loan_Interest_rate_type').val();
      var loan_fixed_rate_value = $('#loan_fixed_rate_value').val();
-  
+  var grp_asset = gr_assetn();
 
-   if(select_assets=="1"){select_assets="Investment";}
-   else if(select_assets=="2"){select_assets="Insurance";}
-   else if(select_assets=="3"){select_assets="Assets";}
-   else if(select_assets=="4"){select_assets="Emergency Fund";}
-   else{select_assets="Liability"; }
+
 
      if(loan_bank_name==""){
       $('#loan_bank_name').css('border', '1px solid red');
+      $('#loan_bank_name').focus();
       $('#loan_bank_name_astrik').show();
       return false;
     }else{
@@ -4876,6 +5591,7 @@ $('#addAllLoans').click(function()
 
     if(loan_account_no==""){
       $('#loan_account_no').css('border', '1px solid red');
+      $('#loan_account_no').focus();
       $('#loan_account_no_astrik').show();
       return false;
     }else{
@@ -4884,6 +5600,7 @@ $('#addAllLoans').click(function()
     }
          if(loan_start_date==""){
       $('#loan_start_date').css('border', '1px solid red');
+      $('#loan_start_date').focus();
       $('#loan_start_date_astrik').show();
       return false;
     }else{
@@ -4892,6 +5609,7 @@ $('#addAllLoans').click(function()
     }
      if(loan_amount==""){
       $('#loan_amount').css('border', '1px solid red');
+      $('#loan_amount').focus();
       $('#loan_amount_astrik').show();
       return false;
     }else{
@@ -4900,6 +5618,7 @@ $('#addAllLoans').click(function()
     }
       if(loan_period==""){
       $('#loan_period').css('border', '1px solid red');
+      $('#loan_period').focus();
       $('#loan_period_astrik').show();
       return false;
     }else{
@@ -4908,6 +5627,7 @@ $('#addAllLoans').click(function()
     }
       if(loan_emi_amt==""){
       $('#loan_emi_amt').css('border', '1px solid red');
+      $('#loan_emi_amt').focus();
       $('#loan_emi_amt_astrik').show();
       return false;
     }else{
@@ -4916,6 +5636,7 @@ $('#addAllLoans').click(function()
     }
      if(loan_emi_date==""){
       $('#loan_emi_date').css('border', '1px solid red');
+      $('#loan_emi_date').focus();
       $('#loan_emi_date_astrik').show();
       return false;
     }else{
@@ -4924,6 +5645,7 @@ $('#addAllLoans').click(function()
     }
      if(loan_downpayment_amt==""){
       $('#loan_downpayment_amt').css('border', '1px solid red');
+      $('#loan_downpayment_amt').focus();
       $('#loan_downpayment_amt_astrik').show();
       return false;
     }else{
@@ -4932,6 +5654,7 @@ $('#addAllLoans').click(function()
     }
      if(loan_Interest_rate_type==""){
       $('#loan_Interest_rate_type').css('border', '1px solid red');
+      $('#loan_Interest_rate_type').focus();
       $('#loan_Interest_rate_type_astrik').show();
       return false;
     }else{
@@ -4943,7 +5666,8 @@ $('#addAllLoans').click(function()
      var form_data = {
       user_id: $('#stock_user_id').val(),
        portfolio_name : $('#select_portfolio_name').val(),
-       assets_name : select_assets,
+              assets_name: grp_asset[1],
+       group_name:grp_asset[0],
        sub_assets_name : valu,
        
       loan_bank_name : $('#loan_bank_name').val(),
@@ -4976,12 +5700,16 @@ $('#addAllLoans').click(function()
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
-          $('#loan_alert-msg').html('<div class="alert alert-success text-center">Your dat has been added successfully!</div>');    location.reload(true);  
-              }
+                $('#addLoan').modal('hide');
+                 toastr.success("Your Loan form submitted successfully!");
+                $(loan_var).val('');
+                        }
             else if (msg == 'NO'){
-                $('#loan_alert-msg').html('<div class="alert alert-danger text-center">Error in server ! Please try again later.</div>'); }
+                 toastr.error(msg);
+                 }
             else
-               {$('#loan_alert-msg').html('<div class="alert alert-danger text-center">' + msg + '</div>');
+               { toastr.error(msg);
+                   
                  
            }
         }
@@ -5003,6 +5731,7 @@ $('#addfloatdata').click(function()
 
      if(floating_date_from==""){
       $('#floating_date_from').css('border', '1px solid red');
+      $('#floating_date_from').focus();
       $('#floating_date_from_astrik').show();
       return false;
     }else{
@@ -5011,6 +5740,7 @@ $('#addfloatdata').click(function()
     }
       if(floating_date_to==""){
       $('#floating_date_to').css('border', '1px solid red');
+      $('#floating_date_to').focus();
       $('#floating_date_to_astrik').show();
       return false;
     }else{
@@ -5020,6 +5750,7 @@ $('#addfloatdata').click(function()
 
     if(loan_floating_value==""){
       $('#loan_floating_value').css('border', '1px solid red');
+      $('#loan_floating_value').focus();
       $('#loan_floating_value_astrik').show();
       return false;
     }else{
@@ -5043,6 +5774,7 @@ $('#addfloatdata').click(function()
         data: form_data,
         success: function(msg) {
             if (msg == 'YES'){
+                
               $('#floating_date_from').val("");
               $('#floating_date_to').val("");
               $('#loan_floating_value').val("");
@@ -5051,9 +5783,9 @@ $('#addfloatdata').click(function()
                  $("#loancancle").attr('disabled', true);
                   $("#loanclose").attr('disabled', true);
               }
-            else if (msg == 'NO'){ alert(msg); }
+            else if (msg == 'NO'){ toastr.error(msg); }
              
-            else { alert(msg); }
+            else { toastr.error(msg); }
         }
     });
 

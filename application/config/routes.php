@@ -84,5 +84,9 @@ $route['staff/crypto-currency']='staff/Staff/crypto_currency';
 $route['staff/currency']='staff/Staff/currency';
 $route['staff/commodity']='staff/Staff/commodity';
 $route['staff/index-table']='staff/Staff/index_table';
+$route['staff/nbfc-bank-name']='staff/Staff/EF_NBFC';
+$route['staff/ef-wallet-name']='staff/Staff/Wallet_Name';
+$route['staff/libality-bank-name']='staff/Staff/BL_Company_name';
+$route['staff/insurance-bank-name']='staff/Staff/IC_bank_name';
 
 

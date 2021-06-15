@@ -16,6 +16,7 @@ class Charts extends CI_Controller {
   {
    $this->load->model('Chart');
    $this->load->model('Dashboard_model');
+   $data['AllSecondToolbarData']=$this->Dashboard_model->AllSecondToolbarData();
    $data['all_total_current_value'] = $this->Chart->dashboard_total_current_value();
    $data['all_total_amt_invested'] = $this->Chart->dashboard_total_amt_invested();
    $data['all_total_overall_gain'] = $this->Chart->dashboard_total_overall_gain();

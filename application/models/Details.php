@@ -5,106 +5,118 @@ class Details extends CI_Model {
 
     public function add_group($array)
   {
-     return $this->db->insert('user_group',$array);
+     $id = $this->session->userdata('id');
+    $groupname = $array['group_name'];
+    $query = $this->db->select('*')->from("portfolio")->where(['portfolio_name' => $groupname, "user_id" => $id])->get();
+
+    if ($query->num_rows() > 0) {
+      return false;
+    } else {
+
+      return $this->db->insert('user_group', $array);
+    }
   }
 
    public function add_portfolio($array)
   {
-     
-      $id=$this->session->userdata('id');
-     $groupname = $array['port_group'];
-     $portname = $array['portfolio_name'];
-     
-    $a = $this->db->query('select portfolio_name,port_group from portfolio where user_id ="'.$id.'" AND  port_group = "'.$groupname.'"'); 
-    
-     if($a->num_rows()>=10)
-     {
-       return false;
-     }
-     else
-     {
-       return $this->db->insert('portfolio',$array); 
-     }
+     $id = $this->session->userdata('id');
+    $portfolio_name = $array['portfolio_name'];
+    $groupname = $array['port_group'];
+
+    $a = $this->db->query('select portfolio_name,port_group from portfolio where user_id ="' . $id . '" AND  port_group = "' . $groupname . '"');
+
+    $query = $this->db->select('*')->from("user_group")->where(['group_name' => $portfolio_name, "user_id" => $id])->get();
+
+    if ($a->num_rows() >= 10 || $query->num_rows() > 0) {
+      return false;
+    } else {
+      return $this->db->insert('portfolio', $array);
+    }
   }	
 
-    public function add_assets_detail($table_name,$array)
+  public function global_findAssetName($portfolio_name,$whereid)
   {
-    if($table_name=="Agricultural Land")
-    {
-     return $this->db->insert('agricultural_land',$array);
+    $q = $this->db->select('*')->from('all_assets')->where(['id' => $whereid])->get();
+    $m = $this->db->select('port_group')->from('portfolio')->where(['portfolio_name' => $portfolio_name])->get();
+    $assetsname='';
+    $port_group='';
+    foreach ($q->result() as $val) {
+      $assetsname = $val->Assets;
     }
-    else if($table_name=="Art")
-    {
-      return $this->db->insert('art',$array);
-    } 
-      else if($table_name=="Bike")
-    {
-      return $this->db->insert('bike',$array);
+    
+
+    foreach ($m->result() as $val) {
+      $port_group = $val->port_group;
     }
-       else if($table_name=="Car")
-    {
-      return $this->db->insert('car',$array);
-    }
-       else if($table_name=="Commercial Land")
-    {
-      return $this->db->insert('commercial_land',$array);
-    }
-       else if($table_name=="Commercial Property")
-    {
-      return $this->db->insert('commercial_property',$array);
-    }
-       else if($table_name=="Commercial Vehicle")
-    {
-      return $this->db->insert('commercial_vehicle',$array);
-    }
-       else if($table_name=="Digital Property")
-    {
-      return $this->db->insert('digital_property',$array);
-    }
-       else if($table_name=="Gold")
-    {
-      return $this->db->insert('gold',$array);
-    }
-       else if($table_name=="House")
-    {
-      return $this->db->insert('house',$array);
-    }
-      else if($table_name=="Jewellery")
-    {
-      return $this->db->insert('jewellery',$array);
-    }
-      else if($table_name=="Platinum")
-    {
-      return $this->db->insert('platinum',$array);
-    }
-      else if($table_name=="Precious Stone")
-    {
-      return $this->db->insert('precious_stone',$array);
-    }
-      else if($table_name=="Silver")
-    {
-      return $this->db->insert('silver',$array);
-    }
+    return array($port_group,$assetsname);
 
   }
 
-   public function add_all_emergencydata($table_name,$array)
+//   public function global_Portgroup($table_name, $portfolio_name)
+//   {
+//     $q = $this->db->select('port_group')->from($table_name)->where(['portfolio_name' => $portfolio_name])->get();
+
+//     foreach ($q->result() as $val) {
+//       $port_group = $val->port_group;
+//     }
+//     return $port_group;
+//   }
+
+
+
+
+  public function add_assets_detail($table_name, $post)
   {
-    if($table_name=="Cash in Hand")
-    {
-     return $this->db->insert('cash_in_hand',$array);
+    if ($table_name == "Agricultural Land") {
+      return $this->db->insert('agricultural_land', $post);
+    } else if ($table_name == "Art") {
+      return $this->db->insert('art', $post);
+    } else if ($table_name == "Bike") {
+      return $this->db->insert('bike', $post);
+    } else if ($table_name == "Car") {
+      return $this->db->insert('car', $post);
+    } else if ($table_name == "Commercial Land") {
+      return $this->db->insert('commercial_land', $post);
+    } else if ($table_name == "Commercial Property") {
+      return $this->db->insert('commercial_property', $post);
+    } else if ($table_name == "Commercial Vehicle") {
+      return $this->db->insert('commercial_vehicle', $post);
+    } else if ($table_name == "Digital Property") {
+      return $this->db->insert('digital_property', $post);
+    } else if ($table_name == "Gold") {
+      return $this->db->insert('gold', $post);
+    } else if ($table_name == "House") {
+      return $this->db->insert('house', $post);
+    } else if ($table_name == "Jewellery") {
+      return $this->db->insert('jewellery', $post);
+    } else if ($table_name == "Platinum") {
+      return $this->db->insert('platinum', $post);
+    } else if ($table_name == "Precious Stone") {
+      return $this->db->insert('precious_stone', $post);
+    } else if ($table_name == "Silver") {
+      return $this->db->insert('silver', $post);
     }
-   else  if($table_name=="Cash in post office saving A/c")
-    {
-     return $this->db->insert('cash_in_post_office',$array);
-    }
-     else  if($table_name=="Cash in Saving A/C")
-    {
-     return $this->db->insert('cash_in_saving',$array);
-    }
-    else  if($table_name=="Cash in wallet")
-    {
-     return $this->db->insert('cash_in_wallet',$array);
+  }
+
+  
+
+
+
+
+
+  public function add_all_emergencydata($table_name, $array)
+  {
+    if ($table_name == "Cash in Hand") {
+      return $this->db->insert('cash_in_hand', $array);
+      
+    } else  if ($table_name == "Cash in post office saving A/c") {
+      return $this->db->insert('cash_in_post_office', $array);
+
+    } else  if ($table_name == "Cash in Saving A/C") {
+      return $this->db->insert('cash_in_saving', $array);
+
+    } else  if ($table_name == "Cash in wallet") {
+      return $this->db->insert('cash_in_wallet', $array);
     }
   }
 
@@ -215,86 +227,8 @@ class Details extends CI_Model {
   {
       $user_id=$this->session->userdata('id');
     $q=$this->db->select('*')->from('portfolio')->where(['user_id'=>$user_id,'portfolio_name'=>$fetch_port_name])->get();
-    
-      $output = '<div class="row">';
-       
-      foreach($q->result() as $row)
-      {
-       $output .= '<div class="col-md-6">
-                       <input type="hidden" class="form-control" name="hide_portname" id="hide_portname" value='.$row->id.' >
-                       <div class="form-group">
-                         <label >D.O.B</label>
-                             <span id="update_port_date_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                         <input type="date" value='.$row->port_date.' id="update_port_date" name="port_date" max="3000-12-31" min="1000-01-01" class="form-control">
-                       </div>
-
-                       <div class="form-group">
-                          <label  class="col-form-label">Full Name:</label>
-                           <span id="update_full_name_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" value='.$row->full_name.' id="update_full_name" placeholder="">
-                        </div>
-                          <div class="form-group">
-                      <label for="recipient-name" class="col-form-label">Gender:</label>
-                       <span id="update_port_gender_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                       <select class="form-control" name="port_gender" id="update_port_gender"  >
-                        <option value='.$row->port_gender.'>'.$row->port_gender.'</option>
-                       <option value="Male">Male</option>
-                       <option value="Female">Female</option>
-                       <option value="Other">Other</option>
-                      </select>
-                      </div>
-
-                         <div class="form-group">
-                          <label  class="col-form-label">Address:</label>
-                           <span id="update_port_address_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                            <textarea class="form-control" value="" id="update_port_address" placeholder="" rows="3">'.$row->port_address.'</textarea>
-                        </div>
-                         <div class="form-group">
-                          <label  class="col-form-label">City:</label>
-                            <span id="update_port_city_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" id="update_port_city" value='.$row->port_city.' placeholder="">
-                        </div>
-                                        
-
-               </div>
-
-               <div class="col-md-6" style="background-color: rgb(238,238,238);">
-                       <div class="form-group">
-                          <label  class="col-form-label">PRAN:</label>
-                             <span id="update_pran_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" id="update_pran" value='.$row->pran.' placeholder="">
-                        </div>   
-                        <div class="form-group">
-                          <label  class="col-form-label">eInsurances No. :</label>
-                          <span id="update_einsurance_no_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" id="update_einsurance_no" value='.$row->einsurance_no.'  placeholder="">
-                        </div>
-                         <div class="form-group">
-                          <label  class="col-form-label">Country:</label>
-                           <span id="update_port_country_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" id="update_port_country" value='.$row->port_country.' placeholder="">
-                        </div>
-                          <div class="form-group">
-                          <label  class="col-form-label">Pin Code:</label>
-                           <span id="update_pin_code_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" id="update_pin_code" value='.$row->pin_code.'  placeholder="">
-                        </div>
-                        <div class="form-group">
-                          <label  class="col-form-label">PAN:</label>
-                           <span id="update_pan_astrik" class="text-right text-danger" style="font-size:20px;">*</span>
-                          <input type="text" class="form-control" id="update_pan" value='.$row->pan.' placeholder="">
-                        </div>
-
-                      
-             </div>
-
-                        ';
-                      
+     return $q->row();  
      
-      }
-     $output .= '</div>';
-      
-      return $output;
   }
 
 
@@ -309,10 +243,13 @@ class Details extends CI_Model {
       return $this->db->delete('portfolio',['id'=>$port_id,'user_id'=>$user_id]);
   }
 
-      public function add_epf($array)
-  {        
-     return $this->db->insert('epf_investment',$array); 
-  }  
+
+  //EPF LEFT COLUMN NAME RIGHT POST VARIABLES
+
+  public function add_epf($post)
+  {
+    return $this->db->insert('epf_investment', $post);
+  }
      public function fetch_epf_interestrate($interest_date)
     {
            $query = $this->db->select('interest_rate')->from('epf_interest_rate')->where('date BETWEEN "'. date('Y-m-01', strtotime($interest_date)). '" and "'. date('Y-m-t', strtotime($interest_date)).'"')->get();      
@@ -329,23 +266,33 @@ class Details extends CI_Model {
      return $this->db->insert('temp_nps_investment',$array); 
   }
 
-  public function add_fd($array)
-  {        
-     return $this->db->insert('fd_investment',$array); 
+ //fd variables 
+
+  public function add_fd($post)
+  {
+
+    return $this->db->insert('fd_investment', $post);
   }
    public function add_kisanvikaspatara($array)
   {        
      return $this->db->insert('kisanvikaspatra_investment',$array); 
   }
+  
+  
+  
 
-   public function add_mutual_fund($array)
+
+  public function add_mutual_fund($post)
   {
-     return $this->db->insert('temp_mutual_fund',$array);
-  } 
-   public function add_ncd($array)
+
+    return $this->db->insert('temp_mutual_fund', $post);
+  }
+
+  public function add_ncd($array)
   {
-     return $this->db->insert('ncd_investment',$array);
-  } 
+    return $this->db->insert('ncd_investment', $array);
+  }
+
 
     public function add_nsc($array)
   {
@@ -377,110 +324,229 @@ class Details extends CI_Model {
      return $this->db->insert('sukanya_investment',$array); 
   }
 
-    public function add_stock($table_name,$array)
-  { 
-     if($table_name=="Stock / Share")
-    {
-      return $this->db->insert('stock_temp',$array);
+
+
+   public function globalFormValidation($user_id,$stock_transaction_type,$stock_broker,$portfolio_name,$tname,$post,$col_tran_type,$col_broker,$col_qty,$col_name)
+  {
+   
+
+    $m=$this->db->query('SELECT * FROM `'.$tname.'` WHERE user_id= '.$user_id.' AND portfolio_name= "'.$portfolio_name.'" AND '.$col_tran_type.' ="Buy" AND '.$col_broker.' ="'.$stock_broker.'"');
+    
+     
+    if( $m->num_rows()>0)
+        {
+          if($stock_transaction_type == "Buy")//2nd time buy
+          {
+            $a = $this->db->insert($tname, $post);  
+              if($a)
+              {
+                return  4;
+              }
+              else{
+                return  5;
+              }                   
+          }
+          else if($stock_transaction_type == "Sell")
+          {
+             //Starting ==> 2nd time sale yaha user ko buy record milegaya phele se...
+              
+           $Buy = $this->db->select('SUM('.$col_qty.') as total_Buy_qty')->from($tname)->where(['user_id' => $user_id,
+            'portfolio_name' => $post['portfolio_name'],
+            $col_name=>$post[$col_name],
+            $col_tran_type=>'Buy',
+            $col_broker=>$post[$col_broker]])->get();
+          
+             foreach($Buy->result() as $dataBuy)
+              {
+                 $total_Buyquantity = $dataBuy->total_Buy_qty;
+              }
+               
+              
+             $Sell = $this->db->select('SUM('.$col_qty.') as total_Sell_qty')->from($tname)->where(['user_id' => $user_id,
+             'portfolio_name' => $post['portfolio_name'],
+             $col_name=>$post[$col_name],
+             $col_tran_type=>'Sell',
+             $col_broker=>$post[$col_broker]])->get();
+
+              foreach($Sell->result() as $dataSell)
+              {
+                 $total_Sellquantity = $dataSell->total_Sell_qty;
+              }
+                                       //50 - 40
+              $total_rest_quantity = $total_Buyquantity - $total_Sellquantity;
+               
+                // back - 10 > front - 20 
+              if($total_rest_quantity >= $post[$col_qty])
+              {
+                    $a = $this->db->insert($tname, $post);
+                    if($a)
+                    {
+                      return  6;
+                    }
+                    else{
+                      return  7;
+                    }
+              }
+              else
+              {
+                return 8;
+              }
+            
+          }
+          
+        }
+        else
+        {
+           
+              if($stock_transaction_type == "Buy")//First time buy
+              {
+                $a = $this->db->insert($tname, $post);
+                if($a)
+                {
+                  return 2;
+                }
+                else{
+                  return 3;
+                }
+                
+              }
+              else if($stock_transaction_type == "Sell")
+              {   //First time sale              
+                  return 1;
+                  // return "First Buy the share of this company Than You will sale..!";
+              }
+
+        }
+     
+
+
+
+  }
+
+
+  public function add_stock($table_name, $post)
+  {
+    if ($table_name == "Stock / Share")
+     { 
+       $tname = "stock_temp";
+      $user_id=$post['user_id'];
+      $stock_transaction_type =$post['stock_transaction_type'];
+      $stock_broker =$post['stock_broker'];
+      $portfolio_name =$post['portfolio_name'];
+
+ return $this->globalFormValidation($user_id,$stock_transaction_type,$stock_broker,$portfolio_name,$tname,$post,"stock_transaction_type","stock_broker","stock_qty","stock_name");
+    
+    } 
+    else  if ($table_name == "SGB / Sovereign Gold Bond")
+     {
+      $tname = "sgb_temp";
+      $user_id=$post['user_id'];
+      $stock_transaction_type =$post['stock_transaction_type'];
+      $stock_broker =$post['stock_broker'];
+      $portfolio_name =$post['portfolio_name'];
+      return $this->globalFormValidation($user_id,$stock_transaction_type,$stock_broker,$portfolio_name,$tname,$post,"stock_transaction_type","stock_broker","stock_qty","stock_name");
+      // return $this->db->insert('sgb_temp', $post);
+    } else  if ($table_name == "Bond / Corporate Bond") {
+
+      $tname = "bond_temp";
+      $user_id=$post['user_id'];
+      $stock_transaction_type =$post['stock_transaction_type'];
+      $stock_broker =$post['stock_broker'];
+      $portfolio_name =$post['portfolio_name'];
+      return $this->globalFormValidation($user_id,$stock_transaction_type,$stock_broker,$portfolio_name,$tname,$post,"stock_transaction_type","stock_broker","stock_qty","stock_name");
     }
-     else  if($table_name=="SGB / Sovereign Gold Bond")
-    { 
-     return $this->db->insert('sgb_temp',$array);
-    }
-    else  if($table_name=="Bond / Corporate Bond")
-    {
-     return $this->db->insert('bond_temp',$array);
-    }
-  } 
+
+
+  }
 
       public function delete_stock($stock_id)
-  {  $user_id=$this->session->userdata('id'); 
+  {
+      $user_id=$this->session->userdata('id'); 
       return $this->db->delete('stock',['id'=>$stock_id,'user_id'=>$user_id]);
   }
 
-    public function temp_del_add_stock($temp_stock_id)
+public function temp_del_add_stock($temp_stock_id)
   {
-      $user_id=$this->session->userdata('id');
-    $q=$this->db->select('*')->from('stock_temp')->where(['user_id'=>$user_id,'id'=>$temp_stock_id])->get();
-     foreach($q->result() as $row)
-      {
-          $data = array(
-            'user_id' => $user_id,
-            'portfolio_name' => $row->portfolio_name,
-            'assets_name' => $row->assets_name,
-            'sub_assets_name' => $row->sub_assets_name,
-            'stock_name' => $row->stock_name,
-            'stock_transaction_type' => $row->stock_transaction_type,
-            'stock_broker' =>$row->stock_broker,
-            'stock_date' =>$row->stock_date,
-            'stock_contract_no' =>$row->stock_contract_no,
-            'stock_settlement_no' =>$row->stock_settlement_no,
-            'stock_qty' =>$row->stock_qty,
-            'stock_purchase_price' =>$row->stock_purchase_price,
-            'stock_amt_invested' =>$row->stock_amt_invested,
-            'stock_brokerage' =>$row->stock_brokerage,
-            'stock_net_rate' =>$row->stock_net_rate,
-            'stock_tax_value' =>$row->stock_tax_value,
-            'stock_cgst' =>$row->stock_cgst,
-            'stock_sgst' =>$row->stock_sgst,
-            'stock_igst' =>$row->stock_igst,
-            'stock_exchange_transaction' =>$row->stock_exchange_transaction,
-            'stock_stt' =>$row->stock_stt,
-            'stock_sebi_fee' =>$row->stock_sebi_fee,
-            'stock_stamp_duty' =>$row->stock_stamp_duty,
-            'stock_net_amt' =>$row->stock_net_amt
-          );
-      }
-  
-     $this->db->insert('stock',$data);
-   return $this->db->delete('stock_temp',['id'=>$temp_stock_id,'user_id'=>$user_id]);
-      
-  } 
+    $user_id = $this->session->userdata('id');
+    $q = $this->db->select('*')->from('stock_temp')->where(['user_id' => $user_id, 'id' => $temp_stock_id])->get();
+    foreach ($q->result() as $row) {
+      $data = array(
+        'user_id' => $user_id,
+        'group_name'=>$row->group_name,
+        'portfolio_name' => $row->portfolio_name,
+        'assets_name' => $row->assets_name,
+        'sub_assets_name' => $row->sub_assets_name,
+        'stock_name' => $row->stock_name,
+        'stock_transaction_type' => $row->stock_transaction_type,
+        'stock_broker' => $row->stock_broker,
+        'stock_date' => $row->stock_date,
+        'stock_contract_no' => $row->stock_contract_no,
+        'stock_settlement_no' => $row->stock_settlement_no,
+        'stock_qty' => $row->stock_qty,
+        'stock_purchase_price' => $row->stock_purchase_price,
+        'amt_invested' => $row->amt_invested,
+        'stock_brokerage' => $row->stock_brokerage,
+        'stock_net_rate' => $row->stock_net_rate,
+        'stock_tax_value' => $row->stock_tax_value,
+        'stock_cgst' => $row->stock_cgst,
+        'stock_sgst' => $row->stock_sgst,
+        'stock_igst' => $row->stock_igst,
+        'stock_exchange_transaction' => $row->stock_exchange_transaction,
+        'stock_stt' => $row->stock_stt,
+        'stock_sebi_fee' => $row->stock_sebi_fee,
+        'stock_stamp_duty' => $row->stock_stamp_duty,
+        'stock_net_amt' => $row->stock_net_amt
+      );
+    }
+
+    $this->db->insert('stock', $data);
+    return $this->db->delete('stock_temp', ['id' => $temp_stock_id, 'user_id' => $user_id]);
+  }
 
    public function temp_stock_del_record($temp_stock_id)
-     {  $user_id=$this->session->userdata('id');
+     {
+         $user_id=$this->session->userdata('id');
       return $this->db->delete('stock_temp',['id'=>$temp_stock_id,'user_id'=>$user_id]);
      }
 
 
   public function temp_del_add_bond($temp_stock_id)
   {
-      $user_id=$this->session->userdata('id');
-    $q=$this->db->select('*')->from('bond_temp')->where(['user_id'=>$user_id,'id'=>$temp_stock_id])->get();
-     foreach($q->result() as $row)
-      {
-          $data = array(
-            'user_id' => $user_id,
-            'portfolio_name' => $row->portfolio_name,
-            'assets_name' => $row->assets_name,
-            'sub_assets_name' => $row->sub_assets_name,
-            'stock_name' => $row->stock_name,
-            'stock_transaction_type' => $row->stock_transaction_type,
-            'stock_broker' =>$row->stock_broker,
-            'stock_date' =>$row->stock_date,
-            'stock_contract_no' =>$row->stock_contract_no,
-            'stock_settlement_no' =>$row->stock_settlement_no,
-            'stock_qty' =>$row->stock_qty,
-            'stock_purchase_price' =>$row->stock_purchase_price,
-            'stock_amt_invested' =>$row->stock_amt_invested,
-            'stock_brokerage' =>$row->stock_brokerage,
-            'stock_net_rate' =>$row->stock_net_rate,
-            'stock_tax_value' =>$row->stock_tax_value,
-            'stock_cgst' =>$row->stock_cgst,
-            'stock_sgst' =>$row->stock_sgst,
-            'stock_igst' =>$row->stock_igst,
-            'stock_exchange_transaction' =>$row->stock_exchange_transaction,
-            'stock_stt' =>$row->stock_stt,
-            'stock_sebi_fee' =>$row->stock_sebi_fee,
-            'stock_stamp_duty' =>$row->stock_stamp_duty,
-            'stock_net_amt' =>$row->stock_net_amt
-          );
-      }
-  
-     $this->db->insert('bond',$data);
-   return $this->db->delete('bond_temp',['id'=>$temp_stock_id,'user_id'=>$user_id]);
-      
-  } 
+    $user_id = $this->session->userdata('id');
+    $q = $this->db->select('*')->from('bond_temp')->where(['user_id' => $user_id, 'id' => $temp_stock_id])->get();
+    foreach ($q->result() as $row) {
+      $data = array(
+        'user_id' => $user_id,
+        'portfolio_name' => $row->portfolio_name,
+        'group_name'=>$row->group_name,
+        'assets_name' => $row->assets_name,
+        'sub_assets_name' => $row->sub_assets_name,
+        'stock_name' => $row->stock_name,
+        'stock_transaction_type' => $row->stock_transaction_type,
+        'stock_broker' => $row->stock_broker,
+        'stock_date' => $row->stock_date,
+        'stock_contract_no' => $row->stock_contract_no,
+        'stock_settlement_no' => $row->stock_settlement_no,
+        'stock_qty' => $row->stock_qty,
+        'stock_purchase_price' => $row->stock_purchase_price,
+        'amt_invested' => $row->amt_invested,
+        'stock_brokerage' => $row->stock_brokerage,
+        'stock_net_rate' => $row->stock_net_rate,
+        'stock_tax_value' => $row->stock_tax_value,
+        'stock_cgst' => $row->stock_cgst,
+        'stock_sgst' => $row->stock_sgst,
+        'stock_igst' => $row->stock_igst,
+        'stock_exchange_transaction' => $row->stock_exchange_transaction,
+        'stock_stt' => $row->stock_stt,
+        'stock_sebi_fee' => $row->stock_sebi_fee,
+        'stock_stamp_duty' => $row->stock_stamp_duty,
+        'stock_net_amt' => $row->stock_net_amt
+      );
+    }
+
+    $this->db->insert('bond', $data);
+    return $this->db->delete('bond_temp', ['id' => $temp_stock_id, 'user_id' => $user_id]);
+  }
 
 
 
@@ -632,38 +698,37 @@ class Details extends CI_Model {
     
      }
 
-       public function add_to_mutualfundinvetment_table($temp_stock_id)
+ public function add_to_mutualfundinvetment_table($temp_stock_id)
   {
-      $user_id=$this->session->userdata('id');
-    $q=$this->db->select('*')->from('temp_mutual_fund')->where(['user_id'=>$user_id,'id'=>$temp_stock_id])->get();
-     foreach($q->result() as $row)
-      {
-          $data = array(
-            'user_id' => $user_id,
-            'portfolio_name' => $row->portfolio_name,
-            'assets_name' => $row->assets_name,
-            'sub_assets_name' => $row->sub_assets_name,
-            'mutual_company_name' => $row->mutual_company_name,
-            'mutual_scheme' =>$row->mutual_scheme,
-            'mutual_folio_no' =>$row->mutual_folio_no,
-            'mutual_transaction' =>$row->mutual_transaction,
-            'mutual_type' =>$row->mutual_type,
-            'mutual_sip_date' =>$row->mutual_sip_date,
-            'mutual_date' =>$row->mutual_date,
-            'mutual_quantity' =>$row->mutual_quantity,
-            'mutual_nav' =>$row->mutual_nav,
-            'mutual_amt_invested' =>$row->mutual_amt_invested,
-            'mutual_stamp_charge' =>$row->mutual_stamp_charge,
-            'mutual_exit_load' =>$row->mutual_exit_load,
-            'mutual_advisor' =>$row->mutual_advisor
-            
-          );
-      }
-  
-     $this->db->insert('mutual_fund_investment',$data);
-   return $this->db->delete('temp_mutual_fund',['id'=>$temp_stock_id,'user_id'=>$user_id]);
-      
-  } 
+    $user_id = $this->session->userdata('id');
+    $q = $this->db->select('*')->from('temp_mutual_fund')->where(['user_id' => $user_id, 'id' => $temp_stock_id])->get();
+    foreach ($q->result() as $row) {
+      $data = array(
+        'user_id' => $user_id,
+        'portfolio_name' => $row->portfolio_name,
+        'assets_name' => $row->assets_name,
+        'group_name' => $row->group_name,
+        'sub_assets_name' => $row->sub_assets_name,
+        'mutual_company_name' => $row->mutual_company_name,
+        'mutual_scheme' => $row->mutual_scheme,
+        'mutual_folio_no' => $row->mutual_folio_no,
+        'mutual_transaction' => $row->mutual_transaction,
+        'mutual_type' => $row->mutual_type,
+        'mutual_sip_date' => $row->mutual_sip_date,
+        'mutual_date' => $row->mutual_date,
+        'mutual_quantity' => $row->mutual_quantity,
+        'mutual_nav' => $row->mutual_nav,
+        'amt_invested' => $row->mutual_amt_invested,
+        'mutual_stamp_charge' => $row->mutual_stamp_charge,
+        'mutual_exit_load' => $row->mutual_exit_load,
+        'mutual_advisor' => $row->mutual_advisor
+
+      );
+    }
+
+    $this->db->insert('mutual_fund_investment', $data);
+    return $this->db->delete('temp_mutual_fund', ['id' => $temp_stock_id, 'user_id' => $user_id]);
+  }
 
   public function del_to_temp_mutualfundtable($temp_stock_id)
      {  $user_id=$this->session->userdata('id');
@@ -710,6 +775,7 @@ class Details extends CI_Model {
             'user_id' => $user_id,
             'portfolio_name' => $row->portfolio_name,
             'assets_name' => $row->assets_name,
+            'group_name' => $row->group_name,
             'sub_assets_name' => $row->sub_assets_name,
             'nps_opening_date' => $row->nps_opening_date,
             'nps_type' =>$row->nps_type,
@@ -719,7 +785,7 @@ class Details extends CI_Model {
             'nps_date' =>$row->nps_date,
             'nps_qty' =>$row->nps_qty,
             'nps_purchase_price' =>$row->nps_purchase_price,
-            'nps_amt_invested' =>$row->nps_amt_invested
+            'amt_invested' =>$row->nps_amt_invested
             
           );
       }

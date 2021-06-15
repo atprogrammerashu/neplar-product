@@ -165,7 +165,7 @@
             {
                     if (isConfirm) {
                       var baseUrl = "<?=base_url()?>";
-                      var TN = 'bond_ltp';
+                      var TN = 'stock_details';
                        $.ajax({
                             url: baseUrl + "staff/Staff/CommonDeleteAllRecord",
                             type: "POST",
@@ -374,7 +374,7 @@
         },
         function(){
             var form_data = new FormData();
-            var table = "bond_ltp";
+            var table = "stock_details";
             form_data.append('id',recordid);
             form_data.append('table',table);
             

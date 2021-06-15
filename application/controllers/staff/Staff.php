@@ -24,8 +24,8 @@ class Staff extends CI_Controller {
 	    $this->data['to_stock_details'] = $this->STFobj->Count_records("stock_details");
 	    $this->data['last_update_ncd_ltp'] = $this->STFobj->Get_last_record_date("non_convertible_d_ltp");
 	    $this->data['to_ncd_ltp'] = $this->STFobj->Count_records("non_convertible_d_ltp");
-	    $this->data['last_update_bond_ltp'] = $this->STFobj->Get_last_record_date("bond_ltp");
-	    $this->data['to_bond_ltp'] = $this->STFobj->Count_records("bond_ltp");
+	    $this->data['last_update_bond_ltp'] = $this->STFobj->Get_last_record_date("stock_details");
+	    $this->data['to_bond_ltp'] = $this->STFobj->Count_records("stock_details");
 	    $this->data['last_update_broker_details'] = $this->STFobj->Get_last_record_date("broker_details");
 	    $this->data['to_broker_details'] = $this->STFobj->Count_records("broker_details");
 	    $this->data['last_update_mutual_fund_name'] = $this->STFobj->Get_last_record_date("mutual_fund_name");
@@ -62,6 +62,21 @@ class Staff extends CI_Controller {
 	    
 	    $this->data['last_update_it'] = $this->STFobj->Get_last_record_date("index_tbl");
 	    $this->data['to_nsc_it'] = $this->STFobj->Count_records("index_tbl");
+	    
+	     //ashu code start here 
+	    $this->data['to_nbfcBankName_details'] = $this->STFobj->Count_records("emergency_fund_nbfc_name");
+	    $this->data['last_update_nbfcBankName_details'] = $this->STFobj->Get_last_record_date("emergency_fund_nbfc_name");
+
+        $this->data['to_fund_wallet_details'] = $this->STFobj->Count_records("emergency_fund_wallet_name");
+	    $this->data['last_update_fund_wallet_details'] = $this->STFobj->Get_last_record_date("emergency_fund_wallet_name");
+
+        $this->data['to_libality_bankloan_details'] = $this->STFobj->Count_records("liability_bankloan_company_name");
+	    $this->data['last_update_libality_bankloan_details'] = $this->STFobj->Get_last_record_date("liability_bankloan_company_name");
+
+	     $this->data['to_insurance_bank_details'] = $this->STFobj->Count_records("insurance_company_bank_name");
+	    $this->data['last_update_insurance_bank_details'] = $this->STFobj->Get_last_record_date("insurance_company_bank_name");
+	    
+	    
 		$this->load->view('staff/index');
 	}
 	
@@ -213,7 +228,7 @@ class Staff extends CI_Controller {
           {
               foreach ($xlsx->rows() as $key=>$elt) 
               {
-                $data['scheme_name'] = $elt[0];
+                $data['mutual_scheme'] = $elt[0];
                 $data['today_nav'] = $elt[1];
                 $data['previous_day_price'] = $elt[2];
                 $this->STFobj->insert_data_to("mutual_scheme",$data);
@@ -556,7 +571,7 @@ class Staff extends CI_Controller {
 	
 	function get_all_BOND_LTP()
 	{
-	  $result = $this->STFobj->fetch_all_records("bond_ltp");
+	  $result = $this->STFobj->fetch_all_records("stock_details");
 	  if(!empty($result))
 	  {
 	      $list_arr = array();
@@ -580,7 +595,7 @@ class Staff extends CI_Controller {
 	function insert_BOND_LTP()
 	{
 	   $data = $this->input->post();
-	   if($this->STFobj->insert_data_to("bond_ltp",$data))
+	   if($this->STFobj->insert_data_to("stock_details",$data))
 	   {
 	       $arr['responseData'] = 'record-inserted-scs';
 	       echo json_encode($arr);
@@ -592,7 +607,7 @@ class Staff extends CI_Controller {
 	   $data = $this->input->post();
 	   $cols = "stock_name,current_price,previous_day_price";
 	   $where = array("id"=>$data['id']);
-	   $data = $this->STFobj->Get_specific_coloums("bond_ltp",$cols,$where);
+	   $data = $this->STFobj->Get_specific_coloums("stock_details",$cols,$where);
 	   $arr['responseData'] = $data;
 	   echo json_encode($arr);
 	}
@@ -601,7 +616,7 @@ class Staff extends CI_Controller {
 	{
 	   $data = $this->input->post();
 	   $where = array("id"=>$data['id']);
-	   if($this->STFobj->Update_where("bond_ltp",$where,$data))
+	   if($this->STFobj->Update_where("stock_details",$where,$data))
 	   {
 	      $arr['responseData'] = 'record-updated-scs';
 	      echo json_encode($arr); 
@@ -617,10 +632,10 @@ class Staff extends CI_Controller {
           {
               foreach ($xlsx->rows() as $key=>$elt) 
               {
-                $data['scheme_name'] = $elt[0];
-                $data['today_nav'] = $elt[1];
+                $data['stock_name'] = $elt[0];
+                $data['current_price'] = $elt[1];
                 $data['previous_day_price'] = $elt[2];
-                $this->STFobj->insert_data_to("bond_ltp",$data);
+                $this->STFobj->insert_data_to("stock_details",$data);
               }
               $res['responseData']="records-inserted-scs";
               echo json_encode($res);die;
@@ -781,10 +796,10 @@ class Staff extends CI_Controller {
           {
               foreach ($xlsx->rows() as $key=>$elt) 
               {
-                $data['symbol'] = $elt[0];
-                $data['issue_price'] = $elt[1];
-                $data['prev_close'] = $elt[2];
-                $data['ltp'] = $elt[3];
+                $data['scheme_name'] = $elt[0];
+                $data['today_nav'] = $elt[1];
+                $data['previous_day_price'] = $elt[2];
+               // $data['ltp'] = $elt[3];
                 $this->STFobj->insert_data_to("sovergine_gold_bond",$data);
               }
               $res['responseData']="records-inserted-scs";
@@ -1622,6 +1637,332 @@ class Staff extends CI_Controller {
 	  return $this->STFobj->DeleteAllRecords($tablename);
 	   
 	}
+	
+	
+	
+	
+//New code Nbfc
+
+	function EF_NBFC()
+	{
+	   $this->load->view('staff/EF_NBFC/index');  
+	}
+	
+		function get_all_EF_NBFC()
+	{
+	  $result = $this->STFobj->fetch_all_records("emergency_fund_nbfc_name");
+	  if(!empty($result))
+	  {
+	      $list_arr = array();
+	      $sr =1;
+	      foreach($result as $key=>$row)
+	      {
+	         $list_arr['data'][] = array(
+	             $sr++,
+	             $row->bank_name,
+	             '<button type="button" class="btn btn-outline-info btn-sm" id="record-edit-btn" key="'.$row->id.'"><i class="nav-icon far fa-edit"></i></button>
+	              <button type="button" class="btn btn-outline-danger btn-sm" id="record-delete-btn" key="'.$row->id.'"><i class="nav-icon far fa-trash-alt"></i></button>
+	             '
+	         ); 
+	      }
+	      echo json_encode($list_arr);
+	  }
+	}
+
+	function insert_EF_NBFC()
+	{
+	   $data = $this->input->post();
+	   if($this->STFobj->insert_data_to("emergency_fund_nbfc_name",$data))
+	   {
+	       $arr['responseData'] = 'record-inserted-scs';
+	       echo json_encode($arr);
+	   }
+	}
+
+	function edit_EF_NBFC()
+	{
+	   $data = $this->input->post();
+	   $cols = "bank_name";
+	   $where = array("id"=>$data['id']);
+	   $data = $this->STFobj->Get_specific_coloums("emergency_fund_nbfc_name",$cols,$where);
+	   $arr['responseData'] = $data;
+	   echo json_encode($arr);
+	}
+	
+	function update_EF_NBFC()
+	{
+	   $data = $this->input->post();
+	   $where = array("id"=>$data['id']);
+	   if($this->STFobj->Update_where("emergency_fund_nbfc_name",$where,$data))
+	   {
+	      $arr['responseData'] = 'record-updated-scs';
+	      echo json_encode($arr); 
+	   }
+	}
+
+		function upload_excel_to_EF_NBFC()
+	{
+	   if(!empty($_FILES) && !empty($_FILES['excelfile'])) 
+	   {
+	      require_once( APPPATH . 'libraries/SimpleXLSX.php' );
+	      if ( $xlsx = SimpleXLSX::parse($file = $_FILES['excelfile']['tmp_name']) )
+          {
+              foreach ($xlsx->rows() as $key=>$elt) 
+              {
+                $data['bank_name'] = $elt[0];
+                $this->STFobj->insert_data_to("emergency_fund_nbfc_name",$data);
+              }
+              $res['responseData']="records-inserted-scs";
+              echo json_encode($res);die;
+          }else{
+              $res['responseData'] = SimpleXLSX::parseError();
+              echo json_encode($res);
+          }
+	   }
+	}
+
+   function Wallet_Name()
+	{
+	   $this->load->view('staff/EF_WALLET_NAME/index');  
+	}
+
+	function get_all_WalletDetail()
+	{
+	  $result = $this->STFobj->fetch_all_records("emergency_fund_wallet_name");
+	  if(!empty($result))
+	  {
+	      $list_arr = array();
+	      $sr =1;
+	      foreach($result as $key=>$row)
+	      {
+	         $list_arr['data'][] = array(
+	             $sr++,
+	             $row->bank_name,
+	             '<button type="button" class="btn btn-outline-info btn-sm" id="record-edit-btn" key="'.$row->id.'"><i class="nav-icon far fa-edit"></i></button>
+	              <button type="button" class="btn btn-outline-danger btn-sm" id="record-delete-btn" key="'.$row->id.'"><i class="nav-icon far fa-trash-alt"></i></button>
+	             '
+	         ); 
+	      }
+	      echo json_encode($list_arr);
+	  }
+	}
+
+	function insert_EF_WalletBank()
+	{
+	   $data = $this->input->post();
+	   if($this->STFobj->insert_data_to("emergency_fund_wallet_name",$data))
+	   {
+	       $arr['responseData'] = 'record-inserted-scs';
+	       echo json_encode($arr);
+	   }
+	}
+
+	function edit_EF_WalletBank()
+	{
+	   $data = $this->input->post();
+	   $cols = "bank_name";
+	   $where = array("id"=>$data['id']);
+	   $data = $this->STFobj->Get_specific_coloums("emergency_fund_wallet_name",$cols,$where);
+	   $arr['responseData'] = $data;
+	   echo json_encode($arr);
+	}
+	
+	function update_EF_WalletBank()
+	{
+	   $data = $this->input->post();
+	   $where = array("id"=>$data['id']);
+	   if($this->STFobj->Update_where("emergency_fund_wallet_name",$where,$data))
+	   {
+	      $arr['responseData'] = 'record-updated-scs';
+	      echo json_encode($arr); 
+	   }
+	}
+
+		function upload_excel_to_EF_WalletBank()
+	{
+	   if(!empty($_FILES) && !empty($_FILES['excelfile'])) 
+	   {
+	      require_once( APPPATH . 'libraries/SimpleXLSX.php' );
+	      if ( $xlsx = SimpleXLSX::parse($file = $_FILES['excelfile']['tmp_name']) )
+          {
+              foreach ($xlsx->rows() as $key=>$elt) 
+              {
+                $data['bank_name'] = $elt[0];
+                $this->STFobj->insert_data_to("emergency_fund_wallet_name",$data);
+              }
+              $res['responseData']="records-inserted-scs";
+              echo json_encode($res);die;
+          }else{
+              $res['responseData'] = SimpleXLSX::parseError();
+              echo json_encode($res);
+          }
+	   }
+	}
+
+
+
+
+
+	function BL_Company_name()
+	{
+	   $this->load->view('staff/Liability_Bank_Name/index');  
+	}
+
+
+function get_all_LibalityBankName()
+	{
+	  $result = $this->STFobj->fetch_all_records("liability_bankloan_company_name");
+	  if(!empty($result))
+	  {
+	      $list_arr = array();
+	      $sr =1;
+	      foreach($result as $key=>$row)
+	      {
+	         $list_arr['data'][] = array(
+	             $sr++,
+	             $row->bank_name,
+	             '<button type="button" class="btn btn-outline-info btn-sm" id="record-edit-btn" key="'.$row->id.'"><i class="nav-icon far fa-edit"></i></button>
+	              <button type="button" class="btn btn-outline-danger btn-sm" id="record-delete-btn" key="'.$row->id.'"><i class="nav-icon far fa-trash-alt"></i></button>
+	             '
+	         ); 
+	      }
+	      echo json_encode($list_arr);
+	  }
+	}
+
+	function insert_LibalityBankName()
+	{
+	   $data = $this->input->post();
+	   if($this->STFobj->insert_data_to("liability_bankloan_company_name",$data))
+	   {
+	       $arr['responseData'] = 'record-inserted-scs';
+	       echo json_encode($arr);
+	   }
+	}
+
+	function edit_LibalityBankName()
+	{
+	   $data = $this->input->post();
+	   $cols = "bank_name";
+	   $where = array("id"=>$data['id']);
+	   $data = $this->STFobj->Get_specific_coloums("liability_bankloan_company_name",$cols,$where);
+	   $arr['responseData'] = $data;
+	   echo json_encode($arr);
+	}
+	
+	function update_LibalityBankName()
+	{
+	   $data = $this->input->post();
+	   $where = array("id"=>$data['id']);
+	   if($this->STFobj->Update_where("liability_bankloan_company_name",$where,$data))
+	   {
+	      $arr['responseData'] = 'record-updated-scs';
+	      echo json_encode($arr); 
+	   }
+	}
+
+		function upload_excel_to_LibalityBankName()
+	{
+	   if(!empty($_FILES) && !empty($_FILES['excelfile'])) 
+	   {
+	      require_once( APPPATH . 'libraries/SimpleXLSX.php' );
+	      if ( $xlsx = SimpleXLSX::parse($file = $_FILES['excelfile']['tmp_name']) )
+          {
+              foreach ($xlsx->rows() as $key=>$elt) 
+              {
+                $data['bank_name'] = $elt[0];
+                $this->STFobj->insert_data_to("liability_bankloan_company_name",$data);
+              }
+              $res['responseData']="records-inserted-scs";
+              echo json_encode($res);die;
+          }else{
+              $res['responseData'] = SimpleXLSX::parseError();
+              echo json_encode($res);
+          }
+	   }
+	}
+
+
+	function IC_bank_name()
+	{
+	   $this->load->view('staff/Insurance_Bank_Name/index');  
+	}
+	
+
+function get_all_InsuranceBankName()
+	{
+	  $result = $this->STFobj->fetch_all_records("insurance_company_bank_name");
+	  if(!empty($result))
+	  {
+	      $list_arr = array();
+	      $sr =1;
+	      foreach($result as $key=>$row)
+	      {
+	         $list_arr['data'][] = array(
+	             $sr++,
+	             $row->bank_name,
+	             '<button type="button" class="btn btn-outline-info btn-sm" id="record-edit-btn" key="'.$row->id.'"><i class="nav-icon far fa-edit"></i></button>
+	              <button type="button" class="btn btn-outline-danger btn-sm" id="record-delete-btn" key="'.$row->id.'"><i class="nav-icon far fa-trash-alt"></i></button>
+	             '
+	         ); 
+	      }
+	      echo json_encode($list_arr);
+	  }
+	}
+
+	function insert_InsuranceBankName()
+	{
+	   $data = $this->input->post();
+	   if($this->STFobj->insert_data_to("insurance_company_bank_name",$data))
+	   {
+	       $arr['responseData'] = 'record-inserted-scs';
+	       echo json_encode($arr);
+	   }
+	}
+
+	function edit_InsuranceBankName()
+	{
+	   $data = $this->input->post();
+	   $cols = "bank_name";
+	   $where = array("id"=>$data['id']);
+	   $data = $this->STFobj->Get_specific_coloums("insurance_company_bank_name",$cols,$where);
+	   $arr['responseData'] = $data;
+	   echo json_encode($arr);
+	}
+	
+	function update_InsuranceBankName()
+	{
+	   $data = $this->input->post();
+	   $where = array("id"=>$data['id']);
+	   if($this->STFobj->Update_where("insurance_company_bank_name",$where,$data))
+	   {
+	      $arr['responseData'] = 'record-updated-scs';
+	      echo json_encode($arr); 
+	   }
+	}
+
+		function upload_excel_to_InsuranceBankName()
+	{
+	   if(!empty($_FILES) && !empty($_FILES['excelfile'])) 
+	   {
+	      require_once( APPPATH . 'libraries/SimpleXLSX.php' );
+	      if ( $xlsx = SimpleXLSX::parse($file = $_FILES['excelfile']['tmp_name']) )
+          {
+              foreach ($xlsx->rows() as $key=>$elt) 
+              {
+                $data['bank_name'] = $elt[0];
+                $this->STFobj->insert_data_to("insurance_company_bank_name",$data);
+              }
+              $res['responseData']="records-inserted-scs";
+              echo json_encode($res);die;
+          }else{
+              $res['responseData'] = SimpleXLSX::parseError();
+              echo json_encode($res);
+          }
+	   }
+	}
+
+	
 	
 	
 	

@@ -50,6 +50,28 @@ table.dataTable thead .sorting_asc {
 <script type="text/javascript">
 
  $(document).ready(function() {
+     
+     $('#showgrp').hover(function() {
+  $.ajax({
+              url:"<?php echo base_url(); ?>Dashboard/getGroupOnhover",
+              type: 'POST',
+              success: function(jsonStr) {       
+                $('#pp').html(jsonStr);
+              }
+          });
+}); 
+
+ $(document).on("click", ".grpdataID a span" , function() { 
+      var grp_name = $(this).parent().text();
+      $.ajax({
+              url:"<?php echo base_url(); ?>Dashboard/getPortfolioOnhover",
+              type: 'POST',
+              data:{grp_name:grp_name},
+              success: function(jsonStr) {    
+                 $('.sub_data').html(jsonStr);
+              }
+          });
+ });
 
        // modal ke andar bali table ka code ...
        var table2 = $('#tableMain2').DataTable({ "ajax" : "<?php echo base_url(); ?>Dashboard/displayassets" ,
@@ -232,6 +254,9 @@ function format ( d ) {
 
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="<?=base_url('asstes/js/chosen.jquery.js');?>"></script>   
+    <script type="text/javascript" src="<?=base_url('asstes/js/DropSearchCode.js');?>"></script>
+ 
   </body>
 </html>
 

@@ -10,29 +10,27 @@ class Add_details extends CI_Controller {
 
 	public function add_group()
 	{
-		$this->form_validation->set_rules('group_name', 'Group Name', 'required');
+		$this->form_validation->set_rules('group_name', 'Group Name', 'required|is_unique[user_group.group_name]|min_length[3]');
        
 		     if ($this->form_validation->run() == FALSE)
         {   
-            echo validation_errors();
+            echo "The Group Name must be unique and minimum of three characters!!";
         }
         else
 	    {
 		
-			 $post=$this->input->post(); 
+		    $post = $this->input->post();
             $this->load->model('Details');
-             $data = $this->Details->add_group($post);
-            if($data)
-            {
+            $data = $this->Details->add_group($post);
+            if ($data) {
                 echo "YES";
-            }
-            else
-            {
-            	
-              //  $this->session->set_flashdata('Group_error','Server, Error group is not added..!!');
-               echo "NO";
-            }
+            } else if ($data == false) {
+                echo "Please choose another name...its already taken by Portolio name!!";
+            } else {
 
+                //  $this->session->set_flashdata('Group_error','Server, Error group is not added..!!');
+                echo "NO";
+            }
 	
 		}
 		
@@ -41,18 +39,18 @@ class Add_details extends CI_Controller {
 	public function add_portfolio()
 	{
          
-		$this->form_validation->set_rules('portfolio_name', 'Portfolio Name', 'required|is_unique[portfolio.port_group]|is_unique[portfolio.portfolio_name]');
+		$this->form_validation->set_rules('portfolio_name', 'Portfolio Name', 'required|is_unique[portfolio.portfolio_name]|min_length[4]');
 		$this->form_validation->set_rules('port_date','Date','required');
-        $this->form_validation->set_rules('full_name', 'Full Name', 'required');
+        $this->form_validation->set_rules('full_name', 'Full Name', 'required|alpha|min_length[3]');
         $this->form_validation->set_rules('port_group', 'Group', 'required');
         $this->form_validation->set_rules('port_gender', 'Gender', 'required');
-        $this->form_validation->set_rules('pran', 'PRAN', 'required');
-        $this->form_validation->set_rules('einsurance_no', 'eInsurance No', 'required');
+        $this->form_validation->set_rules('pran', 'PRAN', 'numeric');
+        $this->form_validation->set_rules('einsurance_no', 'eInsurance No', 'numeric');
         $this->form_validation->set_rules('port_address', 'Address', 'required');
-        $this->form_validation->set_rules('port_city', 'City', 'required');
-        $this->form_validation->set_rules('port_country', 'Country', 'required');
-        $this->form_validation->set_rules('pin_code', 'Pin Code', 'required');
-        $this->form_validation->set_rules('pan', 'PAN', 'required');
+        $this->form_validation->set_rules('port_city', 'City', 'required|alpha');
+        $this->form_validation->set_rules('port_country', 'Country', 'required|alpha');
+        $this->form_validation->set_rules('pin_code', 'Pin Code', 'required|numeric|min_length[4]');
+        $this->form_validation->set_rules('pan', 'PAN', 'min_length[10]');
        
 		if ($this->form_validation->run() == FALSE)
         { echo validation_errors();}
@@ -64,7 +62,7 @@ class Add_details extends CI_Controller {
             if($data)
             {    echo "YES"; }
             else if($data == false)
-            {  echo "Your limit is Exceeded..!!! , You can only add 10 Portfolio in One group ,Please choose another group...!!"; 
+            {  echo "Either Your limit is Exceeded..!!! (You can only add 10 Portfolio in One group) or Choose another group Name...!!"; 
 		    }
             else
             {
@@ -82,6 +80,7 @@ class Add_details extends CI_Controller {
         $this->form_validation->set_rules('assets_quantity', 'Quantity', 'required|integer');
         $this->form_validation->set_rules('assets_amt_invested', 'Amt Invested', 'required|integer');
         $this->form_validation->set_rules('assets_present_value', 'Present Value', 'required|integer');
+        $this->form_validation->set_rules('assets_avg_price', 'Average price', 'required|integer');
         
         if ($this->form_validation->run() == FALSE)
         {   echo validation_errors(); }
@@ -103,8 +102,8 @@ class Add_details extends CI_Controller {
     public function add_all_emergencydata()
     {        
         $this->form_validation->set_rules('cashinhand_date', 'Date', 'required');
-        $this->form_validation->set_rules('cash_amt_invested','Amt Invested','required|integer');
-        $this->form_validation->set_rules('cash_current_value', 'Current Value', 'required|integer');
+        $this->form_validation->set_rules('amt_invested','Amt Invested','required|integer');
+        $this->form_validation->set_rules('current_value', 'Current Value', 'required|integer');
    
         if ($this->form_validation->run() == FALSE)
         {        echo validation_errors(); }
@@ -131,13 +130,13 @@ class Add_details extends CI_Controller {
      //    $this->form_validation->set_rules('insurance_sum_assured','Sum Assured','required');
      //    $this->form_validation->set_rules('insurance_no_claim','No Claim','required');
 
-        $this->form_validation->set_rules('insurance_policy_no', 'Policy No', 'required');
+        $this->form_validation->set_rules('insurance_policy_no', 'Policy No', 'required|min_length[12]');
       //  $this->form_validation->set_rules('insurance_value','Value','required');
         $this->form_validation->set_rules('insurance_policy_start_date','Policy Start Date','required');
         $this->form_validation->set_rules('insurance_maturity_date','Maturity Date','required');
         $this->form_validation->set_rules('insurance_premium_date','Premium Date','required');
 
-     $this->form_validation->set_rules('insurance_premium_amt','insurance_premium_amt','required|integer');
+     $this->form_validation->set_rules('insurance_premium_amt','insurance_premium_amt','required|numeric');
         $this->form_validation->set_rules('insurance_frequency','Frequency','required');
          $this->form_validation->set_rules('insurance_nextpremium_date','Nextpremium Date','required');
          $this->form_validation->set_rules('insurance_premium_tenure','Premium Tenure','required|integer');
@@ -146,7 +145,7 @@ class Add_details extends CI_Controller {
         if ($this->form_validation->run() == FALSE)
         {        echo validation_errors();  }
         else
-        {
+        {   
              $sub_assets_name =$this->input->post('sub_assets_name');
              $post=$this->input->post(); 
               $this->load->model('Details');
@@ -161,7 +160,7 @@ class Add_details extends CI_Controller {
    public function update_group()
    {
       $this->form_validation->set_rules('group_name', 'Choose Group Name', 'required');
-        $this->form_validation->set_rules('update_group_value','Group Name','required');
+        $this->form_validation->set_rules('update_group_value','Group Name','required|is_unique[user_group.group_name]|min_length[3]');
 
             if ($this->form_validation->run() == FALSE)
         {   
@@ -195,7 +194,9 @@ class Add_details extends CI_Controller {
          if($this->input->post('portfolio_name'))
           { 
             $this->load->model('Details');
-           echo  $this->Details->fetch_edit_portfolio($this->input->post('portfolio_name'));
+            $data =  $this->Details->fetch_edit_portfolio($this->input->post('portfolio_name'));
+            $arr['responseData'] = $data;
+            echo json_encode($arr);
           }
     }
 
@@ -203,16 +204,16 @@ class Add_details extends CI_Controller {
     {
         
         $this->form_validation->set_rules('port_date','Date','required');
-        $this->form_validation->set_rules('full_name', 'Full Name', 'required');
+        $this->form_validation->set_rules('full_name', 'Full Name', 'required|alpha|min_length[3]');
        // $this->form_validation->set_rules('update_port_group', 'Group', 'required');
         $this->form_validation->set_rules('port_gender', 'Gender', 'required');
-        $this->form_validation->set_rules('pran', 'PRAN', 'required');
-        $this->form_validation->set_rules('einsurance_no', 'eInsurance No', 'required');
+        $this->form_validation->set_rules('pran', 'PRAN', 'numeric');
+        $this->form_validation->set_rules('einsurance_no', 'eInsurance No', 'numeric');
         $this->form_validation->set_rules('port_address', 'Address', 'required');
-        $this->form_validation->set_rules('port_city', 'City', 'required');
-        $this->form_validation->set_rules('port_country', 'Country', 'required');
-        $this->form_validation->set_rules('pin_code', 'Pin Code', 'required');
-        $this->form_validation->set_rules('pan', 'PAN', 'required');
+        $this->form_validation->set_rules('port_city', 'City', 'required|alpha');
+        $this->form_validation->set_rules('port_country', 'Country', 'required|alpha');
+        $this->form_validation->set_rules('pin_code', 'Pin Code', 'required|numeric|min_length[4]');
+        $this->form_validation->set_rules('pan', 'PAN', 'min_length[10]');
        
         if ($this->form_validation->run() == FALSE)
         {   
@@ -253,7 +254,7 @@ class Add_details extends CI_Controller {
     public function add_epf()
      {       
         $this->form_validation->set_rules('epf_transaction_type', 'Transaction Type', 'required');
-        $this->form_validation->set_rules('epf_account_no','Account No','required');
+        $this->form_validation->set_rules('epf_account_no','Account No','required|integer');
         $this->form_validation->set_rules('epf_start_date', 'Start Date', 'required');
         $this->form_validation->set_rules('epf_maturity_date', 'Maturity Date', 'required');
      
@@ -262,6 +263,7 @@ class Add_details extends CI_Controller {
           else
           {
             $post=$this->input->post(); 
+            // $sub_assets_name =$this->input->post('sub_assets_name');
             $this->load->model('Details');
              $data = $this->Details->add_epf($post);
             if($data)
@@ -287,8 +289,8 @@ class Add_details extends CI_Controller {
         $this->form_validation->set_rules('nps_transaction_type', 'Transaction Type', 'required');
          $this->form_validation->set_rules('nps_date', 'Date', 'required');
          $this->form_validation->set_rules('nps_qty', 'Nps Qty', 'required|integer');
-         $this->form_validation->set_rules('nps_purchase_price', 'Purchase Price', 'required|integer');
-         $this->form_validation->set_rules('nps_amt_invested', 'Amt Invested', 'required|integer');
+         $this->form_validation->set_rules('nps_purchase_price', 'Purchase Price', 'required|numeric');
+         $this->form_validation->set_rules('nps_amt_invested', 'Amt Invested', 'required|numeric');
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -308,17 +310,18 @@ class Add_details extends CI_Controller {
         public function add_fd()
      {       
         $this->form_validation->set_rules('fd_type', 'Type', 'required');
-        $this->form_validation->set_rules('fd_account_no','Account No','required');
+        $this->form_validation->set_rules('fd_account_no','Account No','required|integer');
         $this->form_validation->set_rules('fd_transaction_type', 'Transaction Type', 'required'); 
-         $this->form_validation->set_rules('fd_interest_rate', 'Interest Rate', 'required|integer');
+         $this->form_validation->set_rules('fd_interest_rate', 'Interest Rate', 'required|numeric');
           $this->form_validation->set_rules('fd_maturity_date', 'Maturity Date', 'required');
-         $this->form_validation->set_rules('fd_amt_invested', 'Amt Invested', 'required|integer');
+         $this->form_validation->set_rules('fd_amt_invested', 'Amt Invested', 'required|numeric');
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
           else
           {
             $post=$this->input->post(); 
+            // $sub_assets_name =$this->input->post('sub_assets_name');
             $this->load->model('Details');
              $data = $this->Details->add_fd($post);
             if($data)
@@ -331,12 +334,12 @@ class Add_details extends CI_Controller {
         public function add_kisanvikaspatara()
      {       
         $this->form_validation->set_rules('kisan_transaction_type', 'Type', 'required');
-        $this->form_validation->set_rules('kisan_account_no','Account No','required');
+        $this->form_validation->set_rules('kisan_account_no','Account No','required|integer');
         $this->form_validation->set_rules('kisan_start_date', 'Start Date', 'required');         
         $this->form_validation->set_rules('kisan_muturity_date', 'Maturity Date', 'required');
-        $this->form_validation->set_rules('kisan_amt_invested', 'Amt Invested', 'required|integer');
-        $this->form_validation->set_rules('kisan_maturity_amt', 'Maturity Amt', 'required|integer');
-        $this->form_validation->set_rules('kisan_interest_rate', 'Interest Rate', 'required|integer');
+        $this->form_validation->set_rules('kisan_amt_invested', 'Amt Invested', 'required|numeric');
+        $this->form_validation->set_rules('kisan_maturity_amt', 'Maturity Amt', 'required|numeric');
+        $this->form_validation->set_rules('kisan_interest_rate', 'Interest Rate', 'required|numeric');
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -362,7 +365,7 @@ class Add_details extends CI_Controller {
         $this->form_validation->set_rules('mutual_date', 'Mutual Date', 'required');
         $this->form_validation->set_rules('mutual_quantity', 'Quantity', 'required|integer');
         $this->form_validation->set_rules('mutual_nav', 'NAV', 'required');
-        $this->form_validation->set_rules('mutual_amt_invested', 'Amt Invested', 'required|integer');
+        $this->form_validation->set_rules('mutual_amt_invested', 'Amt Invested', 'required|numeric');
 
        
        if ($this->form_validation->run() == FALSE)
@@ -371,6 +374,7 @@ class Add_details extends CI_Controller {
           }
           else
           {
+            // $sub_assets_name =$this->input->post('sub_assets_name');
             $post=$this->input->post(); 
             $this->load->model('Details');
              $data = $this->Details->add_mutual_fund($post);
@@ -380,6 +384,18 @@ class Add_details extends CI_Controller {
             { echo "NO";}
          }     
      }
+     
+                 public function gr_assetn_cont()
+            {   
+              
+                
+                $select_assets=$this->input->post('select_assets');
+                $portfolio_name=$this->input->post('portfolio_name');
+                $this->load->model('Details');
+                $tata=$this->Details->global_findAssetName($portfolio_name,$select_assets);
+                echo json_encode($tata);
+             
+            }
 
          public function add_ncd()
       {
@@ -387,11 +403,11 @@ class Add_details extends CI_Controller {
          $this->form_validation->set_rules('ncd_name', 'Name', 'required');
          $this->form_validation->set_rules('ncd_transaction_type', 'Transaction Type', 'required');
          $this->form_validation->set_rules('ncd_date', 'Date', 'required');
-         $this->form_validation->set_rules('ncd_purchase_price', 'Purchase Price', 'required|integer');
+         $this->form_validation->set_rules('ncd_purchase_price', 'Purchase Price', 'required|numeric');
          $this->form_validation->set_rules('ncd_quantity','Quantity','required|integer');
-         $this->form_validation->set_rules('ncd_amt_invested', 'Amt Invested', 'required|integer'); 
+         $this->form_validation->set_rules('amt_invested', 'Amt Invested', 'required|numeric'); 
          $this->form_validation->set_rules('ncd_interest_payout', 'Interest Payout', 'required');    
-         $this->form_validation->set_rules('ncd_interest_rate', 'Interest Rate', 'required|integer');
+         $this->form_validation->set_rules('ncd_interest_rate', 'Interest Rate', 'required|numeric');
          $this->form_validation->set_rules('ncd_interest_payable', 'Interest Payable', 'required');
          $this->form_validation->set_rules('ncd_maturity_date', 'Maturity Date', 'required');
       
@@ -414,13 +430,13 @@ class Add_details extends CI_Controller {
         public function add_nsc()
      {       
         $this->form_validation->set_rules('nsc_transaction_type', 'Transaction Type', 'required');
-        $this->form_validation->set_rules('nsc_account_no','Account No','required');
+        $this->form_validation->set_rules('nsc_account_no','Account No','required|integer');
         $this->form_validation->set_rules('nsc_type', 'Type', 'required');
         $this->form_validation->set_rules('nsc_opening_date', 'Opening Date', 'required');               
-        $this->form_validation->set_rules('nsc_amt_invested', 'Amt Invested', 'required|integer');
-        $this->form_validation->set_rules('nsc_interest_rate', 'Interest Rate', 'required|integer');
+        $this->form_validation->set_rules('nsc_amt_invested', 'Amt Invested', 'required|numeric');
+        $this->form_validation->set_rules('nsc_interest_rate', 'Interest Rate', 'required|numeric');
         $this->form_validation->set_rules('nsc_maturity_date', 'Maturity Date', 'required');
-        $this->form_validation->set_rules('nsc_maturity_amt', 'Maturity Amt', 'required|integer');
+        $this->form_validation->set_rules('nsc_maturity_amt', 'Maturity Amt', 'required|numeric');
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -439,7 +455,7 @@ class Add_details extends CI_Controller {
         public function add_ppf()
      {       
         $this->form_validation->set_rules('ppf_transaction_type', 'Transaction Type', 'required');
-        $this->form_validation->set_rules('ppf_account_no','Account No','required');      
+        $this->form_validation->set_rules('ppf_account_no','Account No','required|integer');      
         $this->form_validation->set_rules('ppf_opening_date', 'Opening Date', 'required');  
          $this->form_validation->set_rules('ppf_date', 'Date', 'required');             
           $this->form_validation->set_rules('ppf_maturity_date', 'Maturity Date', 'required');
@@ -468,8 +484,9 @@ class Add_details extends CI_Controller {
          $this->form_validation->set_rules('pe_transaction_type', 'Transaction Type', 'required'); 
           $this->form_validation->set_rules('pe_date', 'Date', 'required'); 
            $this->form_validation->set_rules('pe_qty_purchase', 'Qty Purchase', 'required|integer'); 
-         $this->form_validation->set_rules('pe_purchase_rate', 'Purchase Rate', 'required|integer');      
-         $this->form_validation->set_rules('pe_amt_invested', 'Amt Invested', 'required|integer');
+         $this->form_validation->set_rules('pe_purchase_rate', 'Purchase Rate', 'required|numeric');      
+         $this->form_validation->set_rules('pe_current_rate', 'Current Rate', 'required|numeric');      
+         $this->form_validation->set_rules('amt_invested', 'Amt Invested', 'required|numeric');
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -488,11 +505,13 @@ class Add_details extends CI_Controller {
            public function add_RD()
      {       
         $this->form_validation->set_rules('rd_type', 'Type', 'required');
-        $this->form_validation->set_rules('rd_account_no','Account No','required');
+        $this->form_validation->set_rules('rd_account_no','Account No','required|integer');
         $this->form_validation->set_rules('rd_transaction_type', 'Transaction Type', 'required'); 
-         $this->form_validation->set_rules('rd_interest_rate', 'Interest Rate', 'required|integer');
+         $this->form_validation->set_rules('rd_interest_rate', 'Interest Rate', 'required|numeric');
           $this->form_validation->set_rules('rd_maturity_date', 'Maturity Date', 'required');
-         $this->form_validation->set_rules('rd_amt_invested', 'Amt Invested', 'required|integer');
+         $this->form_validation->set_rules('amt_invested', 'Amt Invested', 'required|numeric');
+         $this->form_validation->set_rules('rd_maturity_amt', 'Maturity Invested', 'required|numeric');
+         
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -511,11 +530,11 @@ class Add_details extends CI_Controller {
     public function add_SCSS()
      {       
         $this->form_validation->set_rules('scss_transaction_type', 'Type', 'required');
-        $this->form_validation->set_rules('scss_account_no','Account No','required');
+        $this->form_validation->set_rules('scss_account_no','Account No','required|integer');
         $this->form_validation->set_rules('scss_muturity_date', 'Maturity Date', 'required');
         $this->form_validation->set_rules('scss_lockin_period', 'Lock in Period', 'required');
         $this->form_validation->set_rules('scss_date', 'Start Date', 'required');                
-        $this->form_validation->set_rules('scss_amt_invested', 'Amt Invested', 'required|integer');
+        $this->form_validation->set_rules('scss_amt_invested', 'Amt Invested', 'required|numeric');
           
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -534,12 +553,12 @@ class Add_details extends CI_Controller {
      public function add_sukanya()
      {       
         $this->form_validation->set_rules('sukanya_transaction_type', 'Transaction Type', 'required');
-        $this->form_validation->set_rules('sukanya_account_no','Account No','required');
+        $this->form_validation->set_rules('sukanya_account_no','Account No','required|integer');
         $this->form_validation->set_rules('sukanya_opening_date', 'Opening Date', 'required');
         $this->form_validation->set_rules('sukanya_maturity_date', 'Maturity Date', 'required');
         $this->form_validation->set_rules('sukanya_date', 'Date', 'required');
-         $this->form_validation->set_rules('sukanya_amt_invested', 'Amt Invested', 'required|integer');
-         $this->form_validation->set_rules('sukanya_interest_rate', 'Interest Rate', 'required|integer');
+         $this->form_validation->set_rules('sukanya_amt_invested', 'Amt Invested', 'required|numeric');
+         $this->form_validation->set_rules('sukanya_interest_rate', 'Interest Rate', 'required|numeric');
      
        if ($this->form_validation->run() == FALSE)
           {   echo validation_errors(); }
@@ -563,12 +582,12 @@ class Add_details extends CI_Controller {
         $this->form_validation->set_rules('stock_broker', 'Stock Broker', 'required');
         $this->form_validation->set_rules('stock_date', 'Stock Date', 'required');
      
-        $this->form_validation->set_rules('stock_qty', 'Stock QTY', 'required');
-        $this->form_validation->set_rules('stock_purchase_price', 'Purchase Price', 'required');
-        $this->form_validation->set_rules('stock_amt_invested', 'Amt Invested', 'required');
+        $this->form_validation->set_rules('stock_qty', 'Stock QTY', 'required|integer');
+        $this->form_validation->set_rules('stock_purchase_price', 'Purchase Price', 'required|numeric');
+        $this->form_validation->set_rules('amt_invested', 'Amt Invested', 'required|numeric');
        
-        $this->form_validation->set_rules('stock_net_rate', 'Net Rate', 'required');
-           $this->form_validation->set_rules('stock_net_amt', 'Net Amt', 'required');
+        $this->form_validation->set_rules('stock_net_rate', 'Net Rate', 'required|numeric');
+           $this->form_validation->set_rules('stock_net_amt', 'Net Amt', 'required|numeric');
 
        
        if ($this->form_validation->run() == FALSE)
@@ -581,13 +600,13 @@ class Add_details extends CI_Controller {
             $post=$this->input->post(); 
             $this->load->model('Details');
              $data = $this->Details->add_stock($sub_assets_name,$post);
-            if($data)
+          if($data)
             {
-                echo "YES";
+                echo $data;
             }
             else
             {
-               echo "NO";
+                echo $data;
             }
          } 
 
@@ -744,13 +763,17 @@ class Add_details extends CI_Controller {
        {
          
         $this->form_validation->set_rules('loan_bank_name', 'Bank Name', 'required');
-        $this->form_validation->set_rules('loan_account_no','Account No','required');
+        $this->form_validation->set_rules('loan_account_no','Account No','required|integer');
         $this->form_validation->set_rules('loan_start_date', 'Start Date', 'required');
-        $this->form_validation->set_rules('loan_amount', 'Loan Amount', 'required|integer');
+        $this->form_validation->set_rules('loan_amount', 'Loan Amount', 'required|numeric');
         $this->form_validation->set_rules('loan_period', 'loan Period', 'required|integer');
-        $this->form_validation->set_rules('loan_emi_amt', 'EMI Amt', 'required|integer');
-        $this->form_validation->set_rules('loan_emi_date', 'EMI Date', 'required');
-        $this->form_validation->set_rules('loan_downpayment_amt', 'Downpayment Amt', 'required|integer');
+        $this->form_validation->set_rules('loan_emi_amt', 'EMI Amt', 'required|numeric');
+        $this->form_validation->set_rules('loan_total_emipaid', 'Total EMI Paid', 'required|numeric');
+        $this->form_validation->set_rules('loan_processing_fees', 'Processing Fees', 'required|numeric');
+        $this->form_validation->set_rules('loan_balance_amt', 'Balance Amt', 'required|numeric');
+        $this->form_validation->set_rules('loan_pre_emi_amt', 'Pre EMI Amt', 'required');
+        $this->form_validation->set_rules('loan_topup_amt', 'Topup Amt', 'required');
+        $this->form_validation->set_rules('loan_downpayment_amt', 'Downpayment Amt', 'required|numeric');
        
         if ($this->form_validation->run() == FALSE)
         {   

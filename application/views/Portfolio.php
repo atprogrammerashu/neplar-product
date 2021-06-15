@@ -56,8 +56,8 @@ td.data {font-size:9px}
                            </div>
                     </th> 
 
+                  
                     <th style="width: 5%;">Qty.</th>
-                    <th style="width: 10%;">Avg. Price / NAV</th>
                     <th style="width: 6%;">Amt. Inv.</th>
                     <th style="width: 6%;">LTP</th>
                     <th style="width: 10%;">Current Value</th>
@@ -95,12 +95,13 @@ function format ( d ) {
       row +='<table id="submaintable">'
          +'<thead>'+
          '<tr >'+                  
-                    '<th >Trans. Type</th>'+
+                     '<th >Trans. Type</th>'+
                     '<th >Date</th>'+
                     '<th >Qty</th>'+
-                    '<th>Price</th>'+
+                    '<th>Purchase Price</th>'+
+                    '<th>Amount</th>'+
                     '<th >Amt. invested</th>'+
-                    '<th >Purchase amt.</th>'+
+                    '<th >Cumulative Quantity</th>'+
                      
           '</tr>'+
           '</thead>'+
@@ -109,16 +110,18 @@ function format ( d ) {
          for(i=0; i< Object.keys( d.kk ).length; i++)
         { 
           
-             row +='<tr><td><a href="#" id="linksubdetails">'+d.kk[i].transaction_type+'</a></td>'+
+               row +='<tr><td><a href="#" id="linksubdetails">'+d.kk[i].transaction_type+'</a></td>'+
               '<td>'+d.kk[i].date+'</td>'+
               '<td>'+d.kk[i].qty+'</td>'+
-              '<td>'+d.kk[i].price+'</td>'+
-               '<td>'+d.kk[i].amt_invested+'</td>'+
-              '<td>'+d.kk[i].purchase_amt+'</td>'+'</tr>';
+               '<td>'+d.kk[i].purchase_price+'</td>'+
+                '<td>'+d.kk[i].amount+'</td>'+
+              '<td>'+d.kk[i].amt_invested+'</td>'+
+              '<td>'+d.kk[i].cumulative_qty+'</td>'+'</tr>';
              
         }
 
-        row +='<tr><td colspan="5">Current Price: 553.60</td><td>Current Value: 1,107.20</td></tr>'
+        row +='<tr><td colspan="5">Current Price: '+d.ltp+'</td><td>Current Value: '+d.current_value+'</td></tr>'
+ 
  
      row += '</tbody>'+'</table>';
 
@@ -135,9 +138,8 @@ function format ( d ) {
                 "data":           null,
                 "defaultContent": ''
             },
-            { "data": "name" },
+              { "data": "name" },
             { "data": "qty" },
-            { "data": "avg_price" },
             { "data": "amt_invested" },
             { "data": "ltp" },
             { "data": "current_value" },

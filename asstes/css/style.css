@@ -1,4 +1,81 @@
 
+/*second toolbar code*/
+
+       #nav {
+            list-style: none inside;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        #nav li {
+            display: block;
+            position: relative;
+            float: left;
+            background: #24af15;
+            /* menu background color */
+        }
+
+        #nav li a {
+            display: block;
+            padding: 0;
+            text-decoration: none;
+            width: 200px;
+            /* this is the width of the menu items */
+            line-height: 35px;
+            /* this is the hieght of the menu items */
+            color: #ffffff;
+            /* list item font color */
+        }
+
+        #nav li li a {
+            font-size: 80%;
+        }
+
+        /* smaller font size for sub menu items */
+
+        #nav li:hover {
+            background: #003f20;
+        }
+
+        /* highlights current hovered list item and the parent list items when hovering over sub menues */
+
+        #nav ul {
+            position: absolute;
+            padding: 0;
+            left: 0;
+            display: none;
+            /* hides sublists */
+        }
+
+        #nav li:hover ul ul {
+            display: none;
+        }
+
+        /* hides sub-sublists */
+
+        #nav li:hover ul {
+            display: block;
+        }
+
+        /* shows sublist on hover */
+
+        #nav li li:hover ul {
+            display: block;
+            /* shows sub-sublist on hover */
+            margin-left: 200px;
+            /* this should be the same width as the parent list item */
+            margin-top: -35px;
+            /* aligns top of sub menu with top of list item */
+        }
+
+
+/*second toolbar code ends here ..*/
+
+
+
+
+
 .mynav{
 	background: rgb(38,189,154);
 /*	font-weight: 600;*/
@@ -215,3 +292,67 @@ width: 100% !important;
   padding-left: 5px;
   font-weight: 500px;
 }
+/*profile img code ends here*/
+
+/* validation code starts here  */
+
+label.error {
+    color: rgb(255, 51, 0);
+    /* font-size: 1rem; */
+    display: block;
+    margin-top: 5px;
+}
+
+
+
+input.error,
+textarea.error {
+    border: 1px solid red;
+    color: red;
+}
+
+input,
+textarea {
+    border-radius: 5px;
+    border: 1px solid green;
+    padding: 4px;
+    font-family: sans-serif;
+
+}
+
+
+/*Dropdown Search Code starts here ..*/
+
+.chosen-container-single {
+    width: 560px !important;
+    color: black !important;
+}
+
+
+
+.active-result.highlighted {
+    background: rgb(38, 189, 154) !important;
+    color: black !important;
+}
+
+.active-result {
+    color: #000000 !important;
+    font-size: 16px !important;
+}
+
+.chosen-container-single .chosen-default {
+    font-size: 16px !important;
+    color: #999;
+}
+
+.chosen-single span {
+    font-size: 16px !important;
+    color: black;
+}
+
+.error {
+    color: red;
+}
+
+
+/*Dropdown Search Code Ends here ..*/
